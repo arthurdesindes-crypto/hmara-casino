@@ -63,39 +63,30 @@ app.post('/ban', async (req, res) => {
     const user = await client.users.fetch(targetId).catch(() => null);
     const username = user ? user.username : targetId;
 
-    // Ban (works even if member is offline)
-    await guild.bans.create(targetId, { reason: `Casino ban par ${buyerUsername} — ${duration} min`, deleteMessageSeconds: 0 });
+    // Kick temporaire (expulsion — la personne peut revenir)
+    if (!member) return res.status(404).json({ error: 'Membre introuvable ou hors ligne' });
+    await member.kick(`Casino kick par ${buyerUsername} — ${duration} min`);
 
     // Annonce
     try {
       const channel = await client.channels.fetch(CHANNEL_ID);
       const embed = new EmbedBuilder()
         .setColor(0xE53935)
-        .setTitle('Ban Casino')
-        .setDescription(`**${username}** a ete banni par **${buyerUsername}**`)
+        .setTitle('Kick Casino')
+        .setDescription(`**${username}** a ete expulse temporairement par **${buyerUsername}**`)
         .addFields(
           { name: 'Duree', value: `${duration} minute(s)`, inline: true },
-          { name: 'Raison', value: reason || 'Achat boutique casino', inline: true }
+          { name: 'Info', value: 'Peut rejoindre le serveur apres la duree', inline: true }
         )
         .setTimestamp();
       await channel.send({ embeds: [embed] });
     } catch(e) {}
 
-    // Unban automatique
-    setTimeout(async () => {
-      try {
-        await guild.bans.remove(targetId, 'Fin du ban casino');
-        try {
-          const channel = await client.channels.fetch(CHANNEL_ID);
-          const embed = new EmbedBuilder()
-            .setColor(0x1DB954)
-            .setTitle('Unban Casino')
-            .setDescription(`**${username}** a ete debanni automatiquement`)
-            .setTimestamp();
-          await channel.send({ embeds: [embed] });
-        } catch(e) {}
-      } catch (e) { console.error('unban error:', e.message); }
-    }, duration * 60 * 1000);
+    // Message prive a la personne kickee
+    try {
+      const u = await client.users.fetch(targetId);
+      await u.send(`Tu as ete expulse du serveur pendant ${duration} minute(s) par ${buyerUsername} via le casino. Tu pourras rejoindre dans ${duration} min.`);
+    } catch(e) {}
 
     res.json({ success: true, username });
   } catch (err) {
