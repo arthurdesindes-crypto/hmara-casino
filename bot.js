@@ -53,9 +53,6 @@ app.post('/ban', async (req, res) => {
     
     if (!member) return res.status(404).json({ error: 'Membre introuvable' });
     if (member.roles.cache.has(ROLE_PASS)) return res.status(403).json({ error: 'Cette personne a le Pass Anti-Sanction !' });
-    if (member.roles.cache.has('1463996840012677221') || member.permissions.has('Administrator')) {
-      return res.status(403).json({ error: 'Impossible de bannir un admin ou un kickeur' });
-    }
 
     // Ban
     await guild.members.ban(targetId, { reason: `Casino ban par ${buyerUsername} — ${duration} min`, deleteMessageSeconds: 0 });
