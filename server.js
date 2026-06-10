@@ -87,7 +87,7 @@ app.post('/api/buy', requireAuth, async (req, res) => {
   const newCoins = user.coins - price;
   await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
   await supabase.from('purchases').insert({ discord_id: req.session.user.discord_id, reward_name, price });
-  try { await axios.post(`http://localhost:3001/notify`, { username: req.session.user.username, reward_name, price }); } catch (e) {}
+  try { await axios.post(`${process.env.BOT_URL || "http://localhost:3001"}/notify`, { username: req.session.user.username, reward_name, price }); } catch (e) {}
   res.json({ coins: newCoins, success: true });
 });
 
@@ -132,7 +132,7 @@ app.get('/api/admin/purchases', requireAdmin, async (req, res) => {
 // Get Discord members for shop
 app.get('/api/members', requireAuth, async (req, res) => {
   try {
-    const r = await axios.get('http://localhost:3001/members');
+    const r = await axios.get(`${process.env.BOT_URL || "http://localhost:3001"}/members`);
     res.json(r.data);
   } catch (err) {
     res.status(500).json({ error: 'Bot non disponible' });
@@ -143,7 +143,7 @@ app.get('/api/members', requireAuth, async (req, res) => {
 app.post('/api/bot/ban', requireAuth, async (req, res) => {
   const { targetId, duration, reason } = req.body;
   try {
-    const r = await axios.post('http://localhost:3001/ban', {
+    const r = await axios.post(`${process.env.BOT_URL || "http://localhost:3001"}/ban`, {
       targetId, duration, reason,
       buyerUsername: req.session.user.username
     });
@@ -157,7 +157,7 @@ app.post('/api/bot/ban', requireAuth, async (req, res) => {
 app.post('/api/bot/give-role', requireAuth, async (req, res) => {
   const { targetId, roleId, duration } = req.body;
   try {
-    const r = await axios.post('http://localhost:3001/give-role', {
+    const r = await axios.post(`${process.env.BOT_URL || "http://localhost:3001"}/give-role`, {
       targetId, roleId, duration,
       buyerUsername: req.session.user.username
     });
@@ -171,7 +171,7 @@ app.post('/api/bot/give-role', requireAuth, async (req, res) => {
 app.post('/api/bot/remove-pass', requireAuth, async (req, res) => {
   const { targetId } = req.body;
   try {
-    const r = await axios.post('http://localhost:3001/remove-pass', {
+    const r = await axios.post(`${process.env.BOT_URL || "http://localhost:3001"}/remove-pass`, {
       targetId,
       buyerUsername: req.session.user.username
     });
