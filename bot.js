@@ -194,5 +194,6 @@ app.post('/notify', async (req, res) => {
   }
 });
 
-app.listen(3001, () => console.log('Bot listener sur port 3001'));
+const BOT_PORT = process.env.PORT || 3001;
+app.listen(BOT_PORT, '0.0.0.0', () => console.log(`Bot listener sur port ${BOT_PORT}`));
 client.login(process.env.DISCORD_BOT_TOKEN);
