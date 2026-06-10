@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HmaraCasino</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #080810;
+  color: #fff;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse at 20% 30%, #7C5CFC20 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, #F0B42915 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, #FF4F4F08 0%, transparent 60%);
+  animation: bgPulse 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes bgPulse { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
+
+.card {
+  background: #10101E;
+  border: 1px solid #ffffff12;
+  border-radius: 24px;
+  padding: 52px 44px;
+  max-width: 420px; width: 90%;
+  text-align: center;
+  position: relative; z-index: 1;
+  box-shadow: 0 30px 80px #00000060;
+  animation: cardIn 0.6s ease;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 10%; right: 10%; height: 2px;
+  background: linear-gradient(90deg, transparent, #7C5CFC, #F0B429, transparent);
+  border-radius: 2px;
+}
+
+.logo-emoji { font-size: 64px; display: block; margin-bottom: 16px; animation: bounce 2s ease-in-out infinite; }
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+h1 {
+  font-size: 32px; font-weight: 800; margin-bottom: 10px;
+  background: linear-gradient(135deg, #F0B429, #FF8C00);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.subtitle { font-size: 15px; color: #7070A0; line-height: 1.6; margin-bottom: 36px; }
+
+.discord-btn {
+  background: #5865F2;
+  color: white; border: none; border-radius: 14px;
+  padding: 16px 28px; font-size: 16px; font-weight: 700;
+  cursor: pointer; width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 8px 30px #5865F240;
+}
+.discord-btn:hover { background: #4752C4; transform: translateY(-2px); box-shadow: 0 12px 40px #5865F250; }
+
+.features {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 28px;
+}
+.feat {
+  background: #16162A; border: 1px solid #ffffff0A;
+  border-radius: 12px; padding: 14px 12px;
+  font-size: 13px; color: #7070A0; font-weight: 600;
+  transition: all 0.2s;
+}
+.feat:hover { border-color: #ffffff20; color: #fff; }
+.feat span { display: block; font-size: 22px; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <span class="logo-emoji">🎰</span>
+  <h1>HmaraCasino</h1>
+  <p class="subtitle">Joue, accumule des pièces et échange-les contre des récompenses sur ton serveur Discord.</p>
+  <a href="/auth/login" class="discord-btn">
+    <svg width="22" height="22" viewBox="0 0 71 55" fill="none"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.6.7a40.7 40.7 0 0 0-1.8 3.7 54.2 54.2 0 0 0-16.2 0A40.6 40.6 0 0 0 25.7.7 58.4 58.4 0 0 0 11.1 5C1.6 19.4-1 33.4.3 47.2a58.9 58.9 0 0 0 18 9.1 44.5 44.5 0 0 0 3.8-6.3 38.3 38.3 0 0 1-6-2.9l1.4-1.1a42 42 0 0 0 36 0l1.5 1.1a38.4 38.4 0 0 1-6 2.9 44.4 44.4 0 0 0 3.8 6.3 58.7 58.7 0 0 0 18-9.1C72 31.2 68 17.3 60.1 4.9ZM23.7 38.9c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Z" fill="white"/></svg>
+    Se connecter avec Discord
+  </a>
+  <div class="features">
+    <div class="feat"><span>🎲</span>4 jeux casino</div>
+    <div class="feat"><span>💾</span>Points sauvegardés</div>
+    <div class="feat"><span>🏆</span>Classement live</div>
+    <div class="feat"><span>🎁</span>Récompenses Discord</div>
+  </div>
+</div>
+</body>
+</html>
