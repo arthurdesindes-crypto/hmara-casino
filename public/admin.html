@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — HmaraCasino</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C99720;--gold2:#F0D060;--gold-dim:#C9972020;--bg:#05050A;--card:#0D0D1A;--card2:#10101E;--border:#ffffff0D;--text:#EEE8D5;--text2:#7070A0;--green:#1DB954;--red:#E53935;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 20%,#7C3AED0A,transparent 50%),radial-gradient(ellipse at 90% 80%,#C9972008,transparent 50%);pointer-events:none;z-index:0}
+header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.admin-badge{background:#7C3AED20;color:#A78BFA;border:1px solid #7C3AED40;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+.back-btn{color:var(--text2);text-decoration:none;font-size:13px;font-weight:600;padding:8px 16px;border:1px solid var(--border);border-radius:10px;transition:all .2s}
+.back-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.container{max-width:1100px;margin:0 auto;padding:32px;position:relative;z-index:1}
+.tabs{display:flex;gap:4px;margin-bottom:28px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:6px}
+.tab{background:none;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;letter-spacing:.3px}
+.tab.active{background:var(--gold);color:#000}
+.tab:hover:not(.active){color:var(--text);background:var(--card2)}
+.section{display:none}
+.section.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.stat-val{font-size:32px;font-weight:800;color:var(--gold);margin-bottom:4px}
+.stat-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.table{width:100%;border-collapse:collapse}
+.table th{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;padding:12px 16px;text-align:left;border-bottom:1px solid var(--border)}
+.table td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}
+.table tr:hover td{background:#ffffff03}
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.avatar-sm{width:32px;height:32px;border-radius:50%;background:#7C3AED;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;vertical-align:middle;margin-right:10px;overflow:hidden}
+.avatar-sm img{width:100%;height:100%;object-fit:cover}
+.coins-val{font-weight:700;color:var(--gold)}
+.action-row{display:flex;gap:8px;align-items:center}
+.input-sm{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:13px;font-weight:600;width:100px;font-family:'Inter',sans-serif}
+.input-sm:focus{outline:none;border-color:var(--gold)}
+.btn-sm{border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;letter-spacing:.3px}
+.btn-add{background:#1DB95420;color:var(--green);border:1px solid #1DB95430}
+.btn-add:hover{background:#1DB95430}
+.btn-remove{background:#E5393520;color:var(--red);border:1px solid #E5393530}
+.btn-remove:hover{background:#E5393530}
+.btn-ban{background:#E5393510;color:var(--red);border:1px solid #E5393520}
+.btn-ban:hover{background:#E5393530}
+.btn-unban{background:#1DB95410;color:var(--green);border:1px solid #1DB95420}
+.btn-unban:hover{background:#1DB95430}
+.badge-banned{background:#E5393520;color:var(--red);border:1px solid #E5393530;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700}
+.badge-ok{background:#1DB95415;color:var(--green);border:1px solid #1DB95425;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700}
+.search-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;width:100%;margin-bottom:16px;transition:border-color .2s}
+.search-bar:focus{outline:none;border-color:var(--gold-dim)}
+.purchase-row td:first-child{color:var(--text2);font-size:12px}
+.empty{text-align:center;color:var(--text2);padding:40px;font-size:14px}
+#toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;display:none;animation:fadeUp .3s ease;backdrop-filter:blur(20px)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">HmaraCasino</div>
+  <div class="admin-badge">Panel Admin</div>
+  <a href="/casino" class="back-btn">Retour au casino</a>
+</header>
+
+<div class="container">
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="stat-players">—</div><div class="stat-label">Joueurs total</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-coins">—</div><div class="stat-label">Pièces en circulation</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-purchases">—</div><div class="stat-label">Achats boutique</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-banned">—</div><div class="stat-label">Joueurs bannis</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('players',this)">Joueurs</button>
+    <button class="tab" onclick="showTab('purchases',this)">Historique achats</button>
+  </div>
+
+  <!-- PLAYERS -->
+  <div class="section active" id="tab-players">
+    <input class="search-bar" type="text" id="search" placeholder="Rechercher un joueur..." oninput="filterPlayers()">
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Joueur</th><th>Pièces</th><th>Statut</th><th>Modifier les coins</th><th>Actions</th></tr></thead>
+        <tbody id="players-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PURCHASES -->
+  <div class="section" id="tab-purchases">
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Date</th><th>Joueur</th><th>Récompense</th><th>Prix payé</th></tr></thead>
+        <tbody id="purchases-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let allPlayers=[];
+
+async function api(path,method='GET',body=null){
+  const o={method,headers:{'Content-Type':'application/json'},credentials:'include'};
+  if(body)o.body=JSON.stringify(body);
+  const r=await fetch(path,o);return r.json();
+}
+
+function toast(msg,t=''){
+  const el=document.getElementById('toast');el.textContent=msg;
+  el.style.borderColor=t==='ok'?'#1DB95440':t==='err'?'#E5393540':'var(--border)';
+  el.style.display='block';setTimeout(()=>el.style.display='none',3000);
+}
+
+function showTab(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function avHTML(u){
+  if(u.avatar)return`<img src="https://cdn.discordapp.com/avatars/${u.discord_id}/${u.avatar}.png">`;
+  return(u.username||'?').slice(0,2).toUpperCase();
+}
+
+function renderPlayers(players){
+  const tbody=document.getElementById('players-tbody');
+  if(!players.length){tbody.innerHTML=`<tr><td colspan="5" class="empty">Aucun joueur trouvé</td></tr>`;return;}
+  tbody.innerHTML=players.map(u=>`
+    <tr id="row-${u.discord_id}">
+      <td><span class="avatar-sm">${avHTML(u)}</span>${u.username}</td>
+      <td class="coins-val" id="coins-${u.discord_id}">${(u.coins||0).toLocaleString()} 🪙</td>
+      <td>${u.banned?'<span class="badge-banned">Banni</span>':'<span class="badge-ok">Actif</span>'}</td>
+      <td>
+        <div class="action-row">
+          <input class="input-sm" type="number" id="amt-${u.discord_id}" value="500" min="1">
+          <button class="btn-sm btn-add" onclick="modCoins('${u.discord_id}',1)">+ Ajouter</button>
+          <button class="btn-sm btn-remove" onclick="modCoins('${u.discord_id}',-1)">- Retirer</button>
+        </div>
+      </td>
+      <td>
+        ${u.banned
+          ?`<button class="btn-sm btn-unban" onclick="toggleBan('${u.discord_id}',false)">Débannir</button>`
+          :`<button class="btn-sm btn-ban" onclick="toggleBan('${u.discord_id}',true)">Bannir</button>`
+        }
+      </td>
+    </tr>`).join('');
+}
+
+async function modCoins(discord_id, sign){
+  const amt=parseInt(document.getElementById('amt-'+discord_id).value)||500;
+  const data=await api('/api/admin/coins','POST',{discord_id,amount:amt*sign});
+  if(data.error){toast(data.error,'err');return;}
+  document.getElementById('coins-'+discord_id).textContent=data.coins.toLocaleString()+' 🪙';
+  toast(sign>0?`+${amt} coins ajoutés`:`-${amt} coins retirés`,sign>0?'ok':'err');
+}
+
+async function toggleBan(discord_id,ban){
+  const data=await api(ban?'/api/admin/ban':'/api/admin/unban','POST',{discord_id});
+  if(data.error){toast(data.error,'err');return;}
+  toast(ban?'Joueur banni':'Joueur débanni',ban?'err':'ok');
+  loadData();
+}
+
+function filterPlayers(){
+  const q=document.getElementById('search').value.toLowerCase();
+  renderPlayers(allPlayers.filter(p=>p.username.toLowerCase().includes(q)));
+}
+
+async function loadData(){
+  const [players,purchases]=await Promise.all([api('/api/admin/users'),api('/api/admin/purchases')]);
+  allPlayers=players;
+  renderPlayers(players);
+  // Stats
+  document.getElementById('stat-players').textContent=players.length;
+  document.getElementById('stat-coins').textContent=players.reduce((a,p)=>a+(p.coins||0),0).toLocaleString();
+  document.getElementById('stat-banned').textContent=players.filter(p=>p.banned).length;
+  document.getElementById('stat-purchases').textContent=purchases.length;
+  // Purchases
+  const pb=document.getElementById('purchases-tbody');
+  if(!purchases.length){pb.innerHTML=`<tr><td colspan="4" class="empty">Aucun achat</td></tr>`;return;}
+  pb.innerHTML=purchases.map(p=>`
+    <tr class="purchase-row">
+      <td>${new Date(p.purchased_at).toLocaleString('fr-FR')}</td>
+      <td>${p.users?.username||p.discord_id}</td>
+      <td>${p.reward_name}</td>
+      <td class="coins-val">${(p.price||0).toLocaleString()} 🪙</td>
+    </tr>`).join('');
+}
+
+loadData();
+</script>
+</body>
+</html>
