@@ -182,6 +182,22 @@ app.post('/api/bot/remove-pass', requireAuth, async (req, res) => {
   }
 });
 
+
+// Transfer coins between players
+app.post('/api/transfer', requireAuth, async (req, res) => {
+  const { targetId, amount } = req.body;
+  if (!targetId || !amount || amount < 1) return res.status(400).json({ error: 'Donnees invalides' });
+  if (targetId === req.session.user.discord_id) return res.status(400).json({ error: 'Vous ne pouvez pas vous envoyer des pieces' });
+  const amt = Math.min(parseInt(amount), 10000);
+  const { data: sender } = await supabase.from('users').select('coins').eq('discord_id', req.session.user.discord_id).single();
+  if (!sender || sender.coins < amt) return res.status(400).json({ error: 'Pas assez de pieces' });
+  const { data: target } = await supabase.from('users').select('coins').eq('discord_id', targetId).single();
+  if (!target) return res.status(404).json({ error: 'Joueur introuvable' });
+  await supabase.from('users').update({ coins: sender.coins - amt }).eq('discord_id', req.session.user.discord_id);
+  await supabase.from('users').update({ coins: target.coins + amt }).eq('discord_id', targetId);
+  res.json({ success: true, coins: sender.coins - amt });
+});
+
 // PAGES
 app.get('/', (req, res) => {
   if (req.session.user) return res.redirect('/casino');
@@ -247,6 +263,99 @@ io.on('connection', (socket) => {
         });
         delete rooms[room.id];
       }, 5000);
+    }
+  });
+
+
+  // POKER
+  socket.on('poker:join', ({ username, avatar, discord_id, bet }) => {
+    let room = Object.values(rooms).find(r => r.type === 'poker' && !r.started && r.players.length < 4);
+    if (!room) { const id = 'poker_' + Date.now(); room = { id, type: 'poker', players: [], started: false, bet }; rooms[id] = room; }
+    if (room.players.find(p => p.discord_id === discord_id)) return;
+    const suits = ['s','h','d','c'], vals = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+    const hand = [{ v: vals[Math.floor(Math.random()*13)], s: suits[Math.floor(Math.random()*4)] }, { v: vals[Math.floor(Math.random()*13)], s: suits[Math.floor(Math.random()*4)] }];
+    room.players.push({ id: socket.id, username, avatar, discord_id, bet, hand });
+    socket.join(room.id); socket.roomId = room.id;
+    io.to(room.id).emit('poker:update', { players: room.players.map(p => ({ username: p.username, avatar: p.avatar, discord_id: p.discord_id })), count: room.players.length });
+    if (room.players.length >= 2) {
+      room.started = true;
+      const pot = room.bet * room.players.length;
+      room.players.forEach(p => {
+        io.to(p.id).emit('poker:deal', { hand: p.hand, pot });
+        supabase.from('users').select('coins').eq('discord_id', p.discord_id).single().then(({data}) => {
+          if (data) supabase.from('users').update({ coins: Math.max(0, data.coins - room.bet) }).eq('discord_id', p.discord_id);
+        });
+      });
+      setTimeout(() => {
+        const rankHand = h => { const vals = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']; return Math.max(...h.map(c => vals.indexOf(c.v))); };
+        const scores = room.players.map(p => rankHand(p.hand));
+        const winnerIdx = scores.indexOf(Math.max(...scores));
+        const winner = room.players[winnerIdx];
+        supabase.from('users').select('coins').eq('discord_id', winner.discord_id).single().then(({data}) => {
+          if (data) supabase.from('users').update({ coins: data.coins + pot }).eq('discord_id', winner.discord_id);
+        });
+        io.to(room.id).emit('poker:result', { winner: winner.discord_id, hands: room.players.map(p => ({ discord_id: p.discord_id, hand: p.hand })), pot, players: room.players.map(p => ({ username: p.username, discord_id: p.discord_id })) });
+        delete rooms[room.id];
+      }, 3000);
+    }
+  });
+
+  // BATAILLE
+  socket.on('bataille:join', ({ username, avatar, discord_id, bet }) => {
+    let room = Object.values(rooms).find(r => r.type === 'bataille' && r.players.length < 2 && !r.started);
+    if (!room) { const id = 'bat_' + Date.now(); room = { id, type: 'bataille', players: [], started: false, bet }; rooms[id] = room; }
+    if (room.players.find(p => p.discord_id === discord_id)) return;
+    const suits = ['s','h','d','c'], vals = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+    const card = { v: vals[Math.floor(Math.random()*13)], s: suits[Math.floor(Math.random()*4)] };
+    room.players.push({ id: socket.id, username, avatar, discord_id, bet, card });
+    socket.join(room.id); socket.roomId = room.id;
+    io.to(room.id).emit('bataille:update', { players: room.players.map(p => ({ username: p.username, avatar: p.avatar, discord_id: p.discord_id })) });
+    if (room.players.length >= 2) {
+      room.started = true;
+      const vals2 = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+      const scores = room.players.map(p => vals2.indexOf(p.card.v));
+      const winnerIdx = scores[0] > scores[1] ? 0 : scores[1] > scores[0] ? 1 : Math.floor(Math.random()*2);
+      const winner = room.players[winnerIdx];
+      const loser = room.players[1 - winnerIdx];
+      supabase.from('users').select('coins').eq('discord_id', winner.discord_id).single().then(({data}) => { if(data) supabase.from('users').update({ coins: data.coins + room.bet }).eq('discord_id', winner.discord_id); });
+      supabase.from('users').select('coins').eq('discord_id', loser.discord_id).single().then(({data}) => { if(data) supabase.from('users').update({ coins: Math.max(0, data.coins - room.bet) }).eq('discord_id', loser.discord_id); });
+      setTimeout(() => {
+        io.to(room.id).emit('bataille:result', { cards: room.players.map(p => p.card), winner: winnerIdx, players: room.players.map(p => ({ username: p.username, discord_id: p.discord_id })) });
+        delete rooms[room.id];
+      }, 1500);
+    }
+  });
+
+  // LOTO RAPIDE
+  socket.on('loto:join', ({ username, avatar, discord_id, bet, numbers }) => {
+    let room = Object.values(rooms).find(r => r.type === 'loto' && !r.started && r.players.length < 4);
+    if (!room) { const id = 'loto_' + Date.now(); room = { id, type: 'loto', players: [], started: false, bet }; rooms[id] = room; }
+    if (room.players.find(p => p.discord_id === discord_id)) return;
+    room.players.push({ id: socket.id, username, avatar, discord_id, bet, numbers });
+    socket.join(room.id); socket.roomId = room.id;
+    io.to(room.id).emit('loto:update', { players: room.players.map(p => ({ username: p.username, avatar: p.avatar, discord_id: p.discord_id, numbers: p.numbers })), count: room.players.length });
+    if (room.players.length >= 2) {
+      room.started = true;
+      // Draw 5 numbers
+      const drawn = [];
+      while (drawn.length < 5) { const n = Math.floor(Math.random()*30)+1; if (!drawn.includes(n)) drawn.push(n); }
+      const scores = room.players.map(p => ({ discord_id: p.discord_id, score: p.numbers.filter(n => drawn.includes(n)).length }));
+      const maxScore = Math.max(...scores.map(s => s.score));
+      const winnerScore = scores.find(s => s.score === maxScore);
+      const winnerPlayer = room.players.find(p => p.discord_id === winnerScore.discord_id);
+      const pot = room.bet * room.players.length;
+      room.players.forEach(p => {
+        const won = p.discord_id === winnerPlayer.discord_id;
+        supabase.from('users').select('coins').eq('discord_id', p.discord_id).single().then(({data}) => {
+          if (!data) return;
+          const nc = won ? data.coins + pot - room.bet : Math.max(0, data.coins - room.bet);
+          supabase.from('users').update({ coins: nc }).eq('discord_id', p.discord_id);
+        });
+      });
+      setTimeout(() => {
+        io.to(room.id).emit('loto:result', { drawn, scores, winner: room.players.indexOf(winnerPlayer), players: room.players.map(p => ({ username: p.username, discord_id: p.discord_id })), pot });
+        delete rooms[room.id];
+      }, 2000);
     }
   });
 
