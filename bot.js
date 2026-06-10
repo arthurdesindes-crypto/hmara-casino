@@ -63,29 +63,23 @@ app.post('/ban', async (req, res) => {
     const user = await client.users.fetch(targetId).catch(() => null);
     const username = user ? user.username : targetId;
 
-    // Kick temporaire (expulsion — la personne peut revenir)
+    // Timeout (exclusion temporaire — reste dans le serveur)
     if (!member) return res.status(404).json({ error: 'Membre introuvable ou hors ligne' });
-    await member.kick(`Casino kick par ${buyerUsername} — ${duration} min`);
+    await member.timeout(duration * 60 * 1000, `Casino timeout par ${buyerUsername} — ${duration} min`);
 
     // Annonce
     try {
       const channel = await client.channels.fetch(CHANNEL_ID);
       const embed = new EmbedBuilder()
         .setColor(0xE53935)
-        .setTitle('Kick Casino')
-        .setDescription(`**${username}** a ete expulse temporairement par **${buyerUsername}**`)
+        .setTitle('Exclusion Temporaire Casino')
+        .setDescription(`**${username}** a ete exclu temporairement par **${buyerUsername}**`)
         .addFields(
           { name: 'Duree', value: `${duration} minute(s)`, inline: true },
-          { name: 'Info', value: 'Peut rejoindre le serveur apres la duree', inline: true }
+          { name: 'Info', value: 'Reste dans le serveur mais ne peut pas parler', inline: true }
         )
         .setTimestamp();
       await channel.send({ embeds: [embed] });
-    } catch(e) {}
-
-    // Message prive a la personne kickee
-    try {
-      const u = await client.users.fetch(targetId);
-      await u.send(`Tu as ete expulse du serveur pendant ${duration} minute(s) par ${buyerUsername} via le casino. Tu pourras rejoindre dans ${duration} min.`);
     } catch(e) {}
 
     res.json({ success: true, username });
