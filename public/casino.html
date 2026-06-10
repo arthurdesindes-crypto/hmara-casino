@@ -314,15 +314,16 @@ let coins=0,me=null;
 const SYMS=['C','L','O','E','D','7'];
 const SYMEM={'C':'&#x1F352;','L':'&#x1F34B;','O':'&#x1F34A;','E':'&#x2B50;','D':'&#x1F48E;','7':'7'};
 const REDS=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+const ROLE_KICKEUR='1463996840012677221';
+const ROLE_PASS='1462478078747086969';
 const REWARDS=[
-  {e:'&#x1F528;',n:'Ban 1 min',d:'Bannir un membre pendant 1 minute',p:800},
-  {e:'&#x1F44A;',n:'Role @Kickeur',d:'Obtenir le role Kickeur sur le serveur',p:2400},
-  {e:'&#x1F3A1;',n:'2 Roues',d:'Lancer 2 roues de la fortune',p:3200},
-  {e:'&#x1F528;',n:'Ban 5 min',d:'Bannir un membre pendant 5 minutes',p:4000},
-  {e:'&#x1F6E1;',n:'Pass Anti-Sanction 4j',d:'Role @Pass Anti-Sanction pendant 4 jours',p:4800},
-  {e:'&#x274C;',n:'Enlever un pass anti-ban',d:"Retirer le pass anti-ban d'un membre",p:6400},
-  {e:'&#x1F528;',n:'Ban 10 min',d:'Bannir un membre pendant 10 minutes',p:7200},
-  {e:'&#x1F4B6;',n:'Cheque de 5 euros',d:'Recevoir un vrai cheque de 5 euros',p:40000},
+  {e:'&#x1F528;',n:'Ban 1 min',d:'Bannir un membre du serveur pendant 1 minute',p:800,type:'ban',duration:1},
+  {e:'&#x1F528;',n:'Ban 5 min',d:'Bannir un membre du serveur pendant 5 minutes',p:4000,type:'ban',duration:5},
+  {e:'&#x1F528;',n:'Ban 10 min',d:'Bannir un membre du serveur pendant 10 minutes',p:7200,type:'ban',duration:10},
+  {e:'&#x1F44A;',n:'Role @Kickeur',d:'Choisir un membre et lui donner le role Kickeur',p:2400,type:'role',roleId:ROLE_KICKEUR,duration:null},
+  {e:'&#x1F6E1;',n:'Pass Anti-Sanction 4j',d:'Choisir un membre et lui donner le Pass Anti-Sanction 4 jours',p:4800,type:'role',roleId:ROLE_PASS,duration:4},
+  {e:'&#x274C;',n:'Enlever un pass anti-ban',d:"Choisir un membre et retirer son Pass Anti-Sanction",p:6400,type:'remove-pass'},
+  {e:'&#x1F4B6;',n:'Cheque de 5 euros',d:'Recevoir un vrai cheque de 5 euros (PayPal ou Lydia)',p:40000,type:'check'},
 ];
 
 async function api(p,m='GET',b=null){const o={method:m,headers:{'Content-Type':'application/json'},credentials:'include'};if(b)o.body=JSON.stringify(b);const r=await fetch(p,o);return r.json();}
@@ -564,16 +565,97 @@ socket.on('horse:result',({winner,players})=>{
 });
 
 // SHOP
+let members=[];
+async function loadMembers(){
+  try{const d=await api('/api/members');members=d;}catch(e){members=[];}
+}
+
 function renderShop(){
   document.getElementById('sgrid').innerHTML=REWARDS.map((r,i)=>`
-    <div class="si"><div class="se">${r.e}</div><div class="sn">${r.n}</div><p class="sd">${r.d}</p><div class="sp2">${r.p.toLocaleString()} pieces</div><button class="buybtn" onclick="buyR(${i})">Acheter</button></div>`).join('');
+    <div class="si">
+      <div class="se">${r.e}</div>
+      <div class="sn">${r.n}</div>
+      <p class="sd">${r.d}</p>
+      <div class="sp2">${r.p.toLocaleString()} pieces</div>
+      <button class="buybtn" onclick="buyR(${i})">Acheter</button>
+    </div>`).join('');
+  loadMembers();
 }
+
+function getMemberOptions(filterFn){
+  const list=filterFn?members.filter(filterFn):members;
+  if(!list.length)return'<option value="">Aucun membre disponible</option>';
+  return list.map(m=>`<option value="${m.id}">${m.displayName||m.username}${m.hasPass?' [PROTEGE]':''}</option>`).join('');
+}
+
+function showMemberModal(title,options,onConfirm){
+  const existing=document.getElementById('member-modal');
+  if(existing)existing.remove();
+  const modal=document.createElement('div');
+  modal.id='member-modal';
+  modal.style.cssText='position:fixed;inset:0;background:#00000090;z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  modal.innerHTML=`
+    <div style="background:#0D0D1A;border:1px solid #C9972030;border-radius:18px;padding:32px;max-width:400px;width:90%;box-shadow:0 20px 60px #000">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:20px;color:#EEE8D5">${title}</div>
+      <select id="modal-select" style="width:100%;background:#10101E;border:1px solid #ffffff15;border-radius:10px;padding:11px 14px;color:#EEE8D5;font-size:14px;font-family:'Inter',sans-serif;margin-bottom:20px">
+        ${options}
+      </select>
+      <div style="display:flex;gap:10px">
+        <button onclick="document.getElementById('member-modal').remove()" style="flex:1;background:#10101E;border:1px solid #ffffff10;border-radius:10px;padding:12px;color:#7070A0;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">Annuler</button>
+        <button id="modal-confirm" style="flex:2;background:linear-gradient(135deg,#A07010,#C99720);border:none;border-radius:10px;padding:12px;color:#000;font-size:13px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif">Confirmer</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('modal-confirm').onclick=()=>{
+    const sel=document.getElementById('modal-select').value;
+    if(!sel){toast('Choisissez un membre','lose');return;}
+    modal.remove();
+    onConfirm(sel);
+  };
+}
+
 async function buyR(i){
   const r=REWARDS[i];
-  const data=await api('/api/buy','POST',{reward_name:r.n,price:r.p});
-  if(data.error){toast(data.error,'lose');return;}
-  coins=data.coins;document.getElementById('cd').textContent=coins.toLocaleString();
-  toast(`"${r.n}" achete`,'win');
+  if(r.type==='check'){
+    const data=await api('/api/buy','POST',{reward_name:r.n,price:r.p});
+    if(data.error){toast(data.error,'lose');return;}
+    coins=data.coins;document.getElementById('cd').textContent=coins.toLocaleString();
+    toast('Cheque achete — contactez un admin','win');
+    return;
+  }
+  if(coins<r.p){toast('Pas assez de pieces','lose');return;}
+  if(r.type==='ban'){
+    const opts=getMemberOptions(m=>!m.hasPass);
+    showMemberModal(`Bannir pendant ${r.duration} minute(s)`,opts,async(targetId)=>{
+      const buyData=await api('/api/buy','POST',{reward_name:r.n,price:r.p});
+      if(buyData.error){toast(buyData.error,'lose');return;}
+      coins=buyData.coins;document.getElementById('cd').textContent=coins.toLocaleString();
+      const banData=await api('/api/bot/ban','POST',{targetId,duration:r.duration,reason:`Ban casino ${r.duration} min`});
+      if(banData.error){toast(banData.error,'lose');return;}
+      toast(`${banData.username} banni ${r.duration} min !`,'win');
+    });
+  } else if(r.type==='role'){
+    const opts=getMemberOptions();
+    const label=r.roleId===ROLE_PASS?'Donner le Pass Anti-Sanction 4j':'Donner le role Kickeur';
+    showMemberModal(label,opts,async(targetId)=>{
+      const buyData=await api('/api/buy','POST',{reward_name:r.n,price:r.p});
+      if(buyData.error){toast(buyData.error,'lose');return;}
+      coins=buyData.coins;document.getElementById('cd').textContent=coins.toLocaleString();
+      const roleData=await api('/api/bot/give-role','POST',{targetId,roleId:r.roleId,duration:r.duration});
+      if(roleData.error){toast(roleData.error,'lose');return;}
+      toast(`Role donne a ${roleData.username} !`,'win');
+    });
+  } else if(r.type==='remove-pass'){
+    const opts=getMemberOptions(m=>m.hasPass);
+    showMemberModal('Retirer le Pass Anti-Sanction',opts,async(targetId)=>{
+      const buyData=await api('/api/buy','POST',{reward_name:r.n,price:r.p});
+      if(buyData.error){toast(buyData.error,'lose');return;}
+      coins=buyData.coins;document.getElementById('cd').textContent=coins.toLocaleString();
+      const rmData=await api('/api/bot/remove-pass','POST',{targetId});
+      if(rmData.error){toast(rmData.error,'lose');return;}
+      toast(`Pass retire de ${rmData.username} !`,'win');
+    });
+  }
 }
 
 // LB

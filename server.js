@@ -128,6 +128,60 @@ app.get('/api/admin/purchases', requireAdmin, async (req, res) => {
   res.json(data);
 });
 
+
+// Get Discord members for shop
+app.get('/api/members', requireAuth, async (req, res) => {
+  try {
+    const r = await axios.get('http://localhost:3001/members');
+    res.json(r.data);
+  } catch (err) {
+    res.status(500).json({ error: 'Bot non disponible' });
+  }
+});
+
+// Bot actions
+app.post('/api/bot/ban', requireAuth, async (req, res) => {
+  const { targetId, duration, reason } = req.body;
+  try {
+    const r = await axios.post('http://localhost:3001/ban', {
+      targetId, duration, reason,
+      buyerUsername: req.session.user.username
+    });
+    res.json(r.data);
+  } catch (err) {
+    const msg = err.response?.data?.error || err.message;
+    res.status(400).json({ error: msg });
+  }
+});
+
+app.post('/api/bot/give-role', requireAuth, async (req, res) => {
+  const { targetId, roleId, duration } = req.body;
+  try {
+    const r = await axios.post('http://localhost:3001/give-role', {
+      targetId, roleId, duration,
+      buyerUsername: req.session.user.username
+    });
+    res.json(r.data);
+  } catch (err) {
+    const msg = err.response?.data?.error || err.message;
+    res.status(400).json({ error: msg });
+  }
+});
+
+app.post('/api/bot/remove-pass', requireAuth, async (req, res) => {
+  const { targetId } = req.body;
+  try {
+    const r = await axios.post('http://localhost:3001/remove-pass', {
+      targetId,
+      buyerUsername: req.session.user.username
+    });
+    res.json(r.data);
+  } catch (err) {
+    const msg = err.response?.data?.error || err.message;
+    res.status(400).json({ error: msg });
+  }
+});
+
 // PAGES
 app.get('/', (req, res) => {
   if (req.session.user) return res.redirect('/casino');
