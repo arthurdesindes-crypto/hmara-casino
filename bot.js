@@ -26,7 +26,7 @@ client.once('ready', () => {
 app.get('/members', async (req, res) => {
   try {
     const guild = await client.guilds.fetch(GUILD_ID);
-    await guild.members.fetch();
+    await guild.members.fetch({ limit: 1000 });
     const members = guild.members.cache
       .filter(m => !m.user.bot)
       .map(m => ({
@@ -49,23 +49,32 @@ app.post('/ban', async (req, res) => {
   const { targetId, duration, buyerUsername, reason } = req.body;
   try {
     const guild = await client.guilds.fetch(GUILD_ID);
-    const member = await guild.members.fetch(targetId).catch(() => null);
     
-    if (!member) return res.status(404).json({ error: 'Membre introuvable' });
-    if (member.roles.cache.has(ROLE_PASS)) return res.status(403).json({ error: 'Cette personne a le Pass Anti-Sanction !' });
+    // Fetch member (works even if offline)
+    await guild.members.fetch({ user: targetId, force: true }).catch(() => null);
+    const member = guild.members.cache.get(targetId);
+    
+    // Check pass anti-sanction
+    if (member && member.roles.cache.has(ROLE_PASS)) {
+      return res.status(403).json({ error: 'Cette personne a le Pass Anti-Sanction !' });
+    }
 
-    // Ban
-    await guild.members.ban(targetId, { reason: `Casino ban par ${buyerUsername} — ${duration} min`, deleteMessageSeconds: 0 });
+    // Get username for response
+    const user = await client.users.fetch(targetId).catch(() => null);
+    const username = user ? user.username : targetId;
+
+    // Ban (works even if member is offline)
+    await guild.bans.create(targetId, { reason: `Casino ban par ${buyerUsername} — ${duration} min`, deleteMessageSeconds: 0 });
 
     // Annonce
     try {
       const channel = await client.channels.fetch(CHANNEL_ID);
       const embed = new EmbedBuilder()
         .setColor(0xE53935)
-        .setTitle('🔨 Ban Casino')
-        .setDescription(`**${member.user.username}** a été banni par **${buyerUsername}**`)
+        .setTitle('Ban Casino')
+        .setDescription(`**${username}** a ete banni par **${buyerUsername}**`)
         .addFields(
-          { name: 'Durée', value: `${duration} minute(s)`, inline: true },
+          { name: 'Duree', value: `${duration} minute(s)`, inline: true },
           { name: 'Raison', value: reason || 'Achat boutique casino', inline: true }
         )
         .setTimestamp();
@@ -80,15 +89,15 @@ app.post('/ban', async (req, res) => {
           const channel = await client.channels.fetch(CHANNEL_ID);
           const embed = new EmbedBuilder()
             .setColor(0x1DB954)
-            .setTitle('✅ Unban Casino')
-            .setDescription(`**${member.user.username}** a été débanni automatiquement`)
+            .setTitle('Unban Casino')
+            .setDescription(`**${username}** a ete debanni automatiquement`)
             .setTimestamp();
           await channel.send({ embeds: [embed] });
         } catch(e) {}
       } catch (e) { console.error('unban error:', e.message); }
     }, duration * 60 * 1000);
 
-    res.json({ success: true, username: member.user.username });
+    res.json({ success: true, username });
   } catch (err) {
     console.error('ban error:', err.message);
     res.status(500).json({ error: err.message });
@@ -100,8 +109,9 @@ app.post('/give-role', async (req, res) => {
   const { targetId, roleId, duration, buyerUsername } = req.body;
   try {
     const guild = await client.guilds.fetch(GUILD_ID);
-    const member = await guild.members.fetch(targetId).catch(() => null);
-    if (!member) return res.status(404).json({ error: 'Membre introuvable' });
+    await guild.members.fetch({ user: targetId, force: true }).catch(() => null);
+    const member = guild.members.cache.get(targetId);
+    if (!member) return res.status(404).json({ error: 'Membre introuvable ou hors ligne depuis trop longtemps' });
 
     await member.roles.add(roleId);
 
@@ -150,9 +160,10 @@ app.post('/remove-pass', async (req, res) => {
   const { targetId, buyerUsername } = req.body;
   try {
     const guild = await client.guilds.fetch(GUILD_ID);
-    const member = await guild.members.fetch(targetId).catch(() => null);
+    await guild.members.fetch({ user: targetId, force: true }).catch(() => null);
+    const member = guild.members.cache.get(targetId);
     if (!member) return res.status(404).json({ error: 'Membre introuvable' });
-    if (!member.roles.cache.has(ROLE_PASS)) return res.status(400).json({ error: 'Ce membre n\'a pas le pass anti-sanction' });
+    if (!member.roles.cache.has(ROLE_PASS)) return res.status(400).json({ error: "Ce membre n'a pas le pass anti-sanction" });
 
     await member.roles.remove(ROLE_PASS);
 
