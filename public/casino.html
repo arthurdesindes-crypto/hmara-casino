@@ -725,10 +725,11 @@ function showCat(cat,btn){
 function P(id,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  const pg=document.getElementById('page-'+id);if(pg)pg.classList.add('active');
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
   if(btn)btn.classList.add('active');
-  if(id==='lb'&&typeof loadLB!=='undefined')loadLB();
-  if(id==='transfer'&&typeof loadTransferTargets!=='undefined')loadTransferTargets();
+  if(id==='lb'&&typeof loadLB==='function')loadLB();
+  if(id==='transfer'&&typeof loadTransferTargets==='function')loadTransferTargets();
 }
 
 const socket=io();
@@ -1900,7 +1901,7 @@ function startTaquin(){
   document.getElementById('taquin-moves').textContent='0';
   document.getElementById('taquin-start').disabled=true;
   renderTaquin();
-  document.getElementById('taquin-r').textContent='Remettez les chiffres dans l'ordre !';
+  document.getElementById('taquin-r').textContent='Remettez les chiffres dans l\'ordre !';
 }
 function renderTaquin(){
   const g=document.getElementById('taquin-grid');g.innerHTML='';
