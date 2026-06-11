@@ -1354,11 +1354,11 @@ function startBrique(){
 
 // MUSIC PLAYER
 const TRACKS = [
-  { name: 'Casino Lounge', url: 'https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3', emoji: '🎷' },
-  { name: 'Jazz Ambiance', url: 'https://cdn.pixabay.com/audio/2022/10/16/audio_83bdc0b55a.mp3', emoji: '🎺' },
-  { name: 'Lo-Fi Chill', url: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', emoji: '🎵' },
-  { name: 'Epic Night', url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_1e55e3d30e.mp3', emoji: '🌙' },
-  { name: 'Retro Casino', url: 'https://cdn.pixabay.com/audio/2021/11/13/audio_cb3e9be079.mp3', emoji: '🎰' },
+  { name: 'Casino Lounge', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', emoji: '🎷' },
+  { name: 'Jazz Ambiance', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', emoji: '🎺' },
+  { name: 'Lo-Fi Chill', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', emoji: '🎵' },
+  { name: 'Epic Night', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', emoji: '🌙' },
+  { name: 'Retro Casino', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3', emoji: '🎰' },
 ];
 let musicAudio = null, selectedTrack = null, musicPlaying = false;
 
@@ -1387,7 +1387,15 @@ function toggleMusic() {
   musicAudio = new Audio(TRACKS[selectedTrack].url);
   musicAudio.loop = true;
   musicAudio.volume = parseInt(document.getElementById('vol-slider').value) / 100;
-  musicAudio.play().catch(() => document.getElementById('music-status').textContent = 'Erreur de chargement');
+  musicAudio.play().catch(e => {
+    document.getElementById('music-status').textContent = 'Erreur — verifiez votre connexion';
+    musicPlaying = false;
+    document.getElementById('music-play-btn').textContent = 'Lancer';
+  });
+  musicAudio.onerror = () => {
+    document.getElementById('music-status').textContent = 'Musique indisponible, essayez une autre';
+    stopMusic();
+  };
   musicPlaying = true;
   document.getElementById('music-play-btn').textContent = 'Pause';
   document.getElementById('music-status').textContent = 'En cours : ' + TRACKS[selectedTrack].name;
