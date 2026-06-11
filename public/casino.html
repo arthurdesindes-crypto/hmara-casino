@@ -1335,7 +1335,7 @@ function startPendu(){
   renderPendu();
   const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   document.getElementById('pendu-lettres').innerHTML=alpha.split('').map(l=>`<button onclick="penduLetter('${l}')" id="pl-${l}" style="background:var(--c2);border:1px solid var(--bd);border-radius:7px;padding:7px 10px;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;font-family:'Inter',sans-serif">${l}</button>`).join('');
-  document.getElementById('pendu-r').textContent='Clique une lettre !';
+  document.getElementById('pendu-r').textContent="Clique une lettre !";
 }
 function renderPendu(){
   document.getElementById('pendu-display').textContent=penduMot.split('').map((l,i)=>penduTrouve[i]?l:'_').join(' ');
@@ -1901,7 +1901,7 @@ function startTaquin(){
   document.getElementById('taquin-moves').textContent='0';
   document.getElementById('taquin-start').disabled=true;
   renderTaquin();
-  document.getElementById('taquin-r').textContent='Remettez les chiffres dans l\'ordre !';
+  document.getElementById('taquin-r').textContent="Remettez les chiffres dans l'ordre !";
 }
 function renderTaquin(){
   const g=document.getElementById('taquin-grid');g.innerHTML='';
@@ -2018,7 +2018,7 @@ socket.on('guess:update',({players})=>{mkPList(players,'guess-players',null);doc
 function startGuessGame(){socket.emit('game:start',{roomType:'guess'});}
 socket.on('guess:start',()=>{
   document.getElementById('guess-lobby').style.display='none';document.getElementById('guess-game').style.display='block';
-  document.getElementById('guess-r').textContent='Entrez votre nombre secret puis devinez celui de l'adversaire !';
+  document.getElementById('guess-r').textContent="Entrez votre nombre secret puis devinez celui de l'adversaire !";
 });
 function sendGuess(){
   const secret=parseInt(document.getElementById('guess-secret').value);
