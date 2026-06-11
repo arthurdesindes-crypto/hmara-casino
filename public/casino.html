@@ -568,6 +568,185 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
   </div>
 </div>
 
+
+<!-- JEU 21 MULTI -->
+<div class="page" id="page-vingt1">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Jeu du 21</div><span class="mb">Multijoueur</span></div>
+    <div class="min-info">Minimum <strong>2 joueurs</strong>. Chacun annonce un nombre, le total s'additionne. Celui qui fait depasser 21 perd !</div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="v21b" value="800" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('v21b',800)">800</button><button class="pb" onclick="SB('v21b',5000)">5000</button></div></div>
+    <div style="margin-bottom:14px"><button class="bg" id="v21-btn" onclick="joinVingt1()">Rejoindre</button></div>
+    <div id="v21-lobby" style="display:none">
+      <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs (<span id="v21c">0</span>/4)</p>
+      <div class="plist" id="v21-players"></div>
+      <p class="waiting">En attente de joueurs...</p>
+      <button class="bg" id="v21-start-btn" onclick="startV21Game()" style="display:none;margin-top:10px;width:100%">Lancer la partie</button>
+      <button class="bgh" onclick="quitV21()" style="margin-top:10px;width:100%">Quitter</button>
+    </div>
+    <div id="v21-game" style="display:none">
+      <div style="text-align:center;margin:16px 0">
+        <div style="font-size:48px;font-weight:800;color:var(--gold);font-family:'Playfair Display',serif" id="v21-total">0</div>
+        <div style="font-size:13px;color:var(--t2)">Total actuel / 21</div>
+      </div>
+      <div id="v21-turn" style="text-align:center;font-size:14px;font-weight:700;color:var(--t2);margin-bottom:14px"></div>
+      <div id="v21-btns" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <button class="bg" onclick="playV21(1)" id="v21-1">+1</button>
+        <button class="bg" onclick="playV21(2)" id="v21-2">+2</button>
+        <button class="bg" onclick="playV21(3)" id="v21-3">+3</button>
+      </div>
+    </div>
+    <div class="res" id="v21-r">Rejoignez une partie pour jouer.</div>
+  </div>
+</div>
+
+<!-- COURSE MULTI -->
+<div class="page" id="page-mrace">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Course de Voitures</div><span class="mb">Multijoueur</span></div>
+    <div class="min-info">Minimum <strong>2 joueurs</strong>. Cliquez le plus vite possible pour avancer !</div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="mraceb" value="800" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('mraceb',800)">800</button><button class="pb" onclick="SB('mraceb',5000)">5000</button></div></div>
+    <div style="margin-bottom:14px"><button class="bg" id="mrace-btn" onclick="joinMrace()">Rejoindre</button></div>
+    <div id="mrace-lobby" style="display:none">
+      <div class="plist" id="mrace-players"></div>
+      <p class="waiting">En attente... (<span id="mracec">0</span>/4)</p>
+      <button class="bg" id="mrace-start-btn" onclick="startMraceGame()" style="display:none;margin-top:10px;width:100%">Lancer la course</button>
+      <button class="bgh" onclick="quitMrace()" style="margin-top:10px;width:100%">Quitter</button>
+    </div>
+    <div id="mrace-game" style="display:none">
+      <div id="mrace-tracks" style="margin:16px 0"></div>
+      <div style="display:flex;justify-content:center;margin-bottom:14px">
+        <button class="bg" id="mrace-click-btn" onclick="mraceClick()" style="padding:20px 40px;font-size:16px">CLIQUEZ !</button>
+      </div>
+    </div>
+    <div class="res" id="mrace-r">Rejoignez une course pour jouer.</div>
+  </div>
+</div>
+
+<!-- DEVINETTE MULTI -->
+<div class="page" id="page-guess">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Devinette</div><span class="mb">Multijoueur</span></div>
+    <div class="min-info">Exactement <strong>2 joueurs</strong>. Devinez le nombre de votre adversaire !</div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="guessb" value="800" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('guessb',800)">800</button><button class="pb" onclick="SB('guessb',5000)">5000</button></div></div>
+    <div style="margin-bottom:14px"><button class="bg" id="guess-btn" onclick="joinGuess()">Chercher adversaire</button></div>
+    <div id="guess-lobby" style="display:none">
+      <div class="plist" id="guess-players"></div>
+      <p class="waiting" id="guess-wait">En attente...</p>
+      <button class="bg" id="guess-start-btn" onclick="startGuessGame()" style="display:none;margin-top:10px;width:100%">Lancer la partie</button>
+      <button class="bgh" onclick="quitGuess()" style="margin-top:10px;width:100%">Quitter</button>
+    </div>
+    <div id="guess-game" style="display:none">
+      <div style="margin:16px 0">
+        <div style="font-size:12px;color:var(--t2);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Votre nombre secret (1-100)</div>
+        <input type="number" id="guess-secret" min="1" max="100" placeholder="1-100" class="bi" style="width:100%;margin-bottom:14px">
+        <div style="font-size:12px;color:var(--t2);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Devinez le nombre adverse</div>
+        <div style="display:flex;gap:10px"><input type="number" id="guess-input" min="1" max="100" placeholder="1-100" class="bi" style="flex:1"><button class="bg" onclick="sendGuess()">Deviner</button></div>
+        <div id="guess-hints" style="margin-top:12px;font-size:13px;color:var(--t2)"></div>
+      </div>
+    </div>
+    <div class="res" id="guess-r">Cherchez un adversaire.</div>
+  </div>
+</div>
+
+<!-- BJ MULTI -->
+<div class="page" id="page-bjmulti">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Blackjack Multi</div><span class="mb">Multijoueur</span></div>
+    <div class="min-info">Minimum <strong>2 joueurs</strong>. Tous jouent contre le croupier. Meilleure main gagne !</div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="bjmb" value="800" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('bjmb',800)">800</button><button class="pb" onclick="SB('bjmb',5000)">5000</button></div></div>
+    <div style="margin-bottom:14px"><button class="bg" id="bjm-btn" onclick="joinBJMulti()">Rejoindre la table</button></div>
+    <div id="bjm-lobby" style="display:none">
+      <div class="plist" id="bjm-players"></div>
+      <p class="waiting">En attente... (<span id="bjmc">0</span>/4)</p>
+      <button class="bg" id="bjm-start-btn" onclick="startBJMultiGame()" style="display:none;margin-top:10px;width:100%">Lancer la table</button>
+      <button class="bgh" onclick="quitBJMulti()" style="margin-top:10px;width:100%">Quitter</button>
+    </div>
+    <div id="bjm-game" style="display:none">
+      <div style="margin-bottom:16px"><div class="hl2">Croupier <span class="sp" id="bjm-dscore">?</span></div><div class="hand" id="bjm-dhand"></div></div>
+      <div class="sep"></div>
+      <div style="margin:16px 0"><div class="hl2">Votre main <span class="sp" id="bjm-pscore">0</span></div><div class="hand" id="bjm-phand"></div></div>
+      <div class="bjbtns"><button class="bgh" onclick="bjmHit()" id="bjm-hit">Carte</button><button class="bg" onclick="bjmStand()" id="bjm-stand">Rester</button></div>
+    </div>
+    <div class="res" id="bjm-r">Rejoignez la table pour jouer.</div>
+  </div>
+</div>
+
+<!-- TOURNOI DES -->
+<div class="page" id="page-dtournoi">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Tournoi de Des</div><span class="mb">Multijoueur</span></div>
+    <div class="min-info">Minimum <strong>2 joueurs</strong>. Chacun lance 3 des. Le meilleur total gagne tout !</div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="dtb" value="800" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('dtb',800)">800</button><button class="pb" onclick="SB('dtb',5000)">5000</button></div></div>
+    <div style="margin-bottom:14px"><button class="bg" id="dt-btn" onclick="joinDTournoi()">Rejoindre le tournoi</button></div>
+    <div id="dt-lobby" style="display:none">
+      <div class="plist" id="dt-players"></div>
+      <p class="waiting">En attente... (<span id="dtc">0</span>/4)</p>
+      <button class="bg" id="dt-start-btn" onclick="startDTournoiGame()" style="display:none;margin-top:10px;width:100%">Lancer le tournoi</button>
+      <button class="bgh" onclick="quitDTournoi()" style="margin-top:10px;width:100%">Quitter</button>
+    </div>
+    <div class="res" id="dt-r">Rejoignez le tournoi.</div>
+  </div>
+</div>
+
+<!-- SNAKE -->
+<div class="page" id="page-snake">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Snake</div><span style="background:#1DB95415;color:var(--gr);border:1px solid #1DB95430;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:800;letter-spacing:1px">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Mangez les pommes sans toucher les murs ! Recompense selon votre score. Cooldown 10min.</p>
+    <div style="display:flex;justify-content:center;margin-bottom:12px"><canvas id="snake-canvas" width="300" height="300" style="background:#0A0A15;border-radius:12px;border:1px solid var(--bd)"></canvas></div>
+    <div style="text-align:center;font-size:14px;font-weight:700;color:var(--gold);margin-bottom:10px">Score : <span id="snake-score">0</span></div>
+    <p style="text-align:center;font-size:12px;color:var(--t2);margin-bottom:12px">Utilisez les fleches du clavier</p>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="snake-start" onclick="startSnake()">Jouer</button></div>
+    <div class="res" id="snake-r">Cliquez Jouer pour commencer. Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- WHACK A MOLE -->
+<div class="page" id="page-wam">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Whack-a-Mole</div><span style="background:#1DB95415;color:var(--gr);border:1px solid #1DB95430;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:800;letter-spacing:1px">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Frappez les taupes en 30 secondes ! Cooldown 10min.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto 16px" id="wam-grid"></div>
+    <div style="display:flex;justify-content:space-between;max-width:280px;margin:0 auto 14px"><span style="font-size:14px;font-weight:700;color:var(--gold)">Score : <span id="wam-score">0</span></span><span style="font-size:14px;font-weight:700;color:var(--t2)">Temps : <span id="wam-time">30</span>s</span></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="wam-start" onclick="startWam()">Jouer</button></div>
+    <div class="res" id="wam-r">Frappez les taupes ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- FLAPPY -->
+<div class="page" id="page-flappy">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Flappy</div><span style="background:#1DB95415;color:var(--gr);border:1px solid #1DB95430;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:800;letter-spacing:1px">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Evitez les obstacles ! Cliquez pour voler. Cooldown 10min.</p>
+    <div style="display:flex;justify-content:center;margin-bottom:12px"><canvas id="flappy-canvas" width="320" height="400" style="background:linear-gradient(180deg,#05051A,#0A0A20);border-radius:12px;border:1px solid var(--bd);max-width:100%"></canvas></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="flappy-start" onclick="startFlappy()">Jouer</button></div>
+    <div class="res" id="flappy-r">Cliquez Jouer puis cliquez pour voler ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- PING PONG -->
+<div class="page" id="page-pingpong">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Ping Pong</div><span style="background:#1DB95415;color:var(--gr);border:1px solid #1DB95430;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:800;letter-spacing:1px">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Affrontez le bot ! Bougez votre raquette avec la souris. Premier a 5 points gagne. Cooldown 10min.</p>
+    <div style="display:flex;justify-content:center;margin-bottom:12px"><canvas id="pp-canvas" width="400" height="300" style="background:#05050A;border-radius:12px;border:1px solid var(--bd);max-width:100%"></canvas></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="pp-start" onclick="startPP()">Jouer</button></div>
+    <div class="res" id="pp-r">Cliquez Jouer pour commencer ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- TAQUIN -->
+<div class="page" id="page-taquin">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Taquin</div><span style="background:#1DB95415;color:var(--gr);border:1px solid #1DB95430;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:800;letter-spacing:1px">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Remettez les chiffres dans l'ordre ! Recompense : 200 pieces. Cooldown 10min.</p>
+    <div id="taquin-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:240px;margin:0 auto 16px"></div>
+    <div style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:14px">Mouvements : <span id="taquin-moves" style="color:var(--gold);font-weight:700">0</span></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="taquin-start" onclick="startTaquin()">Nouveau jeu</button></div>
+    <div class="res" id="taquin-r">Cliquez Nouveau jeu pour commencer. Cooldown : 10min</div>
+  </div>
+</div>
+
 <!-- TRANSFERT -->
 <div class="page" id="page-transfer">
   <div class="gc">
