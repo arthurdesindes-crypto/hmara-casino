@@ -247,6 +247,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
   </div>
   <div class="nav-games" id="nav-other" style="display:none">
     <button class="nb" onclick="P('transfer',this)">Transfert</button>
+    <button class="nb" onclick="P('musique',this)">Musique</button>
     <button class="nb" onclick="P('shop',this)">Boutique</button>
     <button class="nb" onclick="P('lb',this)">Classement</button>
   </div>
@@ -466,7 +467,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
       <div id="reaction-btn" onclick="reactionClick()" style="width:140px;height:140px;border-radius:50%;background:var(--c2);border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .2s;user-select:none">Attends...</div>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:14px"><button class="bg" id="reaction-start" onclick="startReaction()">Commencer</button></div>
-    <div class="res" id="reaction-r">Clique sur Commencer pour jouer. Cooldown : 1h</div>
+    <div class="res" id="reaction-r">Clique sur Commencer pour jouer. Cooldown : 10min</div>
   </div>
 </div>
 
@@ -474,12 +475,12 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
 <div class="page" id="page-pendu">
   <div class="gc">
     <div class="gtitle"><div class="gtl">Pendu</div><span style="background:#1DB95415;color:var(--gr);border:1px solid #1DB95430;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:800;letter-spacing:1px">GRATUIT</span></div>
-    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Devine le mot lettre par lettre. 6 erreurs max. Recompense : jusqu'a 250 pieces.</p>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Devine le mot lettre par lettre. 10 erreurs max. Recompense : jusqu'a 250 pieces.</p>
     <div id="pendu-display" style="font-size:28px;font-weight:800;letter-spacing:12px;text-align:center;margin:20px 0;color:var(--gold);font-family:'Playfair Display',serif"></div>
-    <div id="pendu-erreurs" style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:16px">Erreurs : 0/6</div>
+    <div id="pendu-erreurs" style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:16px">Erreurs : 0/10</div>
     <div id="pendu-lettres" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px"></div>
     <div style="display:flex;gap:10px;margin-bottom:14px"><button class="bg" id="pendu-start" onclick="startPendu()">Nouveau mot</button></div>
-    <div class="res" id="pendu-r">Clique sur Nouveau mot pour commencer. Cooldown : 1h</div>
+    <div class="res" id="pendu-r">Clique sur Nouveau mot pour commencer. Cooldown : 10min</div>
   </div>
 </div>
 
@@ -496,7 +497,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
     </div>
     <div id="clicker-timer" style="text-align:center;font-size:20px;font-weight:800;color:var(--gold);margin-bottom:16px">--</div>
     <div style="display:flex;gap:10px;margin-bottom:14px"><button class="bg" id="clicker-start" onclick="startClicker()">Commencer</button></div>
-    <div class="res" id="clicker-r">Clique Commencer et clique 20 fois le plus vite possible ! Cooldown : 1h</div>
+    <div class="res" id="clicker-r">Clique Commencer et clique 20 fois le plus vite possible ! Cooldown : 10min</div>
   </div>
 </div>
 
@@ -513,7 +514,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
     </div>
     <div id="simon-level" style="text-align:center;font-size:14px;font-weight:700;color:var(--t2);margin-bottom:14px">Niveau : 0</div>
     <div style="display:flex;gap:10px;margin-bottom:14px"><button class="bg" id="simon-start" onclick="startSimon()">Commencer</button></div>
-    <div class="res" id="simon-r">Memorise la sequence et repete-la ! Cooldown : 1h</div>
+    <div class="res" id="simon-r">Memorise la sequence et repete-la ! Cooldown : 10min</div>
   </div>
 </div>
 
@@ -526,7 +527,32 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
       <canvas id="brique-canvas" width="400" height="280" style="background:var(--c2);border-radius:12px;border:1px solid var(--bd);max-width:100%"></canvas>
     </div>
     <div style="display:flex;gap:10px;margin-bottom:14px"><button class="bg" id="brique-start" onclick="startBrique()">Jouer</button></div>
-    <div class="res" id="brique-r">Clique Jouer pour commencer. Cooldown : 1h</div>
+    <div class="res" id="brique-r">Clique Jouer pour commencer. Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- MUSIQUE -->
+<div class="page" id="page-musique">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Musique d'ambiance</div></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:24px">Choisissez une musique pour accompagner votre session de jeu.</p>
+
+    <div id="music-tracks" style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px"></div>
+
+    <div style="background:var(--c2);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <span style="font-size:13px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px">Volume</span>
+        <span id="vol-display" style="font-size:14px;font-weight:800;color:var(--gold)">50%</span>
+      </div>
+      <input type="range" id="vol-slider" min="0" max="100" value="50" oninput="setVolume(this.value)"
+        style="width:100%;accent-color:var(--gold);cursor:pointer">
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button class="bg" id="music-play-btn" onclick="toggleMusic()" style="flex:1">Lancer</button>
+      <button class="bgh" onclick="stopMusic()" style="flex:1">Stop</button>
+    </div>
+    <div style="margin-top:14px;font-size:13px;color:var(--t2);text-align:center" id="music-status">Aucune musique selectionnee</div>
   </div>
 </div>
 
@@ -1119,7 +1145,7 @@ function getCooldown(game){
   const last=localStorage.getItem('cd_'+game+'_'+me.discord_id);
   if(!last)return 0;
   const diff=Date.now()-parseInt(last);
-  return Math.max(0,3600000-diff);
+  return Math.max(0,600000-diff);
 }
 function setCooldown(game){localStorage.setItem('cd_'+game+'_'+me.discord_id,Date.now());}
 function fmtCd(ms){const m=Math.ceil(ms/60000);return m+'min';}
@@ -1155,7 +1181,7 @@ async function reactionClick(){
   btn.style.background='var(--c2)';btn.style.borderColor='var(--bd)';btn.style.color='var(--t2)';btn.textContent='Attends...';
   document.getElementById('reaction-start').disabled=false;
   let prize=0;
-  if(ms<200)prize=200;else if(ms<350)prize=150;else if(ms<500)prize=100;else if(ms<800)prize=75;else prize=50;
+  if(ms<150)prize=200;else if(ms<250)prize=150;else if(ms<400)prize=100;else if(ms<600)prize=75;else prize=50;
   setCooldown('reaction');await updC(prize);
   document.getElementById('reaction-r').innerHTML=`<span class="win">${ms}ms — +${prize} pieces !</span>`;
 }
@@ -1176,7 +1202,7 @@ function startPendu(){
 }
 function renderPendu(){
   document.getElementById('pendu-display').textContent=penduMot.split('').map((l,i)=>penduTrouve[i]?l:'_').join(' ');
-  document.getElementById('pendu-erreurs').textContent='Erreurs : '+penduErreurs+'/6';
+  document.getElementById('pendu-erreurs').textContent='Erreurs : '+penduErreurs+'/10';
 }
 async function penduLetter(l){
   if(!penduActif)return;
@@ -1195,7 +1221,7 @@ async function penduLetter(l){
   }else{
     penduErreurs++;btn.style.background='#2A0505';btn.style.color='var(--rd)';btn.style.borderColor='#E5393530';
     renderPendu();
-    if(penduErreurs>=6){
+    if(penduErreurs>=10){
       penduActif=false;
       document.getElementById('pendu-display').textContent=penduMot.split('').join(' ');
       document.getElementById('pendu-r').innerHTML=`<span class="lose">Perdu ! Le mot etait ${penduMot}</span>`;
@@ -1224,7 +1250,7 @@ async function clickerClick(){
   if(clickerCount>=20){
     clickerActive=false;
     let prize=0;
-    if(elapsed<2)prize=300;else if(elapsed<3)prize=200;else if(elapsed<4)prize=150;else if(elapsed<6)prize=100;else prize=50;
+    if(elapsed<1.5)prize=300;else if(elapsed<2.5)prize=200;else if(elapsed<3.5)prize=150;else if(elapsed<5)prize=100;else prize=50;
     setCooldown('clicker');await updC(prize);
     document.getElementById('clicker-r').innerHTML=`<span class="win">20 clics en ${elapsed.toFixed(2)}s — +${prize} pieces !</span>`;
     document.getElementById('clicker-start').disabled=false;
@@ -1264,7 +1290,7 @@ async function simonClick(n){
   simonPlayer.push(n);
   if(simonPlayer[simonPlayer.length-1]!==simonSeq[simonPlayer.length-1]){
     simonActif=false;
-    const prize=simonLevel*25;setCooldown('simon');await updC(prize);
+    const prize=Math.max(0,(simonLevel-2)*30);setCooldown('simon');await updC(prize);
     document.getElementById('simon-r').innerHTML=`<span class="${prize>0?'win':'lose'}">Niveau ${simonLevel} atteint — +${prize} pieces !</span>`;
     document.getElementById('simon-start').disabled=false;
     return;
@@ -1281,7 +1307,7 @@ function startBrique(){
   const canvas=document.getElementById('brique-canvas');
   const ctx=canvas.getContext('2d');
   const W=canvas.width,H=canvas.height;
-  let bx=W/2,by=H-40,dx=3,dy=-3;
+  let bx=W/2,by=H-40,dx=3.5,dy=-3.5;
   let px=W/2-40,pw=80,ph=10;
   const rows=4,cols=8,bw=W/cols-4,bh=18;
   let briques=[];
@@ -1325,6 +1351,63 @@ function startBrique(){
   }
   loop();
 }
+
+// MUSIC PLAYER
+const TRACKS = [
+  { name: 'Casino Lounge', url: 'https://cdn.pixabay.com/audio/2022/08/02/audio_884fe92c21.mp3', emoji: '🎷' },
+  { name: 'Jazz Ambiance', url: 'https://cdn.pixabay.com/audio/2022/10/16/audio_83bdc0b55a.mp3', emoji: '🎺' },
+  { name: 'Lo-Fi Chill', url: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3', emoji: '🎵' },
+  { name: 'Epic Night', url: 'https://cdn.pixabay.com/audio/2022/03/15/audio_1e55e3d30e.mp3', emoji: '🌙' },
+  { name: 'Retro Casino', url: 'https://cdn.pixabay.com/audio/2021/11/13/audio_cb3e9be079.mp3', emoji: '🎰' },
+];
+let musicAudio = null, selectedTrack = null, musicPlaying = false;
+
+function renderTracks() {
+  document.getElementById('music-tracks').innerHTML = TRACKS.map((t, i) => `
+    <div id="track-${i}" onclick="selectTrack(${i})" style="background:var(--c2);border:1px solid var(--bd);border-radius:11px;padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s">
+      <span style="font-size:22px">${t.emoji}</span>
+      <span style="font-size:14px;font-weight:600;flex:1;color:var(--tx)">${t.name}</span>
+      <span id="track-status-${i}" style="font-size:11px;font-weight:700;color:var(--t2)"></span>
+    </div>`).join('');
+}
+
+function selectTrack(i) {
+  selectedTrack = i;
+  document.querySelectorAll('[id^="track-"]').forEach((el, idx) => {
+    el.style.borderColor = idx === i ? 'var(--gold)' : 'var(--bd)';
+    el.style.background = idx === i ? 'var(--gd)' : 'var(--c2)';
+  });
+  document.getElementById('music-status').textContent = 'Selection : ' + TRACKS[i].name;
+  if(musicPlaying) { stopMusic(); toggleMusic(); }
+}
+
+function toggleMusic() {
+  if(selectedTrack === null) { document.getElementById('music-status').textContent = 'Choisissez une musique !'; return; }
+  if(musicPlaying) { stopMusic(); return; }
+  musicAudio = new Audio(TRACKS[selectedTrack].url);
+  musicAudio.loop = true;
+  musicAudio.volume = parseInt(document.getElementById('vol-slider').value) / 100;
+  musicAudio.play().catch(() => document.getElementById('music-status').textContent = 'Erreur de chargement');
+  musicPlaying = true;
+  document.getElementById('music-play-btn').textContent = 'Pause';
+  document.getElementById('music-status').textContent = 'En cours : ' + TRACKS[selectedTrack].name;
+  document.getElementById('track-status-' + selectedTrack).textContent = '▶ En cours';
+}
+
+function stopMusic() {
+  if(musicAudio) { musicAudio.pause(); musicAudio.currentTime = 0; musicAudio = null; }
+  musicPlaying = false;
+  document.getElementById('music-play-btn').textContent = 'Lancer';
+  document.getElementById('music-status').textContent = 'Musique stoppee';
+  document.querySelectorAll('[id^="track-status-"]').forEach(el => el.textContent = '');
+}
+
+function setVolume(v) {
+  document.getElementById('vol-display').textContent = v + '%';
+  if(musicAudio) musicAudio.volume = v / 100;
+}
+
+renderTracks();
 
 init();
 </script>
