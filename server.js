@@ -18,11 +18,29 @@ const ADMIN_IDS = ['856946688064225331'];
 app.use(cors({ origin: process.env.BASE_URL, credentials: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+// Sessions stockées dans Supabase via PostgreSQL
+const { Pool } = require('pg');
+const pgSession = require('connect-pg-simple')(session);
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+
 app.use(session({
+  store: new pgSession({
+    pool,
+    tableName: 'sessions',
+    createTableIfMissing: true
+  }),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 100 * 365 * 24 * 60 * 60 * 1000 }
+  cookie: { 
+    secure: false, 
+    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 an
+    httpOnly: true
+  }
 }));
 
 function requireAuth(req, res, next) {

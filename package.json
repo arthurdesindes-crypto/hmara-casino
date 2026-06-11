@@ -11,6 +11,8 @@
     "discord.js": "^14.14.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "connect-pg-simple": "^9.0.1",
+    "pg": "^8.11.3"
   }
 }
