@@ -454,6 +454,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs dans la partie</p>
       <div class="plist" id="dice-players"></div>
       <p class="waiting" id="dice-wait">En attente d'un adversaire...</p>
+      <button class="bg" id="dice-start-btn" onclick="startDiceGame()" style="display:none;margin-top:10px;width:100%">Lancer la partie</button>
       <button class="bgh" onclick="quitDice()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div class="res" id="dice-r">Lancez un duel contre un joueur en ligne.</div>
@@ -476,7 +477,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
     <div id="horse-lobby" style="display:none">
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs dans la partie (<span id="hc">0</span>/4)</p>
       <div class="plist" id="horse-players"></div>
-      <p class="waiting" id="horse-wait">En attente... lancement automatique a 2 joueurs</p>
+      <p class="waiting" id="horse-wait">En attente de joueurs...</p>
+      <button class="bg" id="horse-start-btn" onclick="startHorseGame()" style="display:none;margin-top:10px;width:100%">Lancer la course</button>
       <button class="bgh" onclick="quitHorse()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div id="horse-track" style="display:none" class="track">
@@ -499,7 +501,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
     <div id="poker-lobby" style="display:none">
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs a la table (<span id="pkc">0</span>/4)</p>
       <div class="plist" id="poker-players"></div>
-      <p class="waiting" id="poker-wait">En attente... lancement automatique a 2 joueurs</p>
+      <p class="waiting" id="poker-wait">En attente de joueurs...</p>
+      <button class="bg" id="poker-start-btn" onclick="startPokerGame()" style="display:none;margin-top:10px;width:100%">Lancer la partie</button>
       <button class="bgh" onclick="quitPoker()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div id="poker-game" style="display:none">
@@ -525,6 +528,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs dans la partie</p>
       <div class="plist" id="bataille-players"></div>
       <p class="waiting" id="bataille-wait">En attente d'un adversaire...</p>
+      <button class="bg" id="bataille-start-btn" onclick="startBatailleGame()" style="display:none;margin-top:10px;width:100%">Lancer la partie</button>
       <button class="bgh" onclick="quitBataille()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div id="bataille-game" style="display:none">
@@ -556,7 +560,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
     <div id="loto-lobby" style="display:none">
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs (<span id="ltc">0</span>/4)</p>
       <div class="plist" id="loto-players"></div>
-      <p class="waiting">En attente... lancement automatique a 2 joueurs</p>
+      <p class="waiting" id="loto-wait2">En attente de joueurs...</p>
+      <button class="bg" id="loto-start-btn" onclick="startLotoGame()" style="display:none;margin-top:10px;width:100%">Lancer le loto</button>
       <button class="bgh" onclick="quitLoto()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div class="res" id="loto-r">Choisissez 5 numeros et rejoignez.</div>
@@ -1017,7 +1022,9 @@ function joinDice(){
 socket.on('dice:update',({players})=>{
   mkPList(players,'dice-players',p=>p.discord_id===me.discord_id?'<span class="pstatus" style="color:var(--gr)">Vous</span>':'<span class="pstatus">Adversaire</span>');
   document.getElementById('dice-wait').style.display=players.length<2?'block':'none';
+  const sb=document.getElementById('dice-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';
 });
+function startDiceGame(){socket.emit('game:start',{roomType:'dice'});}
 socket.on('dice:result',({rolls,winner,players})=>{
   inDice=false;document.getElementById('dice-btn').disabled=false;
   const myIdx=players.findIndex(p=>p.discord_id===me.discord_id);
@@ -1042,7 +1049,9 @@ function joinHorse(){
 socket.on('horse:update',({players,count})=>{
   document.getElementById('hc').textContent=count;
   mkPList(players,'horse-players',p=>`<span class="pstatus">${['Eclair','Tonnerre','Mistral','Shadow'][p.horse]}</span>`);
+  const sb=document.getElementById('horse-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';
 });
+function startHorseGame(){socket.emit('game:start',{roomType:'horse'});}
 socket.on('horse:starting',()=>{document.getElementById('horse-lobby').style.display='none';document.getElementById('horse-track').style.display='block';});
 socket.on('horse:result',({winner,players})=>{
   inHorse=false;
@@ -1071,7 +1080,9 @@ socket.on('poker:update',({players,count})=>{
   document.getElementById('pkc').textContent=count;
   mkPList(players,'poker-players',p=>p.discord_id===me.discord_id?'<span class="pstatus" style="color:var(--gr)">Vous</span>':'<span class="pstatus">Joueur</span>');
   document.getElementById('poker-wait').style.display=players.length<2?'block':'none';
+  const sb=document.getElementById('poker-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';
 });
+function startPokerGame(){socket.emit('game:start',{roomType:'poker'});}
 socket.on('poker:deal',({hand,pot})=>{
   document.getElementById('poker-lobby').style.display='none';
   document.getElementById('poker-game').style.display='block';
@@ -1104,7 +1115,9 @@ function joinBataille(){
 socket.on('bataille:update',({players})=>{
   mkPList(players,'bataille-players',p=>p.discord_id===me.discord_id?'<span class="pstatus" style="color:var(--gr)">Vous</span>':'<span class="pstatus">Adversaire</span>');
   document.getElementById('bataille-wait').style.display=players.length<2?'block':'none';
+  const sb=document.getElementById('bataille-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';
 });
+function startBatailleGame(){socket.emit('game:start',{roomType:'bataille'});}
 socket.on('bataille:result',({cards,winner,players})=>{
   inBataille=false;
   document.getElementById('bataille-lobby').style.display='none';
@@ -1148,7 +1161,9 @@ function joinLoto(){
 socket.on('loto:update',({players,count})=>{
   document.getElementById('ltc').textContent=count;
   mkPList(players,'loto-players',p=>`<span class="pstatus">${p.numbers?.join(', ')||''}</span>`);
+  const sb=document.getElementById('loto-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';
 });
+function startLotoGame(){socket.emit('game:start',{roomType:'loto'});}
 socket.on('loto:result',({drawn,scores,winner,players,pot})=>{
   inLoto=false;document.getElementById('loto-lobby').style.display='none';
   drawn.forEach(n=>{
@@ -1921,7 +1936,8 @@ function joinVingt1(){
   socket.emit('v21:join',{username:me.username,avatar:me.avatar,discord_id:me.discord_id,bet});
 }
 function quitV21(){inV21=false;document.getElementById('v21-btn').disabled=false;document.getElementById('v21-lobby').style.display='none';socket.emit('leave:room');document.getElementById('v21-r').textContent='Vous avez quitte.';}
-socket.on('v21:update',({players,count})=>{document.getElementById('v21c').textContent=count;mkPList(players,'v21-players',null);});
+socket.on('v21:update',({players,count})=>{document.getElementById('v21c').textContent=count;mkPList(players,'v21-players',null);const sb=document.getElementById('v21-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';});
+function startV21Game(){socket.emit('game:start',{roomType:'v21'});}
 socket.on('v21:start',({total,turn,players})=>{
   document.getElementById('v21-lobby').style.display='none';document.getElementById('v21-game').style.display='block';
   document.getElementById('v21-total').textContent=total;
@@ -1954,7 +1970,8 @@ function joinMrace(){
   socket.emit('mrace:join',{username:me.username,avatar:me.avatar,discord_id:me.discord_id,bet});
 }
 function quitMrace(){inMrace=false;document.getElementById('mrace-btn').disabled=false;document.getElementById('mrace-lobby').style.display='none';socket.emit('leave:room');document.getElementById('mrace-r').textContent='Vous avez quitte.';}
-socket.on('mrace:update',({players,count})=>{document.getElementById('mracec').textContent=count;mkPList(players,'mrace-players',null);});
+socket.on('mrace:update',({players,count})=>{document.getElementById('mracec').textContent=count;mkPList(players,'mrace-players',null);const sb=document.getElementById('mrace-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';});
+function startMraceGame(){socket.emit('game:start',{roomType:'mrace'});}
 socket.on('mrace:start',({players})=>{
   mraceProgress=0;
   document.getElementById('mrace-lobby').style.display='none';document.getElementById('mrace-game').style.display='block';
@@ -1994,7 +2011,8 @@ function joinGuess(){
   socket.emit('guess:join',{username:me.username,avatar:me.avatar,discord_id:me.discord_id,bet});
 }
 function quitGuess(){inGuess=false;document.getElementById('guess-btn').disabled=false;document.getElementById('guess-lobby').style.display='none';socket.emit('leave:room');document.getElementById('guess-r').textContent='Vous avez quitte.';}
-socket.on('guess:update',({players})=>{mkPList(players,'guess-players',null);document.getElementById('guess-wait').style.display=players.length<2?'block':'none';});
+socket.on('guess:update',({players})=>{mkPList(players,'guess-players',null);document.getElementById('guess-wait').style.display=players.length<2?'block':'none';const sb=document.getElementById('guess-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';});
+function startGuessGame(){socket.emit('game:start',{roomType:'guess'});}
 socket.on('guess:start',()=>{
   document.getElementById('guess-lobby').style.display='none';document.getElementById('guess-game').style.display='block';
   document.getElementById('guess-r').textContent='Entrez votre nombre secret puis devinez celui de l'adversaire !';
@@ -2027,7 +2045,8 @@ function joinBJMulti(){
   socket.emit('bjm:join',{username:me.username,avatar:me.avatar,discord_id:me.discord_id,bet});
 }
 function quitBJMulti(){inBJMulti=false;document.getElementById('bjm-btn').disabled=false;document.getElementById('bjm-lobby').style.display='none';socket.emit('leave:room');document.getElementById('bjm-r').textContent='Vous avez quitte.';}
-socket.on('bjm:update',({players,count})=>{document.getElementById('bjmc').textContent=count;mkPList(players,'bjm-players',null);});
+socket.on('bjm:update',({players,count})=>{document.getElementById('bjmc').textContent=count;mkPList(players,'bjm-players',null);const sb=document.getElementById('bjm-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';});
+function startBJMultiGame(){socket.emit('game:start',{roomType:'bjm'});}
 socket.on('bjm:deal',({hand,dealer})=>{
   bjmHand=hand;bjmDealer=dealer;
   document.getElementById('bjm-lobby').style.display='none';document.getElementById('bjm-game').style.display='block';
@@ -2058,7 +2077,8 @@ function joinDTournoi(){
   socket.emit('dtournoi:join',{username:me.username,avatar:me.avatar,discord_id:me.discord_id,bet});
 }
 function quitDTournoi(){inDTournoi=false;document.getElementById('dt-btn').disabled=false;document.getElementById('dt-lobby').style.display='none';socket.emit('leave:room');document.getElementById('dt-r').textContent='Vous avez quitte.';}
-socket.on('dtournoi:update',({players,count})=>{document.getElementById('dtc').textContent=count;mkPList(players,'dt-players',null);});
+socket.on('dtournoi:update',({players,count})=>{document.getElementById('dtc').textContent=count;mkPList(players,'dt-players',null);const sb=document.getElementById('dt-start-btn');if(sb)sb.style.display=players.length>=2?'block':'none';});
+function startDTournoiGame(){socket.emit('game:start',{roomType:'dtournoi'});}
 socket.on('dtournoi:result',({results,winner,players})=>{
   inDTournoi=false;const won=winner===me.discord_id;const bet=Math.min(clamp(document.getElementById('dtb').value),MAX_BET);
   const myResult=results.find(r=>r.discord_id===me.discord_id);
