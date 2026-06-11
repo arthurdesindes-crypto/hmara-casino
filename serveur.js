@@ -359,6 +359,15 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('leave:room', () => {
+    if (socket.roomId && rooms[socket.roomId]) {
+      io.to(socket.roomId).emit('player:left', {});
+      delete rooms[socket.roomId];
+      socket.leave(socket.roomId);
+      socket.roomId = null;
+    }
+  });
+
   socket.on('disconnect', () => {
     if (socket.roomId && rooms[socket.roomId]) {
       io.to(socket.roomId).emit('player:left', {});

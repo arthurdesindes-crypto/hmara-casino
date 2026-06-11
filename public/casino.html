@@ -326,6 +326,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs dans la partie</p>
       <div class="plist" id="dice-players"></div>
       <p class="waiting" id="dice-wait">En attente d'un adversaire...</p>
+      <button class="bgh" onclick="quitDice()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div class="res" id="dice-r">Lancez un duel contre un joueur en ligne.</div>
   </div>
@@ -348,6 +349,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs dans la partie (<span id="hc">0</span>/4)</p>
       <div class="plist" id="horse-players"></div>
       <p class="waiting" id="horse-wait">En attente... lancement automatique a 2 joueurs</p>
+      <button class="bgh" onclick="quitHorse()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div id="horse-track" style="display:none" class="track">
       <div class="hlane"><span class="hlane-em">&#x1F3CE;</span><div class="htrack"><div class="hrun" id="hr0">&#x1F3CE;</div></div></div>
@@ -370,6 +372,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs a la table (<span id="pkc">0</span>/4)</p>
       <div class="plist" id="poker-players"></div>
       <p class="waiting" id="poker-wait">En attente... lancement automatique a 2 joueurs</p>
+      <button class="bgh" onclick="quitPoker()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div id="poker-game" style="display:none">
       <div class="poker-table">
@@ -394,6 +397,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs dans la partie</p>
       <div class="plist" id="bataille-players"></div>
       <p class="waiting" id="bataille-wait">En attente d'un adversaire...</p>
+      <button class="bgh" onclick="quitBataille()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div id="bataille-game" style="display:none">
       <div class="battle-arena">
@@ -425,6 +429,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
       <p style="font-size:12px;color:var(--t2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Joueurs (<span id="ltc">0</span>/4)</p>
       <div class="plist" id="loto-players"></div>
       <p class="waiting">En attente... lancement automatique a 2 joueurs</p>
+      <button class="bgh" onclick="quitLoto()" style="margin-top:10px;width:100%">Quitter la file</button>
     </div>
     <div class="res" id="loto-r">Choisissez 5 numeros et rejoignez.</div>
   </div>
@@ -552,21 +557,31 @@ async function spinWheel(){
   document.getElementById('spin-btn').disabled=true;
   document.getElementById('skip-btn').disabled=true;
   const prizes=[10,25,50,100,150,200,250,300,400,500,600,750];
-  const prize=prizes[Math.floor(Math.random()*prizes.length)];
   const canvas=document.getElementById('wcanvas');
   const ctx=canvas.getContext('2d');
   const cx=130,cy=130,r=120;
   const colors=['#1A1200','#0D0D1A','#1A1200','#12122A','#1A1200','#0A0A15'];
-  let angle=0,speed=0.15,target=Math.random()*Math.PI*2+Math.PI*8;
+  const sliceAngle=Math.PI*2/prizes.length;
+  
+  // Pick random winning slice index
+  const winIdx=Math.floor(Math.random()*prizes.length);
+  const prize=prizes[winIdx];
+  
+  // Calculate final angle so winning slice is at top (pointer)
+  // Pointer is at top (angle 0 = top). Slice i starts at angle i*sliceAngle
+  // We want winIdx slice center at top: finalAngle = -(winIdx*sliceAngle + sliceAngle/2) + many full rotations
+  const fullSpins = Math.PI*2 * (5 + Math.floor(Math.random()*3));
+  const finalAngle = fullSpins - (winIdx * sliceAngle + sliceAngle/2);
+  
   function draw(a){
     ctx.clearRect(0,0,260,260);
     prizes.forEach((p,i)=>{
-      const start=a+i*(Math.PI*2/prizes.length);
+      const start=a+i*sliceAngle;
       ctx.beginPath();ctx.moveTo(cx,cy);
-      ctx.arc(cx,cy,r,start,start+Math.PI*2/prizes.length);
+      ctx.arc(cx,cy,r,start,start+sliceAngle);
       ctx.fillStyle=colors[i%colors.length];ctx.fill();
       ctx.strokeStyle='#C9972030';ctx.lineWidth=1;ctx.stroke();
-      ctx.save();ctx.translate(cx,cy);ctx.rotate(start+Math.PI/prizes.length);
+      ctx.save();ctx.translate(cx,cy);ctx.rotate(start+sliceAngle/2);
       ctx.fillStyle=i%2===0?'#C99720':'#EEE8D5';ctx.font='bold 11px Inter';
       ctx.textAlign='center';ctx.fillText(p,r*0.65,4);ctx.restore();
     });
@@ -574,18 +589,28 @@ async function spinWheel(){
     ctx.beginPath();ctx.moveTo(cx,cy-r-5);ctx.lineTo(cx-8,cy-r+15);ctx.lineTo(cx+8,cy-r+15);
     ctx.fillStyle='#C99720';ctx.fill();
   }
+  
   draw(0);
   let current=0;
-  const anim=setInterval(()=>{
-    current+=speed;speed*=0.98;draw(current);
-    if(speed<0.001){
-      clearInterval(anim);
-      document.getElementById('wheel-result').innerHTML=`+${prize} pieces !`;
+  const duration=4000;
+  const start=performance.now();
+  
+  function animate(now){
+    const elapsed=now-start;
+    const progress=Math.min(elapsed/duration,1);
+    // Ease out
+    const ease=1-Math.pow(1-progress,4);
+    current=finalAngle*ease;
+    draw(current);
+    if(progress<1){requestAnimationFrame(animate);}
+    else{
+      document.getElementById('wheel-result').innerHTML=`<span class="win">+${prize} pieces !</span>`;
       updC(prize);
       localStorage.setItem('lastWheel_'+me.discord_id,new Date().toDateString());
-      setTimeout(closeWheel,2000);
+      setTimeout(closeWheel,2500);
     }
-  },16);
+  }
+  requestAnimationFrame(animate);
 }
 
 // SLOTS
@@ -986,6 +1011,13 @@ async function buyR(i){
     });
   }
 }
+
+// QUIT FUNCTIONS
+function quitDice(){inDice=false;document.getElementById('dice-btn').disabled=false;document.getElementById('dice-lobby').style.display='none';socket.emit('leave:room');document.getElementById('dice-r').textContent='Vous avez quitte la file.';}
+function quitHorse(){inHorse=false;document.getElementById('horse-btn').disabled=false;document.getElementById('horse-lobby').style.display='none';socket.emit('leave:room');document.getElementById('horse-r').textContent='Vous avez quitte la file.';}
+function quitPoker(){inPoker=false;document.getElementById('poker-btn').disabled=false;document.getElementById('poker-lobby').style.display='none';socket.emit('leave:room');document.getElementById('poker-r').textContent='Vous avez quitte la file.';}
+function quitBataille(){inBataille=false;document.getElementById('bataille-btn').disabled=false;document.getElementById('bataille-lobby').style.display='none';socket.emit('leave:room');document.getElementById('bataille-r').textContent='Vous avez quitte la file.';}
+function quitLoto(){inLoto=false;document.getElementById('loto-btn').disabled=false;document.getElementById('loto-lobby').style.display='none';socket.emit('leave:room');document.getElementById('loto-r').textContent='Vous avez quitte la file.';}
 
 // LB
 async function loadLB(){
