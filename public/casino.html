@@ -982,11 +982,9 @@ async function spinWheel(){
   const winIdx=Math.floor(Math.random()*prizes.length);
   const prize=prizes[winIdx];
   
-  // Calculate final angle so winning slice is at top (pointer)
-  // Pointer is at top (angle 0 = top). Slice i starts at angle i*sliceAngle
-  // We want winIdx slice center at top: finalAngle = -(winIdx*sliceAngle + sliceAngle/2) + many full rotations
   const fullSpins = Math.PI*2 * (5 + Math.floor(Math.random()*3));
-  const finalAngle = fullSpins - (winIdx * sliceAngle + sliceAngle/2);
+  // Pointer at top = -PI/2 offset needed
+  const finalAngle = fullSpins - (winIdx * sliceAngle + sliceAngle/2) - Math.PI/2;
   
   function draw(a){
     ctx.clearRect(0,0,260,260);
@@ -1824,7 +1822,9 @@ async function spinFortune(){
   const winIdx=Math.floor(Math.random()*FORTUNE_SEGS.length);
   const sa=Math.PI*2/FORTUNE_SEGS.length;
   const fullSpins=Math.PI*2*(5+Math.floor(Math.random()*3));
-  const finalAngle=fullSpins-(winIdx*sa+sa/2);
+  // Pointer at top = angle -PI/2. Segment i center at angle: i*sa + sa/2
+  // We need segment winIdx center at top after rotation
+  const finalAngle=fullSpins - (winIdx * sa + sa/2) - Math.PI/2;
   const dur=4000;const start=performance.now();
   function anim(now){
     const p=Math.min((now-start)/dur,1),e=1-Math.pow(1-p,4);
