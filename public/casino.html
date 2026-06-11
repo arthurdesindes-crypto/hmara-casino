@@ -218,10 +218,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
 
 <div class="nav-wrap">
   <div class="nav-cat">
-    <button class="cat-btn active" onclick="showCat('solo',this)">Jeux Solo</button>
-    <button class="cat-btn" onclick="showCat('multi',this)">Multijoueur</button>
-    <button class="cat-btn" onclick="showCat('free',this)">Mini-Jeux</button>
-    <button class="cat-btn" onclick="showCat('other',this)">Autres</button>
+    <button class="cat-btn active" id="cat-solo" onclick="if(typeof showCat!=='undefined')showCat('solo',this)">Jeux Solo</button>
+    <button class="cat-btn" id="cat-multi" onclick="if(typeof showCat!=='undefined')showCat('multi',this)">Multijoueur</button>
+    <button class="cat-btn" id="cat-free" onclick="if(typeof showCat!=='undefined')showCat('free',this)">Mini-Jeux</button>
+    <button class="cat-btn" id="cat-other" onclick="if(typeof showCat!=='undefined')showCat('other',this)">Autres</button>
   </div>
   <div class="nav-games" id="nav-solo">
     <button class="nb active" onclick="P('slots',this)">Slots</button>
@@ -709,6 +709,28 @@ header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.92);backdrop-fi
 <div id="toast"></div>
 
 <script>
+// Early function definitions to avoid ReferenceError
+function showCat(cat,btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById('nav-solo').style.display=cat==='solo'?'flex':'none';
+  document.getElementById('nav-multi').style.display=cat==='multi'?'flex':'none';
+  document.getElementById('nav-free').style.display=cat==='free'?'flex':'none';
+  document.getElementById('nav-other').style.display=cat==='other'?'flex':'none';
+  if(cat==='solo'){const nb=document.querySelector('#nav-solo .nb');if(nb)P('slots',nb);}
+  if(cat==='multi'){const nb=document.querySelector('#nav-multi .nb');if(nb)P('dice',nb);}
+  if(cat==='free'){const nb=document.querySelector('#nav-free .nb');if(nb)P('reaction',nb);}
+  if(cat==='other'){const nb=document.querySelector('#nav-other .nb');if(nb)P('transfer',nb);}
+}
+function P(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);if(pg)pg.classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='lb'&&typeof loadLB!=='undefined')loadLB();
+  if(id==='transfer'&&typeof loadTransferTargets!=='undefined')loadTransferTargets();
+}
+
 const socket=io();
 let coins=0,me=null,members=[];
 const MAX_BET=10000;
@@ -757,27 +779,7 @@ async function init(){
   checkDailyWheel();
 }
 
-function showCat(cat,btn){
-  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('nav-solo').style.display=cat==='solo'?'flex':'none';
-  document.getElementById('nav-multi').style.display=cat==='multi'?'flex':'none';
-  document.getElementById('nav-free').style.display=cat==='free'?'flex':'none';
-  document.getElementById('nav-other').style.display=cat==='other'?'flex':'none';
-  if(cat==='solo')P('slots',document.querySelector('#nav-solo .nb'));
-  if(cat==='multi')P('dice',document.querySelector('#nav-multi .nb'));
-  if(cat==='free')P('reaction',document.querySelector('#nav-free .nb'));
-  if(cat==='other')P('transfer',document.querySelector('#nav-other .nb'));
-}
-
-function P(id,btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  if(btn)btn.classList.add('active');
-  if(id==='lb')loadLB();
-  if(id==='transfer')loadTransferTargets();
-}
+// showCat and P defined early above
 
 // DAILY WHEEL
 function checkDailyWheel(){
