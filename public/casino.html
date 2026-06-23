@@ -919,13 +919,13 @@ const SYMEM={'C':'&#x1F352;','L':'&#x1F34B;','O':'&#x1F34A;','E':'&#x2B50;','D':
 const REDS=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 const ROLE_K='1463996840012677221',ROLE_P='1462478078747086969';
 const REWARDS=[
-  {e:'&#x1F528;',n:'Ban 1 min',d:'Exclure un membre pendant 1 minute',p:20000,type:'ban',dur:1},
-  {e:'&#x1F528;',n:'Ban 5 min',d:'Exclure un membre pendant 5 minutes',p:100000,type:'ban',dur:5},
-  {e:'&#x1F528;',n:'Ban 10 min',d:'Exclure un membre pendant 10 minutes',p:180000,type:'ban',dur:10},
-  {e:'&#x1F44A;',n:'Role @Kickeur',d:'Donner le role Kickeur a un membre',p:40000,type:'role',rid:ROLE_K,dur:null},
-  {e:'&#x1F6E1;',n:'Pass Anti-Sanction 4j',d:'Donner le Pass Anti-Sanction 4 jours',p:150000,type:'role',rid:ROLE_P,dur:4},
-  {e:'&#x274C;',n:'Enlever un pass anti-ban',d:"Retirer le Pass Anti-Sanction d'un membre",p:200000,type:'remove-pass'},
-  {e:'&#x1F528;',n:'Ban 1 heure',d:'Exclure un membre pendant 1 heure',p:500000,type:'ban',dur:60},
+  {e:'&#x1F528;',n:'Ban 1 min',d:'Exclure un membre pendant 1 minute',p:10000,type:'ban',dur:1},
+  {e:'&#x1F528;',n:'Ban 5 min',d:'Exclure un membre pendant 5 minutes',p:50000,type:'ban',dur:5},
+  {e:'&#x1F528;',n:'Ban 10 min',d:'Exclure un membre pendant 10 minutes',p:90000,type:'ban',dur:10},
+  {e:'&#x1F44A;',n:'Role @Kickeur',d:'Donner le role Kickeur a un membre',p:20000,type:'role',rid:ROLE_K,dur:null},
+  {e:'&#x1F6E1;',n:'Pass Anti-Sanction 4j',d:'Donner le Pass Anti-Sanction 4 jours',p:75000,type:'role',rid:ROLE_P,dur:4},
+  {e:'&#x274C;',n:'Enlever un pass anti-ban',d:"Retirer le Pass Anti-Sanction d'un membre",p:100000,type:'remove-pass'},
+  {e:'&#x1F528;',n:'Ban 1 heure',d:'Exclure un membre pendant 1 heure',p:250000,type:'ban',dur:60},
 ];
 
 async function api(p,m='GET',b=null){
@@ -1632,7 +1632,7 @@ function startBrique(){
   const canvas=document.getElementById('brique-canvas');
   const ctx=canvas.getContext('2d');
   const W=canvas.width,H=canvas.height;
-  let bx=W/2,by=H-40,dx=3.5,dy=-3.5;
+  let bx=W/2,by=H-40,dx=2.5,dy=-2.5;
   let px=W/2-40,pw=80,ph=10;
   const rows=4,cols=8,bw=W/cols-4,bh=18;
   let briques=[];
@@ -1943,7 +1943,7 @@ function startSnake(){
     if(head.x===snakeFood.x&&head.y===snakeFood.y){snakeScore2++;document.getElementById('snake-score').textContent=snakeScore2;placeSnakeFood();}
     else snakeBody.pop();
     drawSnake();
-  },150);
+  },220);
 }
 function placeSnakeFood(){snakeFood={x:Math.floor(Math.random()*15),y:Math.floor(Math.random()*15)};}
 function drawSnake(){
@@ -1990,7 +1990,7 @@ function startWam(){
     const cells=document.querySelectorAll('#wam-grid div');
     cells.forEach(d=>{d.textContent='🕳️';d.dataset.mole='0';});
     const idx=Math.floor(Math.random()*9);cells[idx].textContent='🐭';cells[idx].dataset.mole='1';
-    const delay=Math.max(400,1000-wamScore2*30);
+    const delay=Math.max(500,1400-wamScore2*30);
     wamMoleTimeout=setTimeout(spawnMole,delay);
   }
   spawnMole();
@@ -2011,7 +2011,7 @@ function startFlappy(){
     if(!flappyActive)return;
     const ctx=canvas.getContext('2d'),W=320,H=400;
     ctx.fillStyle='#05051A';ctx.fillRect(0,0,W,H);
-    flappyVY+=0.35;flappyY+=flappyVY;
+    flappyVY+=0.25;flappyY+=flappyVY;
     frame++;if(frame%80===0){const gap=120,top=50+Math.random()*(H-gap-100);flappyPipes.push({x:W,top,bot:top+gap});}
     flappyPipes.forEach(p=>{p.x-=2.5;});
     flappyPipes=flappyPipes.filter(p=>p.x>-60);
@@ -2041,7 +2041,7 @@ function startPP(){
   document.getElementById('pp-start').disabled=true;
   const canvas=document.getElementById('pp-canvas');
   const ctx=canvas.getContext('2d'),W=400,H=300;
-  let bx=W/2,by=H/2,bdx=3.5,bdy=2.5;
+  let bx=W/2,by=H/2,bdx=2.5,bdy=2.0;
   let py=H/2-30,ph=60,pw=10,boty=H/2-30;
   let pscore=0,botscore=0;ppActive=true;
   canvas.onmousemove=e=>{const r=canvas.getBoundingClientRect();py=Math.max(0,Math.min(H-ph,(e.clientY-r.top)*(H/r.height)-ph/2));};
