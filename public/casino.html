@@ -1035,8 +1035,8 @@ async function playSlots(){
   reels.forEach(r=>{r.classList.remove('jp');r.classList.add('spin');});
   const rnd=Math.random();
   let res;
-  if(rnd<0.02){const s=R(['D','7']);res=[s,s,s];}
-  else if(rnd<0.11){const s=R(SYMS);res=[s,s,R(SYMS.filter(x=>x!==s))];}
+  if(rnd<0.012){const s=R(['D','7']);res=[s,s,s];}
+  else if(rnd<0.08){const s=R(SYMS);res=[s,s,R(SYMS.filter(x=>x!==s))];}
   else{res=[R(SYMS),R(SYMS),R(SYMS)];while(res[0]===res[1]&&res[1]===res[2])res[2]=R(SYMS);}
   await new Promise(r=>setTimeout(r,750));
   reels.forEach((r,i)=>{r.classList.remove('spin');r.innerHTML=SYMEM[res[i]];});
@@ -1068,7 +1068,7 @@ async function bjDeal(){
 }
 function bjHit(){bjP.push(dC());rBJ();if(sc(bjP)>21){document.getElementById('bj-r').innerHTML='<span class="lose">Bust — depasse 21.</span>';endBJ();}}
 async function bjStand(){
-  bjOn=false;while(sc(bjD)<17)bjD.push(dC());rBJ();
+  bjOn=false;while(sc(bjD)<18)bjD.push(dC());rBJ();
   const p=sc(bjP),d=sc(bjD),bet=Math.min(clamp(document.getElementById('bjb').value),MAX_BET);
   if(d>21||p>d){await updC(bet*2);document.getElementById('bj-r').innerHTML=`<span class="win">Gagne — +${bet.toLocaleString()} pieces</span>`;toast(`+${bet.toLocaleString()}`,'win');}
   else if(p===d){await updC(bet);document.getElementById('bj-r').textContent='Egalite — mise remboursee.';}
@@ -1104,7 +1104,7 @@ async function playCF(choice){
   await updC(-bet);
   const coin=document.getElementById('coin');coin.classList.add('flip');
   await new Promise(r=>setTimeout(r,700));
-  const flip=Math.random()<0.45?choice:(choice==='pile'?'face':'pile');
+  const flip=Math.random()<0.40?choice:(choice==='pile'?'face':'pile');
   coin.classList.remove('flip');coin.innerHTML=flip==='pile'?'&#x1FA99;':'&#x2B55;';
   if(flip===choice){await updC(bet*2);document.getElementById('cf-r').innerHTML=`<span class="win">${flip.toUpperCase()} — +${bet.toLocaleString()} pieces</span>`;toast(`+${bet.toLocaleString()}`,'win');}
   else document.getElementById('cf-r').innerHTML=`<span class="lose">${flip.toUpperCase()} — -${bet.toLocaleString()} pieces</span>`;
@@ -1119,7 +1119,7 @@ function startCrash(){
   crBet=bet;cOut=false;updC(-bet);crOn=true;crMult=1;
   document.getElementById('cr-btn').disabled=true;document.getElementById('co-btn').disabled=false;
   document.getElementById('crash-r').textContent='En vol — encaissez avant le crash !';
-  const crashAt=Math.max(1.0,Math.random()<0.45?1+Math.random()*0.9:1+Math.random()*Math.random()*7);
+  const crashAt=Math.max(1.0,Math.random()<0.55?1+Math.random()*0.8:1+Math.random()*Math.random()*5);
   const el=document.getElementById('crm');const fill=document.getElementById('crf');
   crInt=setInterval(async()=>{
     crMult=Math.round(crMult*103)/100;
@@ -1162,13 +1162,13 @@ async function clickM(i,el){
     document.getElementById('mines-r').innerHTML=`<span class="lose">Mine — -${mBet.toLocaleString()} pieces</span>`;
   }else{
     el.classList.add('rev','gem');el.textContent='G';mFound++;
-    const mult=1+mFound*0.35;
+    const mult=1+mFound*0.28;
     document.getElementById('mines-r').innerHTML=`<span class="win">${mFound} gemme(s) — encaissez ${Math.round(mBet*mult).toLocaleString()} pieces (x${mult.toFixed(2)})</span>`;
   }
 }
 async function minesCashout(){
   if(!mOn)return;mOn=false;
-  const mult=1+mFound*0.35;const win=Math.round(mBet*mult);await updC(win);
+  const mult=1+mFound*0.28;const win=Math.round(mBet*mult);await updC(win);
   document.getElementById('mines-r').innerHTML=`<span class="win">Encaisse — +${win.toLocaleString()} pieces (x${mult.toFixed(2)})</span>`;
   document.getElementById('ms-btn').disabled=false;document.getElementById('mc-btn').disabled=true;
   toast(`+${win.toLocaleString()}`,'win');
@@ -1184,8 +1184,8 @@ function mkPList(players,container,extraFn){
   document.getElementById(container).innerHTML=players.map(p=>`
     <div class="pc">
       <div class="pav">${avH(p)}</div>
-      <span class="pname">${p.username}</span>
-      ${extraFn?extraFn(p):'<span class="pstatus">Pret</span>'}
+      <span class="pname">${p.username}${p.discord_id===me.discord_id?' <span style="font-size:10px;color:var(--gold);font-weight:800">(Vous)</span>':''}</span>
+      ${extraFn?extraFn(p):'<span class="pstatus" style="color:var(--gr)">&#x25CF; En attente</span>'}
     </div>`).join('');
 }
 
@@ -1474,7 +1474,7 @@ function startReaction(){
   btn.style.background='var(--rd)';btn.style.borderColor='var(--rd)';btn.style.color='#fff';btn.textContent='Attends...';
   document.getElementById('reaction-start').disabled=true;
   document.getElementById('reaction-r').textContent='Attends que ca devienne vert...';
-  const delay=1500+Math.random()*3000;
+  const delay=2000+Math.random()*5000;
   reactionTimer=setTimeout(()=>{
     reactionState='ready';reactionStart=Date.now();
     btn.style.background='#1DB954';btn.style.borderColor='#1DB954';btn.style.color='#fff';btn.textContent='CLIQUE !';
@@ -1549,11 +1549,22 @@ let clickerActive=false,clickerCount=0,clickerStartTime=0;
 function startClicker(){
   const cd=getCooldown('clicker');
   if(cd>0){document.getElementById('clicker-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
-  clickerActive=true;clickerCount=0;clickerStartTime=Date.now();
+  clickerActive=false;clickerCount=0;
   document.getElementById('clicker-count').textContent='0';
-  document.getElementById('clicker-timer').textContent='GO !';
   document.getElementById('clicker-start').disabled=true;
-  document.getElementById('clicker-r').textContent='Clique vite !';
+  let count=3;
+  document.getElementById('clicker-timer').textContent=count+'...';
+  document.getElementById('clicker-r').textContent='Preparez-vous !';
+  const cd2=setInterval(()=>{
+    count--;
+    if(count>0){document.getElementById('clicker-timer').textContent=count+'...';}
+    else{
+      clearInterval(cd2);
+      clickerActive=true;clickerStartTime=Date.now();
+      document.getElementById('clicker-timer').textContent='GO !';
+      document.getElementById('clicker-r').textContent='Clique vite !';
+    }
+  },1000);
 }
 async function clickerClick(){
   if(!clickerActive)return;
@@ -1580,8 +1591,8 @@ function startSimon(){
   if(cd>0){document.getElementById('simon-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
   simonSeq=[];simonLevel=0;simonActif=false;
   document.getElementById('simon-start').disabled=true;
-  document.getElementById('simon-r').textContent='Regarde la sequence !';
-  nextSimon();
+  document.getElementById('simon-r').textContent='Preparez-vous... 3';
+  let c=3;const cd2=setInterval(()=>{c--;if(c>0)document.getElementById('simon-r').textContent='Preparez-vous... '+c;else{clearInterval(cd2);document.getElementById('simon-r').textContent='Regarde la sequence !';nextSimon();}},1000);
 }
 function nextSimon(){
   simonSeq.push(Math.floor(Math.random()*4));simonLevel++;
