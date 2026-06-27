@@ -479,9 +479,6 @@ app.get('/api/malus', requireAuth, (req, res) => {
   }
 });
 
-
-});
-
 // STREAK
 app.post('/api/streak', requireAuth, async (req, res) => {
   const { data: user } = await supabase.from('users').select('streak,last_login,coins').eq('discord_id', req.session.user.discord_id).single();
