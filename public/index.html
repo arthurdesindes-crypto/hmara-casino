@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HmaraCasino — Le Casino Privé</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#05050A;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 25%,#7C3AED18,transparent 55%),radial-gradient(ellipse at 85% 75%,#C9972015,transparent 55%),radial-gradient(ellipse at 50% 100%,#1a0a2e,#05050A 60%);pointer-events:none}
+.stars{position:fixed;inset:0;overflow:hidden;pointer-events:none}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite}
+@keyframes twinkle{0%,100%{opacity:0}50%{opacity:1}}
+.card{background:linear-gradient(145deg,#0D0D1A,#12122A);border:1px solid #C9972025;border-radius:28px;padding:56px 48px;max-width:440px;width:92%;text-align:center;position:relative;z-index:1;box-shadow:0 40px 100px #00000080,0 0 0 1px #ffffff05;animation:rise .8s cubic-bezier(.16,1,.3,1)}
+@keyframes rise{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.card::before{content:'';position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,#C99720,#F0D060,#C99720,transparent)}
+.crown{font-size:56px;display:block;margin-bottom:20px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+h1{font-family:'Playfair Display',serif;font-size:36px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#C99720,#F0D060,#C99720);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tagline{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#6060A0;margin-bottom:8px}
+.subtitle{font-size:14px;color:#5050A0;line-height:1.7;margin-bottom:40px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,#ffffff10,transparent);margin:28px 0}
+.discord-btn{background:linear-gradient(135deg,#5865F2,#7289DA);color:#fff;border:none;border-radius:16px;padding:18px 32px;font-size:15px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:12px;text-decoration:none;transition:all .25s;box-shadow:0 8px 30px #5865F240;letter-spacing:.3px}
+.discord-btn:hover{transform:translateY(-3px);box-shadow:0 16px 50px #5865F260}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}
+.feat{background:#0A0A18;border:1px solid #ffffff08;border-radius:14px;padding:16px 12px;font-size:12px;color:#5050A0;font-weight:600;transition:all .2s;letter-spacing:.3px}
+.feat:hover{border-color:#C9972030;color:#C99720}
+.feat-icon{display:block;font-size:24px;margin-bottom:8px}
+.badge{display:inline-block;background:#C9972015;color:#C99720;border:1px solid #C9972030;border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="card">
+  <span class="badge">✦ Accès Privé ✦</span>
+  <span class="crown">👑</span>
+  <p class="tagline">Bienvenue au</p>
+  <h1>HmaraCasino</h1>
+  <p class="subtitle">Le casino exclusif de ton serveur Discord. Joue, accumule des pièces d'or et réclame des récompenses uniques.</p>
+  <a href="/auth/login" class="discord-btn">
+    <svg width="22" height="22" viewBox="0 0 71 55" fill="none"><path d="M60.1 4.9A58.5 58.5 0 0 0 45.6.7a40.7 40.7 0 0 0-1.8 3.7 54.2 54.2 0 0 0-16.2 0A40.6 40.6 0 0 0 25.7.7 58.4 58.4 0 0 0 11.1 5C1.6 19.4-1 33.4.3 47.2a58.9 58.9 0 0 0 18 9.1 44.5 44.5 0 0 0 3.8-6.3 38.3 38.3 0 0 1-6-2.9l1.4-1.1a42 42 0 0 0 36 0l1.5 1.1a38.4 38.4 0 0 1-6 2.9 44.4 44.4 0 0 0 3.8 6.3 58.7 58.7 0 0 0 18-9.1C72 31.2 68 17.3 60.1 4.9ZM23.7 38.9c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Z" fill="white"/></svg>
+    Entrer avec Discord
+  </a>
+  <div class="features">
+    <div class="feat"><span class="feat-icon">🎰</span>6 Jeux Casino</div>
+    <div class="feat"><span class="feat-icon">⚔️</span>2 Jeux Multi</div>
+    <div class="feat"><span class="feat-icon">👑</span>Récompenses VIP</div>
+    <div class="feat"><span class="feat-icon">🏆</span>Classement Live</div>
+  </div>
+</div>
+<script>
+const s=document.getElementById('stars');
+for(let i=0;i<80;i++){
+  const d=document.createElement('div');d.className='star';
+  const sz=Math.random()*2+.5;
+  d.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;animation-duration:${Math.random()*4+2}s;animation-delay:${Math.random()*5}s`;
+  s.appendChild(d);
+}
+</script>
+</body>
+</html>
