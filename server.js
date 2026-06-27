@@ -479,19 +479,7 @@ app.get('/api/malus', requireAuth, (req, res) => {
   }
 });
 
-// TOURNOI HEBDOMADAIRE
-app.get('/api/tournament', requireAuth, async (req, res) => {
-  const weekKey = getWeekKey();
-  const { data } = await supabase.from('users').select('discord_id,username,avatar,weekly_score').order('weekly_score', { ascending: false }).limit(10);
-  res.json({ scores: data || [], weekKey });
-});
 
-app.post('/api/tournament/add', requireAuth, async (req, res) => {
-  const { score } = req.body;
-  const { data: user } = await supabase.from('users').select('weekly_score').eq('discord_id', req.session.user.discord_id).single();
-  const newScore = (user.weekly_score || 0) + score;
-  await supabase.from('users').update({ weekly_score: newScore }).eq('discord_id', req.session.user.discord_id);
-  res.json({ success: true, score: newScore });
 });
 
 // STREAK
@@ -535,7 +523,6 @@ const MAX_CHAT = 50;
 const activeBoosts = {}; // discord_id -> { type, expiresAt }
 
 // ═══ TOURNOI HEBDOMADAIRE ════════════════════════════════════════
-let weeklyScores = {}; // discord_id -> { username, avatar, score }
 
 function getWeekKey() {
   const d = new Date();
