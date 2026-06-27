@@ -154,15 +154,6 @@ app.post('/api/admin/coins', requireAdmin, async (req, res) => {
 app.post('/api/admin/ban', requireAdmin, async (req, res) => {
   const { discord_id } = req.body;
   await supabase.from('users').update({ banned: true }).eq('discord_id', discord_id);
-  // Also timeout on Discord via bot
-  try {
-    await axios.post(`${process.env.BOT_URL || "http://localhost:3001"}/ban`, {
-      targetId: discord_id,
-      duration: 60 * 24 * 7, // 7 days
-      reason: 'Ban admin casino',
-      buyerUsername: 'Admin'
-    });
-  } catch(e) {}
   res.json({ success: true });
 });
 
