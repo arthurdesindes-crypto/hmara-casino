@@ -110,10 +110,33 @@ app.get('/api/me', requireAuth, async (req, res) => {
 
 app.post('/api/coins', requireAuth, async (req, res) => {
   const { amount } = req.body;
-  const { data: user } = await supabase.from('users').select('coins').eq('discord_id', req.session.user.discord_id).single();
-  const newCoins = Math.max(0, user.coins + amount);
-  await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
-  res.json({ coins: newCoins });
+  const { data: user } = await supabase.from('users').select('coins,xp,level').eq('discord_id', req.session.user.discord_id).single();
+  const newCoins = Math.max(0, (user.coins || 0) + amount);
+  
+  // XP system - gain XP for any game activity
+  let xpGain = 0;
+  if (amount !== 0) xpGain = Math.abs(Math.floor(amount * 0.1)) + 5;
+  const newXP = (user.xp || 0) + xpGain;
+  const newLevel = Math.floor(newXP / 1000) + 1;
+  const levelUp = newLevel > (user.level || 1);
+  
+  // Jackpot contribution when losing
+  if (amount < 0) addToJackpot(Math.abs(amount));
+  
+  // Random jackpot win (0.5% chance per loss)
+  let jackpotWon = false;
+  if (amount < 0 && Math.random() < 0.005 && jackpotPool > 1000) {
+    jackpotWon = true;
+    const prize = jackpotPool;
+    jackpotPool = 5000;
+    await supabase.from('users').update({ coins: newCoins + prize, xp: newXP, level: newLevel }).eq('discord_id', req.session.user.discord_id);
+    io.emit('jackpot:won', { username: req.session.user.username, prize, pool: jackpotPool });
+    io.emit('jackpot:update', { pool: jackpotPool });
+    return res.json({ coins: newCoins + prize, xp: newXP, level: newLevel, levelUp, jackpotWon: true, jackpotPrize: prize });
+  }
+  
+  await supabase.from('users').update({ coins: newCoins, xp: newXP, level: newLevel }).eq('discord_id', req.session.user.discord_id);
+  res.json({ coins: newCoins, xp: newXP, level: newLevel, levelUp, xpGain });
 });
 
 app.post('/api/buy', requireAuth, async (req, res) => {
@@ -134,6 +157,51 @@ app.get('/api/leaderboard', async (req, res) => {
 
 app.get('/api/online', requireAuth, (req, res) => {
   res.json({ online: Array.from(onlineUsers) });
+});
+
+// Jackpot
+app.get('/api/jackpot', (req, res) => {
+  res.json({ pool: jackpotPool });
+});
+
+// Coffre mystere
+app.post('/api/chest/open', requireAuth, async (req, res) => {
+  if (!activeChest) return res.status(400).json({ error: 'Aucun coffre disponible' });
+  const prize = activeChest.prize;
+  activeChest = null;
+  const { data: user } = await supabase.from('users').select('coins').eq('discord_id', req.session.user.discord_id).single();
+  await supabase.from('users').update({ coins: (user.coins || 0) + prize }).eq('discord_id', req.session.user.discord_id);
+  io.emit('chest:opened', { username: req.session.user.username, prize });
+  io.emit('chest:expire', {});
+  setTimeout(spawnChest, chestInterval);
+  res.json({ prize, success: true });
+});
+
+// Stats personnelles
+app.get('/api/stats', requireAuth, async (req, res) => {
+  const { data: user } = await supabase.from('users').select('coins,xp,level').eq('discord_id', req.session.user.discord_id).single();
+  const { data: purchases } = await supabase.from('purchases').select('price').eq('discord_id', req.session.user.discord_id);
+  const totalSpent = (purchases || []).reduce((s, p) => s + p.price, 0);
+  res.json({ ...user, totalSpent, xpToNext: 1000 - ((user.xp || 0) % 1000) });
+});
+
+// Defis quotidiens
+app.get('/api/challenges', requireAuth, async (req, res) => {
+  const today = new Date().toDateString();
+  const challenges = [
+    { id: 'play5', label: 'Jouer 5 parties', reward: 500, key: `ch_play5_${today}` },
+    { id: 'win3', label: 'Gagner 3 parties', reward: 1000, key: `ch_win3_${today}` },
+    { id: 'spend2000', label: 'Miser 2000 pieces', reward: 750, key: `ch_spend2000_${today}` },
+  ];
+  // Check localStorage progress on client side
+  res.json({ challenges });
+});
+
+app.post('/api/challenges/claim', requireAuth, async (req, res) => {
+  const { challengeId, reward } = req.body;
+  const { data: user } = await supabase.from('users').select('coins').eq('discord_id', req.session.user.discord_id).single();
+  await supabase.from('users').update({ coins: (user.coins || 0) + reward }).eq('discord_id', req.session.user.discord_id);
+  res.json({ success: true, coins: (user.coins || 0) + reward });
 });
 
 // ADMIN API
@@ -250,6 +318,30 @@ app.get('/admin', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, 
 
 // SOCKET MULTIJOUEUR
 const rooms = {};
+let jackpotPool = 5000; // Jackpot progressif
+let activeChest = null; // Coffre mystere
+const chestInterval = 60 * 60 * 1000; // 1 heure
+
+// Jackpot progressif - grossit avec chaque mise perdue
+function addToJackpot(amount) {
+  jackpotPool += Math.floor(amount * 0.02); // 2% des mises vont au jackpot
+  io.emit('jackpot:update', { pool: jackpotPool });
+}
+
+// Coffre mystere - apparait toutes les heures
+function spawnChest() {
+  const prize = 500 + Math.floor(Math.random() * 2000);
+  activeChest = { prize, spawnedAt: Date.now() };
+  io.emit('chest:spawn', { prize });
+  setTimeout(() => {
+    if (activeChest) {
+      activeChest = null;
+      io.emit('chest:expire', {});
+    }
+    setTimeout(spawnChest, chestInterval);
+  }, 5 * 60 * 1000); // Disparait apres 5 minutes
+}
+setTimeout(spawnChest, 10 * 60 * 1000); // Premier coffre apres 10 min
 const onlineUsers = new Set(); // Track online discord_ids
 
 io.on('connection', (socket) => {

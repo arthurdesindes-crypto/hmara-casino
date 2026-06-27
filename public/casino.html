@@ -19,7 +19,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;padding-bottom:44px}
 
 /* Animated background */
 body::before{content:'';position:fixed;inset:0;background:
@@ -376,13 +376,69 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
 <header>
   <div class="logo">✦ HMARA CASINO ✦</div>
   <div class="hdr-r">
-    <div class="cb">&#x1F451; <span id="cd">...</span></div>
-    <div class="av" id="av"></div>
+    <div class="cb" id="jackpot-display" style="cursor:pointer;background:linear-gradient(135deg,#1A0A00,#2A1A00);border-color:#D4AF3750" title="Jackpot Progressif">🎰 <span id="jackpot-val">...</span></div>
+    <div class="cb">♦ <span id="cd">...</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+      <div class="av" id="av"></div>
+      <div style="font-size:9px;color:var(--gold);font-weight:700" id="level-display">Niv.1</div>
+    </div>
     <span class="un" id="un"></span>
     <a id="al" href="/admin" class="hl al" style="display:none">Admin</a>
     <a href="/auth/logout" class="hl">Deconnexion</a>
   </div>
 </header>
+
+
+<!-- COFFRE MYSTERE -->
+<div id="chest-notif" style="display:none;position:fixed;bottom:80px;right:24px;z-index:9990;
+  background:linear-gradient(135deg,#1A1400,#2A2000);border:2px solid var(--gold);
+  border-radius:18px;padding:20px 24px;text-align:center;cursor:pointer;
+  box-shadow:0 8px 40px #D4AF3750,0 0 60px #D4AF3730;animation:chestin .5s cubic-bezier(.2,0,.3,1)"
+  onclick="openChest()">
+  <div style="font-size:40px;margin-bottom:6px;animation:chestspin 2s ease-in-out infinite">📦</div>
+  <div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:2px">COFFRE MYSTERE !</div>
+  <div style="font-size:11px;color:var(--t2)" id="chest-prize-display">??? pieces</div>
+  <div style="font-size:10px;color:var(--t2);margin-top:6px">5 minutes restantes</div>
+</div>
+@keyframes chestin{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes chestspin{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+
+<!-- JACKPOT WIN POPUP -->
+<div id="jackpot-popup" style="display:none;position:fixed;inset:0;z-index:9997;background:rgba(0,0,0,.9);
+  display:none;align-items:center;justify-content:center;backdrop-filter:blur(10px)">
+  <div style="text-align:center;padding:40px">
+    <div style="font-size:80px;margin-bottom:16px">🎰</div>
+    <div style="font-family:'Cinzel',serif;font-size:36px;font-weight:900;color:var(--gold);
+      text-shadow:0 0 30px #D4AF37;margin-bottom:8px">JACKPOT !</div>
+    <div style="font-size:18px;color:var(--tx);margin-bottom:24px" id="jackpot-popup-msg"></div>
+    <button class="bg" onclick="document.getElementById('jackpot-popup').style.display='none'" style="padding:14px 32px">Fermer</button>
+  </div>
+</div>
+
+<!-- XP BAR -->
+<div style="position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(2,2,9,.95);
+  border-top:1px solid var(--bd);padding:6px 20px;display:flex;align-items:center;gap:12px">
+  <span style="font-size:11px;font-weight:700;color:var(--gold);white-space:nowrap" id="xp-label">Niv.1</span>
+  <div style="flex:1;height:6px;background:var(--c3);border-radius:3px;overflow:hidden">
+    <div id="xp-bar" style="height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold));width:0%;transition:width .5s;border-radius:3px"></div>
+  </div>
+  <span style="font-size:10px;color:var(--t2);white-space:nowrap" id="xp-text">0/1000 XP</span>
+  <button onclick="showChallenges()" style="background:var(--c2);border:1px solid var(--bd2);border-radius:8px;padding:4px 10px;font-size:10px;font-weight:800;color:var(--gold);cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap">🎯 DEFIS</button>
+</div>
+
+<!-- DEFIS MODAL -->
+<div id="challenges-modal" style="display:none;position:fixed;inset:0;z-index:9996;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);align-items:center;justify-content:center">
+  <div style="background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid var(--bd2);border-radius:24px;padding:36px;max-width:420px;width:92%;box-shadow:0 40px 100px #000">
+    <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:900;color:var(--gold);margin-bottom:6px;letter-spacing:2px">🎯 DEFIS DU JOUR</div>
+    <p style="font-size:12px;color:var(--t2);margin-bottom:20px">Se reinitialisent a minuit</p>
+    <div id="challenges-list"></div>
+    <button class="bgh" onclick="document.getElementById('challenges-modal').style.display='none'" style="width:100%;margin-top:16px">Fermer</button>
+  </div>
+</div>
+<style>
+#jackpot-popup{display:none}
+#jackpot-popup.show{display:flex}
+</style>
 
 <div class="nav-wrap">
   <div class="nav-cat">
@@ -1248,6 +1304,27 @@ function P(id,btn){
 }
 
 const socket=io();
+
+// Jackpot & chest socket events
+socket.on('jackpot:update',({pool})=>{
+  const el=document.getElementById('jackpot-val');
+  if(el)el.textContent=pool.toLocaleString()+' ♦';
+});
+socket.on('jackpot:won',({username,prize})=>{
+  toast('🎰 '+username+' gagne le jackpot de '+prize.toLocaleString()+' pieces !','win');
+});
+socket.on('chest:spawn',({prize})=>{
+  const el=document.getElementById('chest-notif');
+  document.getElementById('chest-prize-display').textContent=prize.toLocaleString()+' pieces';
+  el.style.display='block';
+  toast('📦 Un coffre mystere est apparu !','win');
+});
+socket.on('chest:expire',()=>{
+  document.getElementById('chest-notif').style.display='none';
+});
+socket.on('chest:opened',({username,prize})=>{
+  toast('📦 '+username+' ouvre le coffre : +'+prize.toLocaleString()+' pieces !','win');
+});
 let coins=0,me=null,members=[];
 const MAX_BET=10000;
 const SYMS=['C','L','O','E','D','7'];
@@ -1270,9 +1347,24 @@ async function api(p,m='GET',b=null){
   const r=await fetch(p,o);return r.json();
 }
 async function updC(d){
-  if(d===0){const r=await api('/api/me');coins=r.coins;}
-  else{const r=await api('/api/coins','POST',{amount:d});coins=r.coins;}
+  if(d===0){const r=await api('/api/me');coins=r.coins;if(r.xp!==undefined)updateXPBar(r.xp,r.level||1);}
+  else{
+    const r=await api('/api/coins','POST',{amount:d});coins=r.coins;
+    if(r.xp!==undefined)updateXPBar(r.xp,r.level||1);
+    if(r.levelUp)showLevelUp(r.level);
+    if(r.jackpotWon){document.getElementById('jackpot-popup-msg').textContent=`Vous gagnez le jackpot de ${r.jackpotPrize.toLocaleString()} pieces !`;document.getElementById('jackpot-popup').classList.add('show');}
+  }
   document.getElementById('cd').textContent=coins.toLocaleString();
+}
+function updateXPBar(xp,level){
+  const progress=xp%1000;const pct=progress/10;
+  document.getElementById('xp-bar').style.width=pct+'%';
+  document.getElementById('xp-label').textContent='Niv.'+level;
+  document.getElementById('xp-text').textContent=progress+'/1000 XP';
+  document.getElementById('level-display').textContent='Niv.'+level;
+}
+function showLevelUp(level){
+  toast('🎉 Niveau '+level+' atteint !','win');
 }
 function SB(id,v){document.getElementById(id).value=Math.min(v,MAX_BET);}
 function R(a){return a[Math.floor(Math.random()*a.length)];}
@@ -1778,6 +1870,62 @@ function quitHorse(){inHorse=false;document.getElementById('horse-btn').disabled
 function quitPoker(){inPoker=false;document.getElementById('poker-btn').disabled=false;document.getElementById('poker-lobby').style.display='none';socket.emit('leave:room');document.getElementById('poker-r').textContent='Vous avez quitte la file.';}
 function quitBataille(){inBataille=false;document.getElementById('bataille-btn').disabled=false;document.getElementById('bataille-lobby').style.display='none';socket.emit('leave:room');document.getElementById('bataille-r').textContent='Vous avez quitte la file.';}
 function quitLoto(){inLoto=false;document.getElementById('loto-btn').disabled=false;document.getElementById('loto-lobby').style.display='none';socket.emit('leave:room');document.getElementById('loto-r').textContent='Vous avez quitte la file.';}
+
+// COFFRE MYSTERE
+async function openChest(){
+  const r=await api('/api/chest/open','POST',{});
+  if(r.error){toast(r.error,'lose');return;}
+  document.getElementById('chest-notif').style.display='none';
+  toast('📦 Coffre ouvert — +'+r.prize.toLocaleString()+' pieces !','win');
+  updC(0);
+}
+
+// DEFIS
+let challengeProgress={play5:0,win3:0,spend2000:0};
+function showChallenges(){
+  const modal=document.getElementById('challenges-modal');
+  modal.style.display='flex';
+  const today=new Date().toDateString();
+  const claimed={
+    play5:localStorage.getItem('ch_play5_claimed_'+today),
+    win3:localStorage.getItem('ch_win3_claimed_'+today),
+    spend2000:localStorage.getItem('ch_spend2000_claimed_'+today),
+  };
+  const challenges=[
+    {id:'play5',label:'Jouer 5 parties',reward:500,progress:Math.min(5,challengeProgress.play5),max:5},
+    {id:'win3',label:'Gagner 3 parties',reward:1000,progress:Math.min(3,challengeProgress.win3),max:3},
+    {id:'spend2000',label:'Miser 2 000 pieces',reward:750,progress:Math.min(2000,challengeProgress.spend2000),max:2000},
+  ];
+  document.getElementById('challenges-list').innerHTML=challenges.map(c=>`
+    <div style="background:var(--c3);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:13px;font-weight:700">${c.label}</span>
+        <span style="font-size:12px;font-weight:800;color:var(--gold)">+${c.reward.toLocaleString()}</span>
+      </div>
+      <div style="height:6px;background:var(--c2);border-radius:3px;overflow:hidden;margin-bottom:8px">
+        <div style="height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold));width:${Math.min(100,c.progress/c.max*100)}%;border-radius:3px;transition:width .5s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--t2)">${c.progress}/${c.max}</span>
+        ${c.progress>=c.max&&!claimed[c.id]?`<button class="bg" onclick="claimChallenge('${c.id}',${c.reward})" style="padding:6px 14px;font-size:11px">Reclamer</button>`:''}
+        ${claimed[c.id]?'<span style="font-size:11px;color:var(--gr)">✓ Reclamé</span>':''}
+      </div>
+    </div>`).join('');
+}
+async function claimChallenge(id,reward){
+  const r=await api('/api/challenges/claim','POST',{challengeId:id,reward});
+  if(r.error){toast(r.error,'lose');return;}
+  const today=new Date().toDateString();
+  localStorage.setItem('ch_'+id+'_claimed_'+today,'1');
+  coins=r.coins;document.getElementById('cd').textContent=coins.toLocaleString();
+  toast('🎯 Defi complete — +'+reward.toLocaleString()+' pieces !','win');
+  showChallenges();
+}
+function trackChallenge(type,amount=1){
+  if(type==='play')challengeProgress.play5+=1;
+  if(type==='win')challengeProgress.win3+=1;
+  if(type==='spend')challengeProgress.spend2000+=amount;
+}
 
 // LB
 async function loadLB(){
