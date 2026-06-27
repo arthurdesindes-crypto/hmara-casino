@@ -564,8 +564,8 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   <div class="gc">
     <div class="gtitle"><div class="gtl">Machines a Sous</div><span class="sb">Solo</span></div>
     <div class="slots"><div class="reel" id="s1">7</div><div class="reel" id="s2">7</div><div class="reel" id="s3">7</div></div>
-    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="sb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('sb',160)">160</button><button class="pb" onclick="SB('sb',800)">800</button><button class="pb" onclick="SB('sb',5000)">5000</button><button class="pb" onclick="SB('sb',10000)">Max</button></div></div>
-    <p class="max-info">Mise maximale : 10 000 pieces</p>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="sb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('sb',160)">160</button><button class="pb" onclick="SB('sb',800)">800</button><button class="pb" onclick="SB('sb',5000)">5000</button><button class="pb" onclick="SB('sb',getMaxBet())">Max</button></div></div>
+    <p class="max-info" id="max-info-display">Mise maximale : 10 000 pieces</p>
     <div style="display:flex;gap:10px;margin:14px 0"><button class="bg" onclick="playSlots()">Lancer</button></div>
     <div class="res" id="slots-r">Tentez votre chance.</div>
   </div>
@@ -579,7 +579,7 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
       <div><div class="hl2">Croupier <span class="sp" id="ds">?</span></div><div class="hand" id="dh"></div></div>
       <div class="sep"></div>
       <div><div class="hl2">Votre main <span class="sp" id="ps">0</span></div><div class="hand" id="ph"></div></div>
-      <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="bjb" value="320" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('bjb',320)">320</button><button class="pb" onclick="SB('bjb',1600)">1600</button><button class="pb" onclick="SB('bjb',10000)">Max</button></div></div>
+      <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="bjb" value="320" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('bjb',320)">320</button><button class="pb" onclick="SB('bjb',1600)">1600</button><button class="pb" onclick="SB('bjb',getMaxBet())">Max</button></div></div>
       <div class="bjbtns"><button class="bg" onclick="bjDeal()" id="bjd">Distribuer</button><button class="bgh" onclick="bjHit()" id="bjh" disabled>Carte</button><button class="bgh" onclick="bjStand()" id="bjs2" disabled>Rester</button></div>
       <div class="res" id="bj-r">Placez votre mise.</div>
     </div>
@@ -591,7 +591,7 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   <div class="gc">
     <div class="gtitle"><div class="gtl">Roulette</div><span class="sb">Solo</span></div>
     <div class="rog" id="rog"></div>
-    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="rb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('rb',160)">160</button><button class="pb" onclick="SB('rb',800)">800</button><button class="pb" onclick="SB('rb',10000)">Max</button></div></div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="rb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('rb',160)">160</button><button class="pb" onclick="SB('rb',800)">800</button><button class="pb" onclick="SB('rb',getMaxBet())">Max</button></div></div>
     <div style="display:flex;gap:10px;margin:14px 0"><button class="bg" onclick="playRou()">Tourner</button></div>
     <div class="res" id="rou-r">Choisissez un numero.</div>
   </div>
@@ -602,7 +602,7 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   <div class="gc">
     <div class="gtitle"><div class="gtl">Pile ou Face</div><span class="sb">Solo</span></div>
     <div class="coinw"><div class="coin" id="coin">&#x1FA99;</div></div>
-    <div class="br" style="justify-content:center"><span class="bl">Mise</span><input class="bi" type="number" id="cfb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('cfb',160)">160</button><button class="pb" onclick="SB('cfb',800)">800</button><button class="pb" onclick="SB('cfb',10000)">Max</button></div></div>
+    <div class="br" style="justify-content:center"><span class="bl">Mise</span><input class="bi" type="number" id="cfb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('cfb',160)">160</button><button class="pb" onclick="SB('cfb',800)">800</button><button class="pb" onclick="SB('cfb',getMaxBet())">Max</button></div></div>
     <div class="cfbtns" style="margin-bottom:14px"><button class="bg" onclick="playCF('pile')">Pile</button><button class="bg" onclick="playCF('face')">Face</button></div>
     <div class="res" id="cf-r">Choisissez pile ou face.</div>
   </div>
@@ -613,7 +613,7 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   <div class="gc">
     <div class="gtitle"><div class="gtl">Crash</div><span class="sb">Solo</span></div>
     <div class="crash-d"><div class="crm" id="crm">1.00x</div><div class="crbar"><div class="crfill" id="crf"></div></div></div>
-    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="crb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('crb',160)">160</button><button class="pb" onclick="SB('crb',800)">800</button><button class="pb" onclick="SB('crb',10000)">Max</button></div></div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="crb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('crb',160)">160</button><button class="pb" onclick="SB('crb',800)">800</button><button class="pb" onclick="SB('crb',getMaxBet())">Max</button></div></div>
     <div style="display:flex;gap:10px;margin:14px 0"><button class="bg" id="cr-btn" onclick="startCrash()">Lancer</button><button class="bgh" id="co-btn" onclick="cashout()" disabled>Encaisser</button></div>
     <div class="res" id="crash-r">Lancez et encaissez avant le crash.</div>
   </div>
@@ -624,7 +624,7 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   <div class="gc">
     <div class="gtitle"><div class="gtl">Mines</div><span class="sb">Solo</span></div>
     <div class="mg" id="mg"></div>
-    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="mnb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('mnb',160)">160</button><button class="pb" onclick="SB('mnb',800)">800</button><button class="pb" onclick="SB('mnb',10000)">Max</button></div></div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="mnb" value="160" min="1" max="10000"><div class="ps"><button class="pb" onclick="SB('mnb',160)">160</button><button class="pb" onclick="SB('mnb',800)">800</button><button class="pb" onclick="SB('mnb',getMaxBet())">Max</button></div></div>
     <div style="display:flex;gap:10px;margin:14px 0"><button class="bg" id="ms-btn" onclick="startMines()">Jouer</button><button class="bgh" id="mc-btn" onclick="minesCashout()" disabled>Encaisser</button></div>
     <div class="res" id="mines-r">Trouvez les gemmes, evitez les mines.</div>
   </div>
@@ -1473,7 +1473,12 @@ socket.on('chest:opened',({username,prize})=>{
   toast('📦 '+username+' ouvre le coffre : +'+prize.toLocaleString()+' pieces !','win');
 });
 let coins=0,me=null,members=[];
-const MAX_BET=10000;
+const BASE_MAX_BET=10000;
+function getMaxBet(){
+  if(currentBoost&&currentBoost.type==='vip'&&new Date(currentBoost.expiresAt)>new Date())return 50000;
+  return BASE_MAX_BET;
+}
+const MAX_BET=10000; // kept for reference, use getMaxBet() for actual limit
 const SYMS=['C','L','O','E','D','7'];
 const SYMEM={'C':'&#x1F352;','L':'&#x1F34B;','O':'&#x1F34A;','E':'&#x2B50;','D':'&#x1F48E;','7':'7'};
 const REDS=[1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
@@ -1518,9 +1523,9 @@ function updateXPBar(xp,level){
 function showLevelUp(level){
   toast('🎉 Niveau '+level+' atteint !','win');
 }
-function SB(id,v){document.getElementById(id).value=Math.min(v,MAX_BET);}
+function SB(id,v){document.getElementById(id).value=Math.min(v,getMaxBet());}
 function R(a){return a[Math.floor(Math.random()*a.length)];}
-function clamp(v){return Math.min(parseInt(v)||0,MAX_BET);}
+function clamp(v){return Math.min(parseInt(v)||0,getMaxBet());}
 function toast(msg,t=''){
   const el=document.getElementById('toast');el.textContent=msg;
   el.style.borderColor=t==='win'?'#1DB95430':t==='lose'?'#E5393530':'var(--bd)';
@@ -2722,8 +2727,8 @@ function updateMalusDisplay(malus){
 function updateBoostDisplay(){
   if(!currentBoost)return;
   const el=document.getElementById('active-boost-display');if(el)el.style.display='block';
-  const names={x2:'⚡ Gains x2 actifs !',protect:'🛡️ Bouclier actif !',luck:'🍀 +20% Gains actifs !',
-    eclair:'⚡ Cooldown 2min actif !',vip:'👑 VIP Mode actif !',shield:'🔮 Anti-Malus actif !',
+  const names={x2:'⚡ Tout x2 actif !',protect:'🛡️ Bouclier actif !',luck:'🍀 +20% Gains actifs !',
+    eclair:'⚡ Cooldown 2min actif !',vip:'👑 VIP Mode actif — Mise max 50 000 !',shield:'🔮 Anti-Malus actif !',
     cagnotte:'💰 Cagnotte utilisee',recharge:'🔄 Recharge utilisee'};
   const txt=document.getElementById('active-boost-text');if(txt)txt.textContent=names[currentBoost.type]||'Boost actif';
   const remaining=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/60000));
@@ -2750,8 +2755,8 @@ function updateStatusBar(){
   const items=[];
   
   if(currentBoost&&new Date(currentBoost.expiresAt)>new Date()){
-    const boostNames={x2:'⚡ Gains x2',protect:'🛡️ Bouclier',luck:'🍀 +20% Gains',
-      eclair:'⚡ Cooldown 2min',vip:'👑 VIP Mode',shield:'🔮 Anti-Malus',cagnotte:'💰 Cagnotte',recharge:'🔄 Recharge'};
+    const boostNames={x2:'⚡ Tout x2',protect:'🛡️ Bouclier',luck:'🍀 +20% Gains',
+      eclair:'⚡ Cooldown 2min',vip:'👑 VIP 50k max',shield:'🔮 Anti-Malus',cagnotte:'💰 Cagnotte',recharge:'🔄 Recharge'};
     const remaining=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/60000));
     const secs=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/1000)%60);
     items.push(`<div class="status-item status-boost">
@@ -2810,7 +2815,18 @@ async function activateBoost(type,cost){
     });
     toast('🔄 Tous vos cooldowns ont ete recharges !','win');
   }
-  if(type==='vip'){window._vipBoost=new Date(Date.now()+5*60*1000);}
+  if(type==='vip'){
+    window._vipBoost=new Date(Date.now()+5*60*1000);
+    // Update max bet displays
+    document.querySelectorAll('input[type="number"][max="10000"]').forEach(i=>i.setAttribute('max','50000'));
+    const mi=document.getElementById('max-info-display');
+    if(mi)mi.textContent='Mise maximale : 50 000 pieces (VIP actif !)';
+    setTimeout(()=>{
+      document.querySelectorAll('input[type="number"][max="50000"]').forEach(i=>i.setAttribute('max','10000'));
+      const mi2=document.getElementById('max-info-display');
+      if(mi2)mi2.textContent='Mise maximale : 10 000 pieces';
+    },5*60*1000);
+  }
   updateStatusBar();
   document.getElementById('boost-r').innerHTML='<span class="win">Boost active !</span>';
 }
