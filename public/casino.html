@@ -1186,49 +1186,31 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
 
 <!-- BOOSTS -->
 <div class="page" id="page-boosts">
-  <div class="gc">
-    <div class="gtitle"><div class="gtl">⚡ Boosts Temporaires</div></div>
-    <p style="font-size:13px;color:var(--t2);margin-bottom:20px">Activez un boost pour ameliorer vos gains ! Un seul boost actif a la fois.</p>
-    <div id="active-boost-display" style="display:none;background:linear-gradient(135deg,#1A1400,#2A2000);border:1px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:20px;text-align:center">
-      <div style="font-size:13px;font-weight:700;color:var(--gold)" id="active-boost-text">Aucun boost actif</div>
+  <div class="gc" style="margin-bottom:14px">
+    <div id="active-boost-display" style="display:none;background:linear-gradient(135deg,#1A1400,#2A2000);border:1px solid var(--gold);border-radius:14px;padding:14px 16px;margin-bottom:12px;text-align:center">
+      <div style="font-size:13px;font-weight:700;color:var(--gold)" id="active-boost-text"></div>
       <div style="font-size:11px;color:var(--t2);margin-top:4px" id="active-boost-timer"></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px" id="boosts-list">
-      <div class="gc" style="margin-bottom:0;padding:18px">
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="font-size:36px">⚡</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:700;margin-bottom:3px">Gains x2</div>
-            <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Doublez vos gains pendant 10 minutes</div>
-            <div style="font-size:13px;font-weight:800;color:var(--gold)">10 000 pieces</div>
-          </div>
-          <button class="bg" onclick="activateBoost('x2',10000)" style="padding:10px 16px;font-size:12px">Activer</button>
-        </div>
-      </div>
-      <div class="gc" style="margin-bottom:0;padding:18px">
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="font-size:36px">🛡️</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:700;margin-bottom:3px">Protection de Mise</div>
-            <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Votre prochaine perte est absorb&#233;e</div>
-            <div style="font-size:13px;font-weight:800;color:var(--gold)">7 500 pieces</div>
-          </div>
-          <button class="bg" onclick="activateBoost('protect',7500)" style="padding:10px 16px;font-size:12px">Activer</button>
-        </div>
-      </div>
-      <div class="gc" style="margin-bottom:0;padding:18px">
-        <div style="display:flex;align-items:center;gap:14px">
-          <div style="font-size:36px">🍀</div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:700;margin-bottom:3px">Boost de Chance</div>
-            <div style="font-size:12px;color:var(--t2);margin-bottom:8px">+15% de chance de gagner pendant 15 min</div>
-            <div style="font-size:13px;font-weight:800;color:var(--gold)">15 000 pieces</div>
-          </div>
-          <button class="bg" onclick="activateBoost('luck',15000)" style="padding:10px 16px;font-size:12px">Activer</button>
-        </div>
-      </div>
+    <div id="active-malus-display" style="display:none;background:linear-gradient(135deg,#1A0505,#2A0808);border:1px solid var(--rd);border-radius:14px;padding:14px 16px;text-align:center">
+      <div style="font-size:13px;font-weight:700;color:var(--rd)" id="active-malus-text"></div>
+      <div style="font-size:11px;color:var(--t2);margin-top:4px" id="active-malus-timer"></div>
     </div>
-    <div class="res" style="margin-top:14px" id="boost-r">Choisissez un boost pour ameliorer vos chances !</div>
+  </div>
+
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">⚡ Boosts — Pour Vous</div></div>
+    <div id="boosts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px"></div>
+    <div class="res" id="boost-r" style="margin-top:14px">Choisissez un boost !</div>
+  </div>
+
+  <div class="gc">
+    <div class="gtitle"><div class="gtl" style="color:var(--rd)">💀 Malus — Envoyer aux Adversaires</div></div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Cible</div>
+      <select id="malus-target" class="tf-select"></select>
+    </div>
+    <div id="malus-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+    <div class="res" id="malus-r" style="margin-top:14px">Choisissez une cible et un malus !</div>
   </div>
 </div>
 
@@ -1411,7 +1393,7 @@ function P(id,btn){
   if(id==='lb'&&typeof loadLB==='function')loadLB();
   if(id==='transfer'&&typeof loadTransferTargets==='function')loadTransferTargets();
   if(id==='tournament'&&typeof loadTournament==='function')loadTournament();
-  if(id==='boosts'&&typeof loadBoost==='function')loadBoost();
+  if(id==='boosts'){if(typeof loadBoost==='function')loadBoost();if(typeof renderBoostsPage==='function')renderBoostsPage();}
 }
 
 const socket=io();
@@ -1502,6 +1484,12 @@ async function init(){
   socket.on('online:update',({online})=>{
     const el=document.getElementById('online-count');
     if(el)el.textContent=online.length+' en ligne';
+  });
+  socket.on('malus:received',({targetId,type,from})=>{
+    if(targetId!==me?.discord_id)return;
+    const names={slow:'🐢 Ralentissement',taxe:'💸 Taxe',confusion:'🎭 Confusion',silence:'🔇 Silence',malediction:'💀 Malediction',tempete:'🌪️ Tempete'};
+    toast('💀 '+from+' vous envoie un malus : '+(names[type]||type),'lose');
+    api('/api/malus').then(r=>{if(r&&r.active)updateMalusDisplay(r.active);});
   });
   checkDailyWheel();
 }
@@ -2407,9 +2395,79 @@ async function checkStreak(){
 
 // ═══ BOOSTS ══════════════════════════════════════════════════════
 let currentBoost=null;
+const BOOSTS_DATA=[
+  {e:'⚡',n:'Gains x2',d:'Doublez vos gains 10min',p:10000,t:'x2'},
+  {e:'🛡️',n:'Protection',d:'Prochaine perte absorbee',p:7500,t:'protect'},
+  {e:'🍀',n:'Boost Chance',d:'+25% gains 15min',p:15000,t:'luck'},
+  {e:'💰',n:'Super Cagnotte',d:'+500 pieces instantanees',p:5000,t:'cagnotte'},
+  {e:'⚡',n:'Vitesse Eclair',d:'Cooldown 2min pendant 20min',p:8000,t:'eclair'},
+  {e:'🎯',n:'Precision',d:'+25% gains solo 15min',p:12000,t:'precision'},
+  {e:'👑',n:'VIP Mode',d:'Mises x10 autorisees 10min',p:20000,t:'vip'},
+  {e:'🔄',n:'Double Chance',d:'Relance auto si perte 5min',p:18000,t:'doublechance'},
+];
+const MALUS_DATA=[
+  {e:'🐢',n:'Ralentissement',d:'Cooldown mini-jeux x3 10min',p:3000,t:'slow'},
+  {e:'💸',n:'Taxe',d:'Vole 5% de ses pieces',p:5000,t:'taxe'},
+  {e:'🎭',n:'Confusion',d:'Boutons melanges 5min',p:4000,t:'confusion'},
+  {e:'🔇',n:'Silence',d:'Chat bloque 10min',p:2000,t:'silence'},
+  {e:'💀',n:'Malediction',d:'Prochaine mise perdue double',p:8000,t:'malediction'},
+  {e:'🌪️',n:'Tempete',d:'Perd 10% de ses pieces',p:12000,t:'tempete'},
+];
+
+function renderBoostsPage(){
+  const bg=document.getElementById('boosts-grid');if(!bg)return;
+  bg.innerHTML=BOOSTS_DATA.map(b=>`
+    <div style="background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid var(--bd);border-radius:14px;padding:14px;text-align:center">
+      <div style="font-size:28px;margin-bottom:6px">${b.e}</div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:4px">${b.n}</div>
+      <div style="font-size:10px;color:var(--t2);margin-bottom:8px">${b.d}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:8px">${b.p.toLocaleString()} ♦</div>
+      <button class="bg" onclick="activateBoost('${b.t}',${b.p})" style="width:100%;padding:8px;font-size:11px">Activer</button>
+    </div>`).join('');
+  const mg=document.getElementById('malus-grid');if(!mg)return;
+  mg.innerHTML=MALUS_DATA.map(m=>`
+    <div style="background:linear-gradient(145deg,#100505,#1A0808);border:1px solid #FF444420;border-radius:14px;padding:14px;text-align:center">
+      <div style="font-size:28px;margin-bottom:6px">${m.e}</div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:var(--tx)">${m.n}</div>
+      <div style="font-size:10px;color:var(--t2);margin-bottom:8px">${m.d}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--rd);margin-bottom:8px">${m.p.toLocaleString()} ♦</div>
+      <button onclick="sendMalus('${m.t}',${m.p})" style="width:100%;padding:8px;font-size:11px;background:linear-gradient(135deg,#2A0505,#3A0808);color:var(--rd);border:1px solid #FF444430;border-radius:10px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:800">Envoyer 💀</button>
+    </div>`).join('');
+  // Load malus targets
+  loadMalusTargets();
+}
+
+async function loadMalusTargets(){
+  const sel=document.getElementById('malus-target');if(!sel)return;
+  const data=await api('/api/leaderboard');
+  sel.innerHTML=data.filter(u=>u.discord_id!==me?.discord_id).map(u=>`<option value="${u.discord_id}">${u.username} (${(u.coins||0).toLocaleString()} ♦)</option>`).join('');
+}
+
+async function sendMalus(type,cost){
+  const targetId=document.getElementById('malus-target')?.value;
+  if(!targetId){toast('Choisissez une cible !','lose');return;}
+  const r=await api('/api/malus/send','POST',{targetId,type,cost});
+  if(r.error){toast(r.error,'lose');return;}
+  coins=r.coins;document.getElementById('cd').textContent=coins.toLocaleString();
+  toast('💀 Malus envoye a '+r.targetName+' !','win');
+  document.getElementById('malus-r').innerHTML=`<span class="win">Malus envoye a ${r.targetName} !</span>`;
+}
+
 async function loadBoost(){
   const r=await api('/api/boosts').catch(()=>null);
   if(r&&r.active){currentBoost=r.active;updateBoostDisplay();}
+  const rm=await api('/api/malus').catch(()=>null);
+  if(rm&&rm.active)updateMalusDisplay(rm.active);
+  renderBoostsPage();
+}
+
+function updateMalusDisplay(malus){
+  const el=document.getElementById('active-malus-display');if(!el)return;
+  el.style.display='block';
+  const names={slow:'🐢 Ralentissement actif !',taxe:'💸 Taxe subie !',confusion:'🎭 Confusion active !',silence:'🔇 Silence actif !',malediction:'💀 Malediction active !',tempete:'🌪️ Tempete active !'};
+  document.getElementById('active-malus-text').textContent=(names[malus.type]||'Malus actif')+' (par '+malus.from+')';
+  const remaining=Math.max(0,Math.floor((new Date(malus.expiresAt)-Date.now())/60000));
+  document.getElementById('active-malus-timer').textContent=remaining+' minutes restantes';
 }
 function updateBoostDisplay(){
   if(!currentBoost)return;

@@ -330,14 +330,72 @@ app.get('/api/boosts', requireAuth, (req, res) => {
   }
 });
 
+const activeMalus = {}; // discord_id -> { type, expiresAt }
+
+const BOOST_DURATIONS = {
+  x2: 10*60*1000, protect: 5*60*1000, luck: 15*60*1000,
+  cagnotte: 0, eclair: 20*60*1000, precision: 15*60*1000,
+  vip: 10*60*1000, doublechance: 5*60*1000
+};
+
 app.post('/api/boosts/activate', requireAuth, async (req, res) => {
   const { type, cost } = req.body;
   const { data: user } = await supabase.from('users').select('coins').eq('discord_id', req.session.user.discord_id).single();
   if (!user || user.coins < cost) return res.status(400).json({ error: 'Pas assez de pieces' });
-  await supabase.from('users').update({ coins: user.coins - cost }).eq('discord_id', req.session.user.discord_id);
-  const duration = type === 'x2' ? 10 * 60 * 1000 : type === 'protect' ? 5 * 60 * 1000 : 15 * 60 * 1000;
+  
+  let newCoins = user.coins - cost;
+  
+  // Special: cagnotte gives instant coins
+  if (type === 'cagnotte') {
+    newCoins += 500;
+    await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
+    return res.json({ success: true, boost: null, coins: newCoins, instant: 500 });
+  }
+  
+  await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
+  const duration = BOOST_DURATIONS[type] || 10*60*1000;
   activeBoosts[req.session.user.discord_id] = { type, expiresAt: new Date(Date.now() + duration) };
-  res.json({ success: true, boost: activeBoosts[req.session.user.discord_id], coins: user.coins - cost });
+  res.json({ success: true, boost: activeBoosts[req.session.user.discord_id], coins: newCoins });
+});
+
+// MALUS - send to another player
+app.post('/api/malus/send', requireAuth, async (req, res) => {
+  const { targetId, type, cost } = req.body;
+  if (targetId === req.session.user.discord_id) return res.status(400).json({ error: 'Vous ne pouvez pas vous envoyer un malus !' });
+  
+  const { data: user } = await supabase.from('users').select('coins,username').eq('discord_id', req.session.user.discord_id).single();
+  if (!user || user.coins < cost) return res.status(400).json({ error: 'Pas assez de pieces' });
+  
+  const { data: target } = await supabase.from('users').select('coins,username').eq('discord_id', targetId).single();
+  if (!target) return res.status(404).json({ error: 'Joueur introuvable' });
+  
+  await supabase.from('users').update({ coins: user.coins - cost }).eq('discord_id', req.session.user.discord_id);
+  
+  // Apply malus effect
+  if (type === 'taxe') {
+    const tax = Math.floor(target.coins * 0.05);
+    await supabase.from('users').update({ coins: Math.max(0, target.coins - tax) }).eq('discord_id', targetId);
+  }
+  
+  const MALUS_DURATIONS = { slow: 10*60*1000, confusion: 5*60*1000, silence: 10*60*1000, malediction: 30*60*1000, taxe: 0 };
+  const duration = MALUS_DURATIONS[type] || 10*60*1000;
+  if (duration > 0) activeMalus[targetId] = { type, expiresAt: new Date(Date.now() + duration), from: user.username };
+  
+  // Notify target via socket
+  io.emit('malus:received', { targetId, type, from: user.username });
+  
+  res.json({ success: true, coins: user.coins - cost, targetName: target.username });
+});
+
+// Check malus for a player
+app.get('/api/malus', requireAuth, (req, res) => {
+  const malus = activeMalus[req.session.user.discord_id];
+  if (malus && new Date(malus.expiresAt) > new Date()) {
+    res.json({ active: malus });
+  } else {
+    delete activeMalus[req.session.user.discord_id];
+    res.json({ active: null });
+  }
 });
 
 // TOURNOI HEBDOMADAIRE
