@@ -150,7 +150,7 @@ app.post('/api/coins', requireAuth, async (req, res) => {
   if (amount !== 0) xpGain = Math.max(1, Math.abs(Math.floor(amount * 0.0006))); // 25x harder
   const newXP = (user.xp || 0) + xpGain;
   // Much higher thresholds
-  const XP_THRESHOLDS = [0,1000,3000,6000,10000,15000,22000,30000,40000,52000,66000,82000,100000,120000,150000];
+  const XP_THRESHOLDS = [0,25000,75000,150000,250000,375000,550000,750000,1000000,1300000,1650000,2050000,2500000,3000000,3750000];
   const newLevel = XP_THRESHOLDS.filter(t => newXP >= t).length;
   const levelUp = newLevel > (user.level || 1);
   
@@ -264,7 +264,7 @@ app.post('/api/admin/xp', requireAdmin, async (req, res) => {
   const { data: user } = await supabase.from('users').select('xp,level').eq('discord_id', discord_id).single();
   if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
   const newXP = Math.max(0, (user.xp || 0) + amount);
-  const XP_THRESHOLDS = [0,1000,3000,6000,10000,15000,22000,30000,40000,52000,66000,82000,100000,120000,150000];
+  const XP_THRESHOLDS = [0,25000,75000,150000,250000,375000,550000,750000,1000000,1300000,1650000,2050000,2500000,3000000,3750000];
   const newLevel = XP_THRESHOLDS.filter(t => newXP >= t).length;
   await supabase.from('users').update({ xp: newXP, level: newLevel }).eq('discord_id', discord_id);
   res.json({ success: true, xp: newXP, level: newLevel });

@@ -2497,21 +2497,21 @@ async function checkActiveMalus() {
 
 // ═══ XP TITLES SYSTEM ════════════════════════════════════════════
 const XP_LEVELS = [
-  { level:1,  xp:0,      title:'Novice',        color:'#6060A0', emoji:'🎲', bonus:null,                  bonusDesc:'Aucun bonus — jouez pour monter !' },
-  { level:2,  xp:1000,   title:'Apprenti',      color:'#7888C0', emoji:'🃏', bonus:'+5% XP',              bonusDesc:'+5% XP sur toutes les parties' },
-  { level:3,  xp:3000,   title:'Joueur',        color:'#8899D0', emoji:'🎰', bonus:'+50 pieces/j',        bonusDesc:'+50 pieces de bonus chaque jour' },
-  { level:4,  xp:6000,   title:'Parieur',       color:'#99A8E0', emoji:'♠️', bonus:'+10% XP',             bonusDesc:'+10% XP sur toutes les parties' },
-  { level:5,  xp:10000,  title:'Habitué',       color:'#A0B0F0', emoji:'🍀', bonus:'Cooldown -2min',      bonusDesc:'Cooldown mini-jeux reduit de 2 minutes' },
-  { level:6,  xp:15000,  title:'Vétéran',       color:'#C0A060', emoji:'⭐', bonus:'+100 pieces/j',       bonusDesc:'+100 pieces de bonus chaque jour' },
-  { level:7,  xp:22000,  title:'Expert',        color:'#D4AF37', emoji:'💎', bonus:'+15% XP',             bonusDesc:'+15% XP et +5% gains casino' },
-  { level:8,  xp:30000,  title:'Champion',      color:'#E8C040', emoji:'👑', bonus:'+200 pieces/j',       bonusDesc:'+200 pieces de bonus chaque jour' },
-  { level:9,  xp:40000,  title:'Elite',         color:'#FF8C00', emoji:'🔥', bonus:'Protection offerte',  bonusDesc:'1 boost Protection offert par semaine' },
-  { level:10, xp:52000,  title:'Maitre',        color:'#FF6B35', emoji:'💫', bonus:'+25% gains',          bonusDesc:'+25% sur tous vos gains casino' },
-  { level:11, xp:66000,  title:'Grand Maitre',  color:'#FF4444', emoji:'🌟', bonus:'+500 pieces/j',       bonusDesc:'+500 pieces de bonus chaque jour' },
-  { level:12, xp:82000,  title:'Legende',       color:'#FF2288', emoji:'🏆', bonus:'+30% gains',          bonusDesc:'+30% sur tous vos gains' },
-  { level:13, xp:100000, title:'Mythique',      color:'#CC00FF', emoji:'⚡', bonus:'Boost gratuit/sem',   bonusDesc:'1 boost gratuit au choix chaque semaine' },
-  { level:14, xp:120000, title:'Divin',         color:'#FF00CC', emoji:'🌈', bonus:'+40% gains',          bonusDesc:'+40% sur tous vos gains casino' },
-  { level:15, xp:150000, title:'Transcendant',  color:'#D4AF37', emoji:'✨', bonus:'Tout x2',             bonusDesc:'Tous vos gains sont doubles a jamais !' },
+  { level:1,  xp:0,        title:'Novice',        color:'#6060A0', emoji:'🎲', bonus:null,                  bonusDesc:'Aucun bonus — jouez pour monter !' },
+  { level:2,  xp:25000,    title:'Apprenti',      color:'#7888C0', emoji:'🃏', bonus:'+5% XP',              bonusDesc:'+5% XP sur toutes les parties' },
+  { level:3,  xp:75000,    title:'Joueur',        color:'#8899D0', emoji:'🎰', bonus:'+50 pieces/j',        bonusDesc:'+50 pieces de bonus chaque jour' },
+  { level:4,  xp:150000,   title:'Parieur',       color:'#99A8E0', emoji:'♠️', bonus:'+10% XP',             bonusDesc:'+10% XP sur toutes les parties' },
+  { level:5,  xp:250000,   title:'Habitue',       color:'#A0B0F0', emoji:'🍀', bonus:'Cooldown -2min',      bonusDesc:'Cooldown mini-jeux reduit de 2 minutes' },
+  { level:6,  xp:375000,   title:'Veteran',       color:'#C0A060', emoji:'⭐', bonus:'+100 pieces/j',       bonusDesc:'+100 pieces de bonus chaque jour' },
+  { level:7,  xp:550000,   title:'Expert',        color:'#D4AF37', emoji:'💎', bonus:'+15% XP',             bonusDesc:'+15% XP et +5% gains casino' },
+  { level:8,  xp:750000,   title:'Champion',      color:'#E8C040', emoji:'👑', bonus:'+200 pieces/j',       bonusDesc:'+200 pieces de bonus chaque jour' },
+  { level:9,  xp:1000000,  title:'Elite',         color:'#FF8C00', emoji:'🔥', bonus:'Protection offerte',  bonusDesc:'1 boost Protection offert par semaine' },
+  { level:10, xp:1300000,  title:'Maitre',        color:'#FF6B35', emoji:'💫', bonus:'+25% gains',          bonusDesc:'+25% sur tous vos gains casino' },
+  { level:11, xp:1650000,  title:'Grand Maitre',  color:'#FF4444', emoji:'🌟', bonus:'+500 pieces/j',       bonusDesc:'+500 pieces de bonus chaque jour' },
+  { level:12, xp:2050000,  title:'Legende',       color:'#FF2288', emoji:'🏆', bonus:'+30% gains',          bonusDesc:'+30% sur tous vos gains' },
+  { level:13, xp:2500000,  title:'Mythique',      color:'#CC00FF', emoji:'⚡', bonus:'Boost gratuit/sem',   bonusDesc:'1 boost gratuit au choix chaque semaine' },
+  { level:14, xp:3000000,  title:'Divin',         color:'#FF00CC', emoji:'🌈', bonus:'+40% gains',          bonusDesc:'+40% sur tous vos gains casino' },
+  { level:15, xp:3750000,  title:'Transcendant',  color:'#D4AF37', emoji:'✨', bonus:'Tout x2',             bonusDesc:'Tous vos gains sont doubles a jamais !' },
 ];
 
 function getTitleForLevel(level) {
