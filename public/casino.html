@@ -427,6 +427,16 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
     <button class="nb" onclick="P('flappy',this)">Flappy</button>
     <button class="nb" onclick="P('pingpong',this)">Ping Pong</button>
     <button class="nb" onclick="P('taquin',this)">Taquin</button>
+    <button class="nb" onclick="P('memory',this)">Memory</button>
+    <button class="nb" onclick="P('typing',this)">Typing</button>
+    <button class="nb" onclick="P('maths',this)">Maths</button>
+    <button class="nb" onclick="P('pfc',this)">P.F.C</button>
+    <button class="nb" onclick="P('colors',this)">Couleurs</button>
+    <button class="nb" onclick="P('aim',this)">Aim Trainer</button>
+    <button class="nb" onclick="P('jeu2048',this)">2048</button>
+    <button class="nb" onclick="P('dino',this)">Dino Run</button>
+    <button class="nb" onclick="P('wordscramble',this)">Anagramme</button>
+    <button class="nb" onclick="P('pong2',this)">Pong Turbo</button>
   </div>
   <div class="nav-games" id="nav-other" style="display:none">
     <button class="nb" onclick="P('transfer',this)">Transfert</button>
@@ -915,6 +925,163 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   </div>
 </div>
 
+
+<!-- MEMORY -->
+<div class="page" id="page-memory">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Memory</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Retrouvez toutes les paires ! Moins de coups = plus de pieces. Cooldown 10min.</p>
+    <div id="memory-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:340px;margin:0 auto 16px"></div>
+    <div style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:14px">Coups : <span id="memory-moves" style="color:var(--gold);font-weight:700">0</span></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="memory-start" onclick="startMemory()">Nouveau jeu</button></div>
+    <div class="res" id="memory-r">Trouvez toutes les paires ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- TYPING -->
+<div class="page" id="page-typing">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Typing Speed</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Tapez le texte le plus vite possible ! Recompense selon votre vitesse. Cooldown 10min.</p>
+    <div id="typing-text" style="background:var(--c3);border:1px solid var(--bd);border-radius:12px;padding:16px;font-size:16px;line-height:1.8;margin-bottom:14px;min-height:60px;color:var(--t2);letter-spacing:.5px"></div>
+    <input id="typing-input" class="bi" type="text" style="width:100%;margin-bottom:14px" placeholder="Tapez ici..." oninput="checkTyping()" disabled>
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Temps : <span id="typing-timer" style="color:var(--gold)">30</span>s</span>
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Mots : <span id="typing-words" style="color:var(--gold)">0</span></span>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="typing-start" onclick="startTyping()">Commencer</button></div>
+    <div class="res" id="typing-r">Tapez le plus de mots possible en 30s. Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- MATHS -->
+<div class="page" id="page-maths">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Maths Rapide</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Resolvez le maximum de calculs en 30 secondes ! Cooldown 10min.</p>
+    <div id="maths-question" style="text-align:center;font-size:48px;font-weight:800;color:var(--gold);font-family:'Cinzel',serif;margin:20px 0">?</div>
+    <input id="maths-input" class="bi" type="number" style="width:100%;text-align:center;font-size:20px;margin-bottom:14px" placeholder="Votre reponse" oninput="checkMaths()" disabled>
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Temps : <span id="maths-timer" style="color:var(--gold)">30</span>s</span>
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Score : <span id="maths-score" style="color:var(--gold)">0</span></span>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="maths-start" onclick="startMaths()">Commencer</button></div>
+    <div class="res" id="maths-r">Resolvez les calculs le plus vite possible ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- PIERRE FEUILLE CISEAUX -->
+<div class="page" id="page-pfc">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Pierre Feuille Ciseaux</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Premier a 3 victoires gagne ! Contre l'IA. Cooldown 10min.</p>
+    <div style="display:flex;justify-content:space-around;margin:20px 0">
+      <div style="text-align:center"><div style="font-size:14px;font-weight:700;color:var(--t2);margin-bottom:8px">Vous</div><div id="pfc-player" style="font-size:64px">?</div><div id="pfc-pscore" style="font-size:20px;font-weight:800;color:var(--gold);margin-top:8px">0</div></div>
+      <div style="text-align:center;display:flex;align-items:center"><div style="font-family:'Cinzel',serif;font-size:20px;color:var(--gold)">VS</div></div>
+      <div style="text-align:center"><div style="font-size:14px;font-weight:700;color:var(--t2);margin-bottom:8px">IA</div><div id="pfc-bot" style="font-size:64px">?</div><div id="pfc-bscore" style="font-size:20px;font-weight:800;color:var(--t2);margin-top:8px">0</div></div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:14px;margin-bottom:14px" id="pfc-btns">
+      <button class="bg" onclick="playPFC('pierre')" style="font-size:24px;padding:14px 20px">🪨</button>
+      <button class="bg" onclick="playPFC('feuille')" style="font-size:24px;padding:14px 20px">📄</button>
+      <button class="bg" onclick="playPFC('ciseaux')" style="font-size:24px;padding:14px 20px">✂️</button>
+    </div>
+    <div class="res" id="pfc-r">Choisissez Pierre, Feuille ou Ciseaux ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- COULEURS -->
+<div class="page" id="page-colors">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Couleurs Rapides</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Cliquez la couleur correcte avant le temps ! Cooldown 10min.</p>
+    <div id="colors-word" style="text-align:center;font-size:52px;font-weight:900;margin:20px 0;font-family:'Cinzel',serif;transition:all .3s">-</div>
+    <div id="colors-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:300px;margin:0 auto 16px"></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Score : <span id="colors-score" style="color:var(--gold)">0</span></span>
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Temps : <span id="colors-timer" style="color:var(--gold)">30</span>s</span>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="colors-start" onclick="startColors()">Commencer</button></div>
+    <div class="res" id="colors-r">Cliquez la couleur de la POLICE (pas du mot) ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- AIM TRAINER -->
+<div class="page" id="page-aim">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Aim Trainer</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Cliquez les cibles le plus vite possible ! 20 cibles en 30s. Cooldown 10min.</p>
+    <div style="position:relative;width:100%;height:300px;background:var(--c3);border-radius:14px;border:1px solid var(--bd);overflow:hidden;margin-bottom:14px" id="aim-area">
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;color:var(--t2);font-weight:600" id="aim-start-msg">Cliquez Commencer</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Cibles : <span id="aim-score" style="color:var(--gold)">0</span>/20</span>
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Temps : <span id="aim-timer" style="color:var(--gold)">30</span>s</span>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="aim-start" onclick="startAim()">Commencer</button></div>
+    <div class="res" id="aim-r">Cliquez toutes les cibles ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- 2048 -->
+<div class="page" id="page-jeu2048">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">2048</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Fusionnez les tuiles pour atteindre 2048 ! Utilisez les fleches du clavier. Cooldown 10min.</p>
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <span style="font-size:14px;font-weight:800;color:var(--gold)">Score : <span id="g2048-score">0</span></span>
+      <span style="font-size:14px;font-weight:800;color:var(--gold)">Meilleur : <span id="g2048-best">0</span></span>
+    </div>
+    <div id="g2048-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:var(--c3);border-radius:14px;padding:10px;margin-bottom:14px"></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="g2048-start" onclick="startG2048()">Nouveau jeu</button></div>
+    <div class="res" id="g2048-r">Fusionnez les tuiles pour atteindre 2048 ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- DINO RUN -->
+<div class="page" id="page-dino">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Dino Run</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Sautez par-dessus les obstacles ! Appuyez sur Espace ou cliquez. Cooldown 10min.</p>
+    <div style="display:flex;justify-content:center;margin-bottom:12px">
+      <canvas id="dino-canvas" width="400" height="200" style="background:var(--c3);border-radius:12px;border:1px solid var(--bd);max-width:100%"></canvas>
+    </div>
+    <div style="text-align:center;font-size:14px;font-weight:700;color:var(--gold);margin-bottom:10px">Score : <span id="dino-score">0</span></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="dino-start" onclick="startDino()">Jouer</button></div>
+    <div class="res" id="dino-r">Sautez les cactus ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- ANAGRAMME -->
+<div class="page" id="page-wordscramble">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Anagramme</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Retrouvez le mot cache ! 5 mots en 60 secondes. Cooldown 10min.</p>
+    <div id="ws-word" style="text-align:center;font-size:40px;font-weight:900;color:var(--gold);letter-spacing:12px;margin:20px 0;font-family:'Cinzel',serif"></div>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <input id="ws-input" class="bi" type="text" style="flex:1;text-transform:uppercase" placeholder="Votre reponse..." disabled>
+      <button class="bg" onclick="checkWordScramble()">OK</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:14px">
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Score : <span id="ws-score" style="color:var(--gold)">0</span>/5</span>
+      <span style="font-size:13px;font-weight:700;color:var(--t2)">Temps : <span id="ws-timer" style="color:var(--gold)">60</span>s</span>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="ws-start" onclick="startWordScramble()">Commencer</button></div>
+    <div class="res" id="ws-r">Trouvez le mot melange ! Cooldown : 10min</div>
+  </div>
+</div>
+
+<!-- PONG TURBO -->
+<div class="page" id="page-pong2">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">Pong Turbo</div><span class="free-badge">GRATUIT</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Version rapide du Ping Pong ! Premier a 7 points. Cooldown 10min.</p>
+    <div style="display:flex;justify-content:center;margin-bottom:12px">
+      <canvas id="pong2-canvas" width="400" height="300" style="background:#05050A;border-radius:12px;border:1px solid var(--bd);max-width:100%"></canvas>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px"><button class="bg" id="pong2-start" onclick="startPong2()">Jouer</button></div>
+    <div class="res" id="pong2-r">Premier a 7 points gagne ! Cooldown : 10min</div>
+  </div>
+</div>
 <!-- TRANSFERT -->
 <div class="page" id="page-transfer">
   <div class="gc">
@@ -1911,6 +2078,272 @@ function setVolume(v) {
 }
 
 renderTracks();
+
+// ═══ MEMORY ══════════════════════════════════════════════════════
+const MEMORY_EMOJIS=['🎰','💎','👑','🃏','🎲','🍀','⭐','🔮'];
+let memoryCards=[],memoryFlipped=[],memoryMatched=0,memoryMoves2=0,memoryLock=false;
+function startMemory(){
+  const cd=getCooldown('memory');if(cd>0){document.getElementById('memory-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
+  const pairs=[...MEMORY_EMOJIS,...MEMORY_EMOJIS].sort(()=>Math.random()-.5);
+  memoryCards=pairs;memoryFlipped=[];memoryMatched=0;memoryMoves2=0;memoryLock=false;
+  document.getElementById('memory-moves').textContent='0';
+  document.getElementById('memory-start').disabled=true;
+  const g=document.getElementById('memory-grid');g.innerHTML='';
+  pairs.forEach((e,i)=>{
+    const d=document.createElement('div');
+    d.style.cssText='height:72px;border-radius:10px;background:var(--c3);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:all .3s;user-select:none';
+    d.textContent='?';d.dataset.idx=i;d.dataset.val=e;d.dataset.open='0';
+    d.onclick=()=>flipMemory(d);
+    g.appendChild(d);
+  });
+  document.getElementById('memory-r').textContent='Retrouvez toutes les paires !';
+}
+function flipMemory(d){
+  if(memoryLock||d.dataset.open==='1'||memoryFlipped.length>=2)return;
+  d.textContent=d.dataset.val;d.style.background='var(--c2)';d.style.borderColor='var(--gold)';d.dataset.open='1';
+  memoryFlipped.push(d);
+  if(memoryFlipped.length===2){
+    memoryMoves2++;document.getElementById('memory-moves').textContent=memoryMoves2;
+    memoryLock=true;
+    if(memoryFlipped[0].dataset.val===memoryFlipped[1].dataset.val){
+      memoryFlipped[0].style.borderColor='var(--gr)';memoryFlipped[1].style.borderColor='var(--gr)';
+      memoryMatched++;memoryFlipped=[];memoryLock=false;
+      if(memoryMatched===8){const prize=Math.max(50,300-memoryMoves2*5);setCooldown('memory');updC(prize);document.getElementById('memory-r').innerHTML=`<span class="win">Termine en ${memoryMoves2} coups — +${prize} pieces !</span>`;document.getElementById('memory-start').disabled=false;}
+    }else{
+      setTimeout(()=>{memoryFlipped.forEach(c=>{c.textContent='?';c.style.background='var(--c3)';c.style.borderColor='var(--bd)';c.dataset.open='0';});memoryFlipped=[];memoryLock=false;},900);
+    }
+  }
+}
+
+// ═══ TYPING SPEED ════════════════════════════════════════════════
+const TYPING_TEXTS=["le casino est un endroit magique","la fortune sourit aux audacieux","jouez intelligemment et gagnez","les des ne mentent jamais","chaque mise peut changer votre vie"];
+let typingInterval=null,typingWords=0,typingActive=false;
+function startTyping(){
+  const cd=getCooldown('typing');if(cd>0){document.getElementById('typing-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
+  const txt=TYPING_TEXTS[Math.floor(Math.random()*TYPING_TEXTS.length)];
+  document.getElementById('typing-text').textContent=txt;
+  document.getElementById('typing-input').value='';document.getElementById('typing-input').disabled=false;
+  document.getElementById('typing-input').focus();
+  document.getElementById('typing-words').textContent='0';typingWords=0;typingActive=true;
+  document.getElementById('typing-start').disabled=true;
+  let t=30;document.getElementById('typing-timer').textContent=t;
+  typingInterval=setInterval(()=>{t--;document.getElementById('typing-timer').textContent=t;if(t<=0){clearInterval(typingInterval);typingActive=false;document.getElementById('typing-input').disabled=true;const prize=typingWords*20;setCooldown('typing');if(prize>0)updC(prize);document.getElementById('typing-r').innerHTML=prize>0?`<span class="win">${typingWords} mots — +${prize} pieces !</span>`:`<span class="lose">0 mots corrects !</span>`;document.getElementById('typing-start').disabled=false;}},1000);
+}
+function checkTyping(){
+  if(!typingActive)return;
+  const input=document.getElementById('typing-input').value.trim().toLowerCase();
+  const target=document.getElementById('typing-text').textContent.toLowerCase();
+  if(input===target){typingWords++;document.getElementById('typing-words').textContent=typingWords;const newtxt=TYPING_TEXTS[Math.floor(Math.random()*TYPING_TEXTS.length)];document.getElementById('typing-text').textContent=newtxt;document.getElementById('typing-input').value='';}
+}
+
+// ═══ MATHS RAPIDE ════════════════════════════════════════════════
+let mathsInterval=null,mathsScore3=0,mathsAnswer=0,mathsActive=false;
+function genMaths(){const a=Math.floor(Math.random()*20)+1,b=Math.floor(Math.random()*20)+1,ops=['+','-','*'];const op=ops[Math.floor(Math.random()*ops.length)];let ans;if(op==='+')ans=a+b;else if(op==='-')ans=a-b;else{const a2=Math.floor(Math.random()*9)+2,b2=Math.floor(Math.random()*9)+2;document.getElementById('maths-question').textContent=`${a2} × ${b2} = ?`;mathsAnswer=a2*b2;return;}document.getElementById('maths-question').textContent=`${a} ${op} ${b} = ?`;mathsAnswer=ans;}
+function startMaths(){
+  const cd=getCooldown('maths');if(cd>0){document.getElementById('maths-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
+  mathsScore3=0;mathsActive=true;document.getElementById('maths-score').textContent='0';
+  document.getElementById('maths-input').value='';document.getElementById('maths-input').disabled=false;document.getElementById('maths-input').focus();
+  document.getElementById('maths-start').disabled=true;genMaths();
+  let t=30;document.getElementById('maths-timer').textContent=t;
+  mathsInterval=setInterval(()=>{t--;document.getElementById('maths-timer').textContent=t;if(t<=0){clearInterval(mathsInterval);mathsActive=false;document.getElementById('maths-input').disabled=true;const prize=mathsScore3*25;setCooldown('maths');if(prize>0)updC(prize);document.getElementById('maths-r').innerHTML=prize>0?`<span class="win">${mathsScore3} bonnes reponses — +${prize} pieces !</span>`:`<span class="lose">0 bonnes reponses !</span>`;document.getElementById('maths-start').disabled=false;}},1000);
+}
+function checkMaths(){
+  if(!mathsActive)return;
+  const val=parseInt(document.getElementById('maths-input').value);
+  if(val===mathsAnswer){mathsScore3++;document.getElementById('maths-score').textContent=mathsScore3;document.getElementById('maths-input').value='';genMaths();}
+}
+
+// ═══ PIERRE FEUILLE CISEAUX ══════════════════════════════════════
+let pfcPS=0,pfcBS=0,pfcActive=false;
+const PFC_EMOJIS={pierre:'🪨',feuille:'📄',ciseaux:'✂️'};
+const PFC_CHOICES=['pierre','feuille','ciseaux'];
+async function playPFC(choice){
+  if(!pfcActive){const cd=getCooldown('pfc');if(cd>0){document.getElementById('pfc-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}pfcActive=true;pfcPS=0;pfcBS=0;}
+  const bot=PFC_CHOICES[Math.floor(Math.random()*3)];
+  document.getElementById('pfc-player').textContent=PFC_EMOJIS[choice];
+  document.getElementById('pfc-bot').textContent=PFC_EMOJIS[bot];
+  let won=false,draw=false;
+  if(choice===bot)draw=true;
+  else if((choice==='pierre'&&bot==='ciseaux')||(choice==='feuille'&&bot==='pierre')||(choice==='ciseaux'&&bot==='feuille'))won=true;
+  if(won)pfcPS++;else if(!draw)pfcBS++;
+  document.getElementById('pfc-pscore').textContent=pfcPS;document.getElementById('pfc-bscore').textContent=pfcBS;
+  if(pfcPS>=3){setCooldown('pfc');await updC(200);document.getElementById('pfc-r').innerHTML='<span class="win">Victoire 3-'+pfcBS+' — +200 pieces !</span>';pfcActive=false;}
+  else if(pfcBS>=3){setCooldown('pfc');document.getElementById('pfc-r').innerHTML='<span class="lose">Defaite '+pfcPS+'-3 — 0 pieces</span>';pfcActive=false;}
+  else document.getElementById('pfc-r').textContent=draw?'Egalite !':won?'Gagne ce round !':'Perdu ce round !';
+}
+
+// ═══ COULEURS ════════════════════════════════════════════════════
+const COLORS_LIST=['rouge','vert','bleu','or','violet','orange'];
+const COLORS_HEX={rouge:'#FF4444',vert:'#00C875',bleu:'#5865F2',or:'#D4AF37',violet:'#8B5CF6',orange:'#FF8C00'};
+let colorsInterval=null,colorsScore4=0,colorsActive=false,colorsCorrect='';
+function startColors(){
+  const cd=getCooldown('colors');if(cd>0){document.getElementById('colors-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
+  colorsScore4=0;colorsActive=true;document.getElementById('colors-score').textContent='0';
+  document.getElementById('colors-start').disabled=true;nextColor();
+  let t=30;document.getElementById('colors-timer').textContent=t;
+  colorsInterval=setInterval(()=>{t--;document.getElementById('colors-timer').textContent=t;if(t<=0){clearInterval(colorsInterval);colorsActive=false;const prize=colorsScore4*15;setCooldown('colors');if(prize>0)updC(prize);document.getElementById('colors-r').innerHTML=prize>0?`<span class="win">Score ${colorsScore4} — +${prize} pieces !</span>`:`<span class="lose">Score 0 !</span>`;document.getElementById('colors-start').disabled=false;}},1000);
+}
+function nextColor(){
+  const word=COLORS_LIST[Math.floor(Math.random()*COLORS_LIST.length)];
+  colorsCorrect=COLORS_LIST[Math.floor(Math.random()*COLORS_LIST.length)];
+  const el=document.getElementById('colors-word');el.textContent=word.toUpperCase();el.style.color=COLORS_HEX[colorsCorrect];
+  const shuffled=[...COLORS_LIST].sort(()=>Math.random()-.5).slice(0,4);
+  if(!shuffled.includes(colorsCorrect))shuffled[0]=colorsCorrect;
+  const btns=document.getElementById('colors-btns');btns.innerHTML='';
+  shuffled.forEach(c=>{const b=document.createElement('button');b.className='bgh';b.textContent=c.toUpperCase();b.style.cssText='padding:12px;font-weight:800;font-size:13px';b.onclick=()=>{if(!colorsActive)return;if(c===colorsCorrect){colorsScore4++;document.getElementById('colors-score').textContent=colorsScore4;}nextColor();};btns.appendChild(b);});
+}
+
+// ═══ AIM TRAINER ════════════════════════════════════════════════
+let aimInterval=null,aimTimer2=null,aimScore5=0,aimActive=false;
+function startAim(){
+  const cd=getCooldown('aim');if(cd>0){document.getElementById('aim-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
+  aimScore5=0;aimActive=true;document.getElementById('aim-score').textContent='0';
+  document.getElementById('aim-start').disabled=true;
+  document.getElementById('aim-start-msg').style.display='none';
+  spawnAimTarget();
+  let t=30;document.getElementById('aim-timer').textContent=t;
+  aimTimer2=setInterval(()=>{t--;document.getElementById('aim-timer').textContent=t;if(t<=0){clearInterval(aimTimer2);clearTimeout(aimInterval);aimActive=false;document.getElementById('aim-area').innerHTML='<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;color:var(--t2);font-weight:600">Temps ecoule !</div>';const prize=aimScore5*10;setCooldown('aim');if(prize>0)updC(prize);document.getElementById('aim-r').innerHTML=prize>0?`<span class="win">${aimScore5} cibles — +${prize} pieces !</span>`:`<span class="lose">0 cibles !</span>`;document.getElementById('aim-start').disabled=false;}},1000);
+}
+function spawnAimTarget(){
+  if(!aimActive)return;
+  const area=document.getElementById('aim-area');
+  const existing=area.querySelector('.aim-target');if(existing)existing.remove();
+  const t=document.createElement('div');t.className='aim-target';
+  const size=30+Math.random()*30;const x=Math.random()*(area.offsetWidth-size);const y=Math.random()*(area.offsetHeight-size);
+  t.style.cssText=`position:absolute;left:${x}px;top:${y}px;width:${size}px;height:${size}px;border-radius:50%;background:radial-gradient(circle,var(--gold),var(--gold3));cursor:pointer;box-shadow:0 0 20px #D4AF3760;animation:pulse-dot 1s infinite`;
+  t.onclick=()=>{if(!aimActive)return;aimScore5++;document.getElementById('aim-score').textContent=aimScore5;t.remove();if(aimScore5>=20){clearTimeout(aimInterval);clearInterval(aimTimer2);aimActive=false;const prize=200;setCooldown('aim');updC(prize);document.getElementById('aim-r').innerHTML=`<span class="win">20 cibles ! +${prize} pieces !</span>`;document.getElementById('aim-start').disabled=false;return;}spawnAimTarget();};
+  area.appendChild(t);
+  aimInterval=setTimeout(spawnAimTarget,Math.max(800,2000-aimScore5*50));
+}
+
+// ═══ 2048 ════════════════════════════════════════════════════════
+let g2048=[],g2048Score=0,g2048Best=0,g2048Active=false;
+const G2048_COLORS={0:'var(--c3)',2:'#1A1400',4:'#2A2000',8:'#3A2800',16:'#4A3000',32:'#5A3800',64:'#6A4000',128:'#7A4800',256:'#8A5000',512:'#9A5800',1024:'#AA6000',2048:'#D4AF37'};
+function startG2048(){
+  const cd=getCooldown('jeu2048');if(cd>0){document.getElementById('g2048-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
+  g2048=Array(4).fill(null).map(()=>Array(4).fill(0));g2048Score=0;g2048Active=true;
+  document.getElementById('g2048-score').textContent='0';
+  document.getElementById('g2048-start').textContent='Recommencer';
+  add2048Tile();add2048Tile();render2048();
+  document.getElementById('g2048-r').textContent='Fusionnez pour atteindre 2048 !';
+}
+function add2048Tile(){const empty=[];g2048.forEach((r,i)=>r.forEach((v,j)=>{if(!v)empty.push([i,j]);}));if(!empty.length)return;const[r,c]=empty[Math.floor(Math.random()*empty.length)];g2048[r][c]=Math.random()<.9?2:4;}
+function render2048(){
+  const g=document.getElementById('g2048-grid');
+  g.innerHTML=g2048.flat().map(v=>`<div style="height:64px;border-radius:8px;background:${G2048_COLORS[v]||G2048_COLORS[2048]};display:flex;align-items:center;justify-content:center;font-size:${v>=1000?14:v>=100?16:18}px;font-weight:800;color:${v?'var(--gold)':'transparent'};border:1px solid var(--bd);transition:all .15s">${v||''}</div>`).join('');
+  document.getElementById('g2048-score').textContent=g2048Score;
+  if(g2048Score>g2048Best){g2048Best=g2048Score;document.getElementById('g2048-best').textContent=g2048Best;}
+}
+function move2048(dir){
+  if(!g2048Active)return;
+  let moved=false;
+  const rotate=(m)=>m[0].map((_,i)=>m.map(r=>r[i]).reverse());
+  let grid=g2048.map(r=>[...r]);
+  if(dir==='up'||dir==='down'){if(dir==='down'){grid=grid.reverse();}grid=grid[0].map((_,i)=>grid.map(r=>r[i]));grid=grid.map(row=>{const f=row.filter(v=>v);for(let i=0;i<f.length-1;i++){if(f[i]===f[i+1]){f[i]*=2;g2048Score+=f[i];f.splice(i+1,1);}}while(f.length<4)f.push(0);return f;});grid=grid[0].map((_,i)=>grid.map(r=>r[i]));if(dir==='down')grid=grid.reverse();}
+  else{if(dir==='right')grid=grid.map(r=>[...r].reverse());grid=grid.map(row=>{const f=row.filter(v=>v);for(let i=0;i<f.length-1;i++){if(f[i]===f[i+1]){f[i]*=2;g2048Score+=f[i];f.splice(i+1,1);}}while(f.length<4)f.push(0);return f;});if(dir==='right')grid=grid.map(r=>[...r].reverse());}
+  if(JSON.stringify(grid)!==JSON.stringify(g2048)){moved=true;g2048=grid;add2048Tile();}
+  render2048();
+  if(g2048.flat().includes(2048)){g2048Active=false;setCooldown('jeu2048');updC(500);document.getElementById('g2048-r').innerHTML='<span class="win">2048 atteint ! +500 pieces !</span>';return;}
+  if(!g2048.flat().includes(0)&&!moved){g2048Active=false;const prize=Math.floor(g2048Score/10);setCooldown('jeu2048');if(prize>0)updC(prize);document.getElementById('g2048-r').innerHTML=prize>0?`<span class="win">Game over — +${prize} pieces</span>`:`<span class="lose">Game over !</span>`;}
+}
+document.addEventListener('keydown',e=>{
+  const map={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'};
+  if(map[e.key]&&g2048Active){e.preventDefault();move2048(map[e.key]);}
+});
+
+// ═══ DINO RUN ════════════════════════════════════════════════════
+let dinoActive=false,dinoY=150,dinoVY=0,dinoObstacles=[],dinoScore6=0,dinoRAF2=null,dinoSpeed=3;
+function startDino(){
+  const cd=getCooldown('dino');if(cd>0){document.getElementById('dino-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
+  dinoActive=true;dinoY=150;dinoVY=0;dinoObstacles=[];dinoScore6=0;dinoSpeed=3;
+  document.getElementById('dino-start').disabled=true;
+  const canvas=document.getElementById('dino-canvas');
+  const jump=()=>{if(dinoActive&&dinoY>=150)dinoVY=-12;};
+  canvas.onclick=jump;document.addEventListener('keydown',e=>{if(e.code==='Space'&&dinoActive){e.preventDefault();jump();}});
+  if(dinoRAF2)cancelAnimationFrame(dinoRAF2);
+  let frame2=0;
+  function loop(){
+    if(!dinoActive)return;
+    const ctx=canvas.getContext('2d'),W=400,H=200;
+    ctx.fillStyle='#05050A';ctx.fillRect(0,0,W,H);
+    dinoVY+=0.6;dinoY=Math.min(150,dinoY+dinoVY);
+    // Ground
+    ctx.fillStyle='#D4AF3730';ctx.fillRect(0,175,W,3);
+    // Dino
+    ctx.fillStyle='#D4AF37';ctx.fillRect(60,dinoY,28,40);
+    ctx.fillStyle='#2A2000';ctx.fillRect(76,dinoY+6,8,8);
+    frame2++;if(frame2%80===0)dinoObstacles.push({x:W,h:20+Math.random()*40});
+    dinoSpeed+=0.002;dinoObstacles.forEach(o=>{o.x-=dinoSpeed;});
+    dinoObstacles=dinoObstacles.filter(o=>o.x>-30);
+    ctx.fillStyle='#8B5CF6';
+    dinoObstacles.forEach(o=>{ctx.fillRect(o.x,175-o.h,24,o.h);});
+    const hit=dinoObstacles.some(o=>60+28>o.x&&60<o.x+24&&dinoY+40>175-o.h);
+    dinoScore6=Math.floor(frame2/5);ctx.fillStyle='#D4AF37';ctx.font='bold 14px Inter';ctx.fillText(dinoScore6,10,20);
+    if(hit){dinoActive=false;const prize=Math.floor(dinoScore6/2);setCooldown('dino');if(prize>0)updC(prize);document.getElementById('dino-r').innerHTML=prize>0?`<span class="win">Score ${dinoScore6} — +${prize} pieces !</span>`:`<span class="lose">Score ${dinoScore6} — Reessayez !</span>`;document.getElementById('dino-start').disabled=false;return;}
+    dinoRAF2=requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+// ═══ ANAGRAMME ═══════════════════════════════════════════════════
+const WS_WORDS=['CASINO','JACKPOT','ROULETTE','BLACKJACK','FORTUNE','VICTOIRE','DIAMANT','TRESOR','ARGENT','CHANCE','BONUS','POKER'];
+let wsActive=false,wsInterval=null,wsScore7=0,wsCurrentWord='',wsTimeLeft=60;
+function startWordScramble(){
+  const cd=getCooldown('wordscramble');if(cd>0){document.getElementById('ws-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
+  wsScore7=0;wsActive=true;wsTimeLeft=60;document.getElementById('ws-score').textContent='0';
+  document.getElementById('ws-start').disabled=true;document.getElementById('ws-input').disabled=false;
+  nextWSWord();
+  wsInterval=setInterval(()=>{wsTimeLeft--;document.getElementById('ws-timer').textContent=wsTimeLeft;if(wsTimeLeft<=0){clearInterval(wsInterval);wsActive=false;document.getElementById('ws-input').disabled=true;const prize=wsScore7*40;setCooldown('wordscramble');if(prize>0)updC(prize);document.getElementById('ws-r').innerHTML=prize>0?`<span class="win">${wsScore7} mots — +${prize} pieces !</span>`:`<span class="lose">0 mots corrects !</span>`;document.getElementById('ws-start').disabled=false;}},1000);
+}
+function nextWSWord(){wsCurrentWord=WS_WORDS[Math.floor(Math.random()*WS_WORDS.length)];const scrambled=wsCurrentWord.split('').sort(()=>Math.random()-.5).join('');document.getElementById('ws-word').textContent=scrambled;document.getElementById('ws-input').value='';}
+function checkWordScramble(){
+  if(!wsActive)return;
+  const val=document.getElementById('ws-input').value.trim().toUpperCase();
+  if(val===wsCurrentWord){wsScore7++;document.getElementById('ws-score').textContent=wsScore7+'/5';document.getElementById('ws-r').innerHTML='<span class="win">Correct !</span>';if(wsScore7>=5){clearInterval(wsInterval);wsActive=false;document.getElementById('ws-input').disabled=true;setCooldown('wordscramble');updC(300);document.getElementById('ws-r').innerHTML='<span class="win">5/5 mots ! +300 pieces !</span>';document.getElementById('ws-start').disabled=false;return;}nextWSWord();}
+  else document.getElementById('ws-r').innerHTML='<span class="lose">Mauvaise reponse !</span>';
+}
+
+// ═══ PONG TURBO ══════════════════════════════════════════════════
+let pong2Active=false,pong2RAF=null;
+function startPong2(){
+  const cd=getCooldown('pong2');if(cd>0){document.getElementById('pong2-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
+  document.getElementById('pong2-start').disabled=true;
+  const canvas=document.getElementById('pong2-canvas');
+  const ctx=canvas.getContext('2d'),W=400,H=300;
+  let bx=W/2,by=H/2,bdx=4.5,bdy=3.5;
+  let py=H/2-35,ph=70,pw=10,boty=H/2-35;
+  let ps=0,bs=0;pong2Active=true;
+  canvas.onmousemove=e=>{const r=canvas.getBoundingClientRect();py=Math.max(0,Math.min(H-ph,(e.clientY-r.top)*(H/r.height)-ph/2));};
+  canvas.ontouchmove=e=>{e.preventDefault();const r=canvas.getBoundingClientRect();py=Math.max(0,Math.min(H-ph,(e.touches[0].clientY-r.top)*(H/r.height)-ph/2));};
+  function loop(){
+    if(!pong2Active)return;
+    ctx.fillStyle='#05050A';ctx.fillRect(0,0,W,H);
+    if(boty+ph/2<by)boty=Math.min(H-ph,boty+4.5);else if(boty+ph/2>by)boty=Math.max(0,boty-4.5);
+    bx+=bdx;by+=bdy;
+    if(by<6||by>H-6)bdy=-bdy;
+    if(bx<pw+6&&by>py&&by<py+ph){bdx=Math.abs(bdx)+(Math.random()*.5);bdy+=(by-py-ph/2)*.12;}
+    if(bx>W-pw-16&&by>boty&&by<boty+ph){bdx=-Math.abs(bdx)-(Math.random()*.5);bdy+=(by-boty-ph/2)*.12;}
+    bdx=Math.max(-8,Math.min(8,bdx));bdy=Math.max(-8,Math.min(8,bdy));
+    if(bx<0){bs++;bx=W/2;by=H/2;bdx=4.5;bdy=3.5;}
+    if(bx>W){ps++;bx=W/2;by=H/2;bdx=-4.5;bdy=3.5;}
+    const grd=ctx.createLinearGradient(0,0,0,H);grd.addColorStop(0,'#D4AF3720');grd.addColorStop(1,'transparent');
+    ctx.fillStyle='#D4AF37';ctx.fillRect(10,py,pw,ph);
+    ctx.fillStyle='#7070A0';ctx.fillRect(W-20,boty,pw,ph);
+    ctx.beginPath();ctx.arc(bx,by,7,0,Math.PI*2);ctx.fillStyle='#D4AF37';ctx.fill();ctx.shadowBlur=10;ctx.shadowColor='#D4AF37';ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle='#D4AF37';ctx.font='bold 22px Cinzel';ctx.textAlign='center';ctx.fillText(ps,W/4,35);
+    ctx.fillStyle='#7070A0';ctx.fillText(bs,3*W/4,35);
+    ctx.setLineDash([5,5]);ctx.strokeStyle='#ffffff08';ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();ctx.setLineDash([]);
+    if(ps>=7||bs>=7){
+      pong2Active=false;const won=ps>=7;const prize=won?300:0;setCooldown('pong2');
+      if(prize>0)updC(prize);
+      document.getElementById('pong2-r').innerHTML=won?`<span class="win">Victoire ${ps}-${bs} — +${prize} pieces !</span>`:`<span class="lose">Defaite ${ps}-${bs} — 0 pieces</span>`;
+      document.getElementById('pong2-start').disabled=false;return;
+    }
+    pong2RAF=requestAnimationFrame(loop);
+  }
+  loop();
+}
+
 
 // ═══ BACCARAT ═══════════════════════════════════════════════════
 function bacVal(c){const v=Math.min(parseInt(['2','3','4','5','6','7','8','9','10','J','Q','K','A'].indexOf(c.v)+2)||0,9);return v>=10?0:v;}
