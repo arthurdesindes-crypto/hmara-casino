@@ -382,8 +382,8 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
 <header>
   <div class="logo">✦ HMARA CASINO ✦</div>
   <div class="hdr-r">
-    <div class="cb" id="jackpot-display" style="cursor:pointer;background:linear-gradient(135deg,#1A0A00,#2A1A00);border-color:#D4AF3750" title="Jackpot Progressif">🎰 <span id="jackpot-val">...</span></div>
-    <div class="cb">♦ <span id="cd">...</span></div>
+    <div class="cb" title="Jackpot Progressif — cliquez pour voir" onclick="P('lb',document.querySelector('#nav-other .nb'))" style="cursor:pointer">🎰 <span id="jackpot-val" style="font-size:11px">...</span></div>
+    <div class="cb" style="min-width:100px">♦ <span id="cd">...</span></div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
       <div class="av" id="av"></div>
       <div style="font-size:9px;color:var(--gold);font-weight:700" id="level-display">Niv.1</div>
@@ -1550,6 +1550,7 @@ async function init(){
   if(me.is_admin)document.getElementById('al').style.display='block';
   initRou();initLoto();renderShop();loadLB();loadMembers();
   checkStreak();
+  checkActiveMalus();
   loadBoost();
   // Update online count in chat
   socket.on('online:update',({online})=>{
@@ -1558,9 +1559,37 @@ async function init(){
   });
   socket.on('malus:received',({targetId,type,from})=>{
     if(targetId!==me?.discord_id)return;
-    const names={slow:'🐢 Ralentissement',taxe:'💸 Taxe',confusion:'🎭 Confusion',silence:'🔇 Silence',malediction:'💀 Malediction',tempete:'🌪️ Tempete'};
-    toast('💀 '+from+' vous envoie un malus : '+(names[type]||type),'lose');
-    api('/api/malus').then(r=>{if(r&&r.active){updateMalusDisplay(r.active);}updateStatusBar();});
+    const names={slow:'🐢 Ralentissement',taxe:'💸 Taxe brutale',confusion:'🎭 Confusion',
+      silence:'🔇 Silence',malediction:'💀 Malediction',tempete:'🌪️ Tempete',
+      stealboost:'🃏 Vol de Boost',freeze:'🔒 Gel des Gains',bomb:'💣 Bombe',haunt:'👻 Hante'};
+    toast('💀 '+from+' vous envoie : '+(names[type]||type),'lose');
+    // Refresh coins for instant effects
+    if(['taxe','bomb','tempete','stealboost'].includes(type)){
+      setTimeout(()=>updC(0),500);
+    }
+    if(type==='stealboost'){currentBoost=null;}
+    api('/api/malus').then(r=>{
+      if(r&&r.active){
+        updateMalusDisplay(r.active);
+        applyMalusEffect(r.active.type, r.active.expiresAt, from);
+      }
+      updateStatusBar();
+    });
+  });
+
+  socket.on('malus:effect',({targetId,type,amount})=>{
+    if(targetId!==me?.discord_id)return;
+    if(type==='haunt'&&amount){
+      toast('👻 Hante — -'+amount.toLocaleString()+' pieces drainées !','lose');
+      updC(0);
+    }
+    if(type==='malediction_triggered'){
+      toast('💀 Malediction ! Perte doublée : '+Math.abs(amount).toLocaleString()+' pieces !','lose');
+      updC(0);
+    }
+    if(type==='protect_used'){
+      toast('🛡️ Protection utilisee — perte absorbee !','win');
+    }
   });
   checkDailyWheel();
 }
@@ -2404,6 +2433,80 @@ function setVolume(v) {
 
 renderTracks();
 
+// ═══ MALUS EFFECTS ═══════════════════════════════════════════════
+let malusEffects = {};
+
+function applyMalusEffect(type, expiresAt, from) {
+  const expiry = new Date(expiresAt);
+  malusEffects[type] = { expiresAt: expiry, from };
+  
+  if (type === 'slow') {
+    // Override cooldown check to add extra time
+    window._slowMalus = expiry;
+  }
+  if (type === 'confusion') {
+    // Shuffle nav buttons
+    applyConfusion(expiry);
+  }
+  if (type === 'silence') {
+    // Disable chat input
+    const inp = document.getElementById('chat-input');
+    if(inp) { inp.disabled=true; inp.placeholder='Silence actif...'; }
+    setTimeout(()=>{ 
+      if(inp){inp.disabled=false;inp.placeholder='Message...';}
+      delete malusEffects.silence;
+    }, expiry-Date.now());
+  }
+  if (type === 'haunt') {
+    // Drain coins every minute
+    const interval = setInterval(async()=>{
+      if(new Date()>expiry){clearInterval(interval);delete malusEffects.haunt;return;}
+      const {data:u} = await fetch('/api/me',{credentials:'include'}).then(r=>r.json()).catch(()=>({coins:0}));
+      if(u&&u.coins){
+        const drain = Math.floor(u.coins * 0.02);
+        if(drain>0){
+          await api('/api/coins','POST',{amount:-drain});
+          updC(0);
+          toast('👻 Hante ! -'+drain.toLocaleString()+' pieces drainées','lose');
+        }
+      }
+    }, 60000);
+  }
+  if (type === 'freeze') {
+    window._freezeMalus = expiry;
+    toast('🔒 Vos gains sont réduits de 50% pendant '+ Math.floor((expiry-Date.now())/60000)+' min !','lose');
+  }
+  if (type === 'malediction') {
+    window._maledictionMalus = true;
+    toast('💀 Malediction ! Votre prochaine perte sera doublée !','lose');
+  }
+}
+
+function applyConfusion(expiry) {
+  const navs = document.querySelectorAll('.nb');
+  const labels = Array.from(navs).map(n => n.textContent);
+  // Shuffle labels
+  labels.sort(() => Math.random() - 0.5);
+  navs.forEach((n, i) => { const span = n.querySelector('.mt'); n.textContent = labels[i]; if(span){n.appendChild(span);} });
+  setTimeout(() => {
+    // Restore will happen on next page load
+    delete malusEffects.confusion;
+    toast('🎭 Confusion terminée !','win');
+  }, expiry - Date.now());
+}
+
+// Check malus on load
+async function checkActiveMalus() {
+  const r = await api('/api/malus').catch(()=>null);
+  if (r && r.active) {
+    updateMalusDisplay(r.active);
+    applyMalusEffect(r.active.type, r.active.expiresAt, r.active.from || '?');
+    updateStatusBar();
+  }
+}
+
+
+
 // ═══ XP TITLES SYSTEM ════════════════════════════════════════════
 const XP_LEVELS = [
   { level:1,  xp:0,    title:'Novice',       color:'#6060A0', emoji:'🎲', bonus:null,                  bonusDesc:'Aucun bonus' },
@@ -2920,7 +3023,7 @@ function startDino(){
     ctx.fillStyle='#D4AF37';ctx.fillRect(60,dinoY,28,40);
     ctx.fillStyle='#2A2000';ctx.fillRect(76,dinoY+6,8,8);
     frame2++;if(frame2%80===0)dinoObstacles.push({x:W,h:20+Math.random()*40});
-    dinoSpeed+=0.002;dinoObstacles.forEach(o=>{o.x-=dinoSpeed;});
+    dinoSpeed+=0.001;dinoObstacles.forEach(o=>{o.x-=dinoSpeed;});
     dinoObstacles=dinoObstacles.filter(o=>o.x>-30);
     ctx.fillStyle='#8B5CF6';
     dinoObstacles.forEach(o=>{ctx.fillRect(o.x,175-o.h,24,o.h);});
@@ -3174,26 +3277,34 @@ async function playParadice(){
 let snakeGame=null,snakeDir={x:1,y:0},snakeBody=[],snakeFood={x:10,y:10},snakeScore2=0,snakeActive=false;
 function startSnake(){
   const cd=getCooldown('snake');if(cd>0){document.getElementById('snake-r').innerHTML=`<span class="lose">Cooldown : encore ${fmtCd(cd)}</span>`;return;}
-  if(snakeGame)clearInterval(snakeGame);
+  if(snakeGame)cancelAnimationFrame(snakeGame);
   snakeBody=[{x:5,y:5},{x:4,y:5},{x:3,y:5}];snakeDir={x:1,y:0};snakeScore2=0;snakeActive=true;
   document.getElementById('snake-score').textContent='0';
   document.getElementById('snake-start').disabled=true;
   placeSnakeFood();
-  snakeGame=setInterval(()=>{
-    const head={x:snakeBody[0].x+snakeDir.x,y:snakeBody[0].y+snakeDir.y};
-    if(head.x<0||head.x>=15||head.y<0||head.y>=15||snakeBody.some(b=>b.x===head.x&&b.y===head.y)){
-      clearInterval(snakeGame);snakeActive=false;
-      const prize=snakeScore2*10;
-      if(prize>0)updC(prize);
-      setCooldown('snake');document.getElementById('snake-start').disabled=false;
-      document.getElementById('snake-r').innerHTML=prize>0?`<span class="win">Score ${snakeScore2} — +${prize} pieces !</span>`:`<span class="lose">Score ${snakeScore2} — 0 pieces</span>`;
-      return;
+  let lastSnakeTime=0;
+  const SNAKE_SPEED=220; // ms per step - consistent across devices
+  function snakeStep(ts){
+    if(!snakeActive)return;
+    if(ts-lastSnakeTime>=SNAKE_SPEED){
+      lastSnakeTime=ts;
+      const head={x:snakeBody[0].x+snakeDir.x,y:snakeBody[0].y+snakeDir.y};
+      if(head.x<0||head.x>=15||head.y<0||head.y>=15||snakeBody.some(b=>b.x===head.x&&b.y===head.y)){
+        snakeActive=false;
+        const prize=snakeScore2*10;
+        if(prize>0)updC(prize);
+        setCooldown('snake');document.getElementById('snake-start').disabled=false;
+        document.getElementById('snake-r').innerHTML=prize>0?`<span class="win">Score ${snakeScore2} — +${prize} pieces !</span>`:`<span class="lose">Score ${snakeScore2} — 0 pieces</span>`;
+        return;
+      }
+      snakeBody.unshift(head);
+      if(head.x===snakeFood.x&&head.y===snakeFood.y){snakeScore2++;document.getElementById('snake-score').textContent=snakeScore2;placeSnakeFood();}
+      else snakeBody.pop();
+      drawSnake();
     }
-    snakeBody.unshift(head);
-    if(head.x===snakeFood.x&&head.y===snakeFood.y){snakeScore2++;document.getElementById('snake-score').textContent=snakeScore2;placeSnakeFood();}
-    else snakeBody.pop();
-    drawSnake();
-  },220);
+    snakeGame=requestAnimationFrame(snakeStep);
+  }
+  snakeGame=requestAnimationFrame(snakeStep);
 }
 function placeSnakeFood(){snakeFood={x:Math.floor(Math.random()*15),y:Math.floor(Math.random()*15)};}
 function drawSnake(){
@@ -3240,7 +3351,7 @@ function startWam(){
     const cells=document.querySelectorAll('#wam-grid div');
     cells.forEach(d=>{d.textContent='🕳️';d.dataset.mole='0';});
     const idx=Math.floor(Math.random()*9);cells[idx].textContent='🐭';cells[idx].dataset.mole='1';
-    const delay=Math.max(500,1400-wamScore2*30);
+    const delay=Math.max(600,1500-wamScore2*20);
     wamMoleTimeout=setTimeout(spawnMole,delay);
   }
   spawnMole();
@@ -3261,7 +3372,7 @@ function startFlappy(){
     if(!flappyActive)return;
     const ctx=canvas.getContext('2d'),W=320,H=400;
     ctx.fillStyle='#05051A';ctx.fillRect(0,0,W,H);
-    flappyVY+=0.25;flappyY+=flappyVY;
+    flappyVY+=0.22;flappyY+=flappyVY;
     frame++;if(frame%80===0){const gap=120,top=50+Math.random()*(H-gap-100);flappyPipes.push({x:W,top,bot:top+gap});}
     flappyPipes.forEach(p=>{p.x-=2.5;});
     flappyPipes=flappyPipes.filter(p=>p.x>-60);

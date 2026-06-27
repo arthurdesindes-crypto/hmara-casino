@@ -114,11 +114,36 @@ app.post('/api/coins', requireAuth, async (req, res) => {
   // Apply boost multiplier
   let finalAmount = amount;
   const boost = activeBoosts[req.session.user.discord_id];
-  if (boost && boost.type === 'x2' && amount > 0 && new Date(boost.expiresAt) > new Date()) {
-    finalAmount = amount * 2;
-  } else if (boost && boost.type === 'protect' && amount < 0 && new Date(boost.expiresAt) > new Date()) {
-    finalAmount = 0; // Protection absorbs loss
-    delete activeBoosts[req.session.user.discord_id];
+  const malus = activeMalus[req.session.user.discord_id];
+  
+  if (amount > 0) {
+    // Boosts on wins
+    if (boost && boost.type === 'x2' && new Date(boost.expiresAt) > new Date()) {
+      finalAmount = amount * 2;
+    } else if (boost && boost.type === 'precision' && new Date(boost.expiresAt) > new Date()) {
+      finalAmount = Math.round(amount * 1.25);
+    } else if (boost && boost.type === 'luck' && new Date(boost.expiresAt) > new Date()) {
+      finalAmount = Math.round(amount * 1.25);
+    } else if (boost && boost.type === 'doublechance' && new Date(boost.expiresAt) > new Date()) {
+      finalAmount = Math.round(amount * 1.5);
+    }
+    // Freeze malus reduces gains
+    if (malus && malus.type === 'freeze' && new Date(malus.expiresAt) > new Date()) {
+      finalAmount = Math.round(finalAmount * 0.5);
+    }
+  } else if (amount < 0) {
+    // Protection absorbs loss
+    if (boost && boost.type === 'protect' && new Date(boost.expiresAt) > new Date()) {
+      finalAmount = 0;
+      delete activeBoosts[req.session.user.discord_id];
+      io.emit('malus:effect', { targetId: req.session.user.discord_id, type: 'protect_used' });
+    }
+    // Malediction doubles next loss
+    if (malus && malus.type === 'malediction' && new Date(malus.expiresAt) > new Date()) {
+      finalAmount = amount * 2;
+      delete activeMalus[req.session.user.discord_id];
+      io.emit('malus:effect', { targetId: req.session.user.discord_id, type: 'malediction_triggered', amount: finalAmount });
+    }
   }
   const newCoins = Math.max(0, (user.coins || 0) + finalAmount);
   
@@ -385,22 +410,51 @@ app.post('/api/malus/send', requireAuth, async (req, res) => {
   
   await supabase.from('users').update({ coins: user.coins - cost }).eq('discord_id', req.session.user.discord_id);
   
-  // Apply malus effect
+  // Apply ALL malus effects immediately or set duration
   if (type === 'taxe') {
     const tax = Math.floor(target.coins * 0.08);
     await supabase.from('users').update({ coins: Math.max(0, target.coins - tax) }).eq('discord_id', targetId);
+    console.log(`Taxe: -${tax} coins from ${target.username}`);
   } else if (type === 'bomb') {
+    const loss = Math.min(500, target.coins);
     await supabase.from('users').update({ coins: Math.max(0, target.coins - 500) }).eq('discord_id', targetId);
+    console.log(`Bomb: -500 coins from ${target.username}`);
   } else if (type === 'tempete') {
     const loss = Math.floor(target.coins * 0.10);
     await supabase.from('users').update({ coins: Math.max(0, target.coins - loss) }).eq('discord_id', targetId);
+    console.log(`Tempete: -${loss} coins from ${target.username}`);
   } else if (type === 'stealboost') {
     delete activeBoosts[targetId];
+    console.log(`StealBoost: removed boost from ${target.username}`);
+  } else if (type === 'haunt') {
+    // Drain 2% every minute for 10 minutes
+    let minutes = 0;
+    const hauntInterval = setInterval(async () => {
+      minutes++;
+      const { data: victim } = await supabase.from('users').select('coins').eq('discord_id', targetId).single();
+      if (victim) {
+        const drain = Math.floor(victim.coins * 0.02);
+        if (drain > 0) {
+          await supabase.from('users').update({ coins: Math.max(0, victim.coins - drain) }).eq('discord_id', targetId);
+          io.emit('malus:effect', { targetId, type: 'haunt', amount: drain });
+        }
+      }
+      if (minutes >= 10) clearInterval(hauntInterval);
+    }, 60 * 1000);
+  } else if (type === 'malediction') {
+    // Store malediction - will double next loss via coins API
+    activeMalus[targetId] = { type: 'malediction', expiresAt: new Date(Date.now() + 30 * 60 * 1000), from: user.username };
   }
   
-  const MALUS_DURATIONS = { slow: 10*60*1000, confusion: 5*60*1000, silence: 10*60*1000, malediction: 30*60*1000, taxe: 0 };
-  const duration = MALUS_DURATIONS[type] || 10*60*1000;
-  if (duration > 0) activeMalus[targetId] = { type, expiresAt: new Date(Date.now() + duration), from: user.username };
+  const MALUS_DURATIONS = { 
+    slow: 15*60*1000, confusion: 5*60*1000, silence: 15*60*1000, 
+    malediction: 0, taxe: 0, tempete: 0, bomb: 0,
+    stealboost: 0, freeze: 10*60*1000, haunt: 10*60*1000
+  };
+  const duration = MALUS_DURATIONS[type] !== undefined ? MALUS_DURATIONS[type] : 10*60*1000;
+  if (duration > 0 && type !== 'malediction') {
+    activeMalus[targetId] = { type, expiresAt: new Date(Date.now() + duration), from: user.username };
+  }
   
   // Notify target via socket
   io.emit('malus:received', { targetId, type, from: user.username });
