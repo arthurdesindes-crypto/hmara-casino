@@ -949,6 +949,7 @@ function toast(msg,t=''){
 
 async function init(){
   me=await api('/api/me');coins=me.coins;
+  if(socket.connected) socket.emit('user:online', { discord_id: me.discord_id });
   document.getElementById('cd').textContent=coins.toLocaleString();
   document.getElementById('un').textContent=me.username;
   const av=document.getElementById('av');
@@ -2285,6 +2286,11 @@ initKeno();initFortune();initParadice();
 
 
 init();
+
+socket.on('connect', () => {
+  if(me && me.discord_id) socket.emit('user:online', { discord_id: me.discord_id });
+});
+socket.on('online:update', ({ online }) => { window._onlineUsers = online; });
 </script>
 </body>
 </html>

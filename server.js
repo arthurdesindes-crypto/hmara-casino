@@ -75,7 +75,9 @@ app.get('/auth/login', (req, res) => {
   const params = new URLSearchParams({
     client_id: process.env.DISCORD_CLIENT_ID,
     redirect_uri: `${process.env.BASE_URL}/auth/callback`,
-    response_type: 'code', scope: 'identify'
+    response_type: 'code',
+    scope: 'identify',
+    prompt: 'none'  // Skip auth screen if already authorized
   });
   res.redirect(`https://discord.com/oauth2/authorize?${params}`);
 });
@@ -130,6 +132,10 @@ app.get('/api/leaderboard', async (req, res) => {
   res.json(data);
 });
 
+app.get('/api/online', requireAuth, (req, res) => {
+  res.json({ online: Array.from(onlineUsers) });
+});
+
 // ADMIN API
 app.get('/api/admin/users', requireAdmin, async (req, res) => {
   const { data } = await supabase.from('users').select('*').order('coins', { ascending: false });
@@ -148,6 +154,15 @@ app.post('/api/admin/coins', requireAdmin, async (req, res) => {
 app.post('/api/admin/ban', requireAdmin, async (req, res) => {
   const { discord_id } = req.body;
   await supabase.from('users').update({ banned: true }).eq('discord_id', discord_id);
+  // Also timeout on Discord via bot
+  try {
+    await axios.post(`${process.env.BOT_URL || "http://localhost:3001"}/ban`, {
+      targetId: discord_id,
+      duration: 60 * 24 * 7, // 7 days
+      reason: 'Ban admin casino',
+      buyerUsername: 'Admin'
+    });
+  } catch(e) {}
   res.json({ success: true });
 });
 
@@ -244,8 +259,16 @@ app.get('/admin', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, 
 
 // SOCKET MULTIJOUEUR
 const rooms = {};
+const onlineUsers = new Set(); // Track online discord_ids
 
 io.on('connection', (socket) => {
+  // Track online user
+  socket.on('user:online', ({ discord_id }) => {
+    socket.discordId = discord_id;
+    onlineUsers.add(discord_id);
+    io.emit('online:update', { online: Array.from(onlineUsers) });
+  });
+
   socket.on('dice:join', ({ username, avatar, discord_id, bet }) => {
     let room = Object.values(rooms).find(r => r.type === 'dice' && r.players.length < 2 && !r.started);
     if (!room) { const id = 'dice_' + Date.now(); room = { id, type: 'dice', players: [], bet, started: false }; rooms[id] = room; }
@@ -522,6 +545,10 @@ io.on('connection', (socket) => {
     if (socket.roomId && rooms[socket.roomId]) {
       io.to(socket.roomId).emit('player:left', {});
       delete rooms[socket.roomId];
+    }
+    if (socket.discordId) {
+      onlineUsers.delete(socket.discordId);
+      io.emit('online:update', { online: Array.from(onlineUsers) });
     }
   });
 });
