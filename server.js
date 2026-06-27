@@ -120,18 +120,16 @@ app.post('/api/coins', requireAuth, async (req, res) => {
   const malusActive = malus && new Date(malus.expiresAt) > new Date();
 
   if (amount > 0) {
-    // x2 boost doubles all wins
+    // x2 boost doubles wins
     if (boostActive && boost.type === 'x2') finalAmount = amount * 2;
     // luck boost adds 20%
     else if (boostActive && boost.type === 'luck') finalAmount = Math.round(amount * 1.2);
     // freeze malus halves gains
     if (malusActive && malus.type === 'freeze') finalAmount = Math.round(finalAmount * 0.5);
   } else if (amount < 0) {
-    // Shield blocks malus effects
-    if (boostActive && boost.type === 'shield') {
-      // Shield active - no effect on losses from malus
-    }
-    // Protect absorbs ONE loss
+    // x2 boost ALSO doubles losses
+    if (boostActive && boost.type === 'x2') finalAmount = amount * 2;
+    // Protect absorbs ONE loss (after x2 check so protect still works)
     if (boostActive && boost.type === 'protect') {
       finalAmount = 0;
       delete activeBoosts[req.session.user.discord_id];
@@ -149,7 +147,7 @@ app.post('/api/coins', requireAuth, async (req, res) => {
   // XP system - gain XP for any game activity
   // XP system - hard progression
   let xpGain = 0;
-  if (amount !== 0) xpGain = Math.max(1, Math.abs(Math.floor(amount * 0.016))) + 1; // 5x harder
+  if (amount !== 0) xpGain = Math.max(1, Math.abs(Math.floor(amount * 0.0006))); // 25x harder
   const newXP = (user.xp || 0) + xpGain;
   // Much higher thresholds
   const XP_THRESHOLDS = [0,1000,3000,6000,10000,15000,22000,30000,40000,52000,66000,82000,100000,120000,150000];
