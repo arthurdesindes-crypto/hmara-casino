@@ -163,7 +163,7 @@ app.post('/api/buy', requireAuth, async (req, res) => {
 });
 
 app.get('/api/leaderboard', async (req, res) => {
-  const { data } = await supabase.from('users').select('discord_id,username,coins,avatar').order('coins', { ascending: false }).limit(10);
+  const { data } = await supabase.from('users').select('discord_id,username,coins,avatar,xp,level').order('coins', { ascending: false }).limit(10);
   res.json(data);
 });
 
