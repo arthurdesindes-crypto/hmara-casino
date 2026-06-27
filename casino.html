@@ -554,7 +554,6 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
     <button class="nb" onclick="P('transfer',this)">Transfert</button>
     <button class="nb" onclick="P('musique',this)">Musique</button>
     <button class="nb" onclick="P('boosts',this)">Boosts</button>
-    <button class="nb" onclick="P('tournament',this)">Tournoi</button>
     <button class="nb" onclick="P('xpguide',this)">XP &amp; Niveaux</button>
     <button class="nb" onclick="P('shop',this)">Boutique</button>
     <button class="nb" onclick="P('lb',this)">Classement</button>
@@ -1228,22 +1227,6 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   </div>
 </div>
 
-<!-- TOURNOI -->
-<div class="page" id="page-tournament">
-  <div class="gc">
-    <div class="gtitle"><div class="gtl">🏆 Tournoi Hebdomadaire</div></div>
-    <p style="font-size:13px;color:var(--t2);margin-bottom:6px">Classement repart a zero chaque lundi. Top 3 gagnent des pieces massives !</p>
-    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
-      <div class="stat-card"><div class="stat-val" style="color:#FFD700">🥇 33 000</div><div class="stat-lbl">1er Prix</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:#C0C0C0">🥈 17 000</div><div class="stat-lbl">2e Prix</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:#CD7F32">🥉 8 000</div><div class="stat-lbl">3e Prix</div></div>
-    </div>
-    <div id="tournament-list"></div>
-    <div class="res" style="margin-top:14px" id="tournament-r">Jouez pour accumuler des points !</div>
-  </div>
-</div>
-
-
 <!-- XP GUIDE -->
 <div class="page" id="page-xpguide">
   <div class="gc">
@@ -1291,6 +1274,13 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
     <!-- Level progression -->
     <div style="font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">Tous les paliers</div>
     <div style="display:flex;flex-direction:column;gap:8px" id="xp-levels-list"></div>
+  </div>
+
+  <!-- XP CLASSEMENT -->
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">🏆 Classement XP</div></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Les joueurs les plus expérimentés du casino.</p>
+    <div id="xp-lb-list"></div>
   </div>
 </div>
 
@@ -1457,8 +1447,7 @@ function P(id,btn){
   if(btn)btn.classList.add('active');
   if(id==='lb'&&typeof loadLB==='function')loadLB();
   if(id==='transfer'&&typeof loadTransferTargets==='function')loadTransferTargets();
-  if(id==='tournament'&&typeof loadTournament==='function')loadTournament();
-  if(id==='xpguide'&&typeof renderXPLevelsList==='function')renderXPLevelsList();
+  if(id==='xpguide'){if(typeof renderXPLevelsList==='function')renderXPLevelsList();if(typeof loadXPLeaderboard==='function')loadXPLeaderboard();}
   if(id==='boosts'){if(typeof loadBoost==='function')loadBoost();if(typeof renderBoostsPage==='function')renderBoostsPage();}
 }
 
@@ -2510,20 +2499,20 @@ async function checkActiveMalus() {
 // ═══ XP TITLES SYSTEM ════════════════════════════════════════════
 const XP_LEVELS = [
   { level:1,  xp:0,      title:'Novice',        color:'#6060A0', emoji:'🎲', bonus:null,                  bonusDesc:'Aucun bonus — jouez pour monter !' },
-  { level:2,  xp:1000,   title:'Apprenti',      color:'#7888C0', emoji:'🃏', bonus:'+5% XP',              bonusDesc:'+5% XP sur toutes les parties' },
-  { level:3,  xp:3000,   title:'Joueur',        color:'#8899D0', emoji:'🎰', bonus:'+50 pieces/j',        bonusDesc:'+50 pieces de bonus chaque jour' },
-  { level:4,  xp:6000,   title:'Parieur',       color:'#99A8E0', emoji:'♠️', bonus:'+10% XP',             bonusDesc:'+10% XP sur toutes les parties' },
-  { level:5,  xp:10000,  title:'Habitué',       color:'#A0B0F0', emoji:'🍀', bonus:'Cooldown -2min',      bonusDesc:'Cooldown mini-jeux reduit de 2 minutes' },
-  { level:6,  xp:15000,  title:'Vétéran',       color:'#C0A060', emoji:'⭐', bonus:'+100 pieces/j',       bonusDesc:'+100 pieces de bonus chaque jour' },
-  { level:7,  xp:22000,  title:'Expert',        color:'#D4AF37', emoji:'💎', bonus:'+15% XP',             bonusDesc:'+15% XP et +5% gains casino' },
-  { level:8,  xp:30000,  title:'Champion',      color:'#E8C040', emoji:'👑', bonus:'+200 pieces/j',       bonusDesc:'+200 pieces de bonus chaque jour' },
-  { level:9,  xp:40000,  title:'Élite',         color:'#FF8C00', emoji:'🔥', bonus:'Protection offerte',  bonusDesc:'1 boost Protection offert par semaine' },
-  { level:10, xp:52000,  title:'Maître',        color:'#FF6B35', emoji:'💫', bonus:'+25% gains',          bonusDesc:'+25% sur tous vos gains casino' },
-  { level:11, xp:66000,  title:'Grand Maître',  color:'#FF4444', emoji:'🌟', bonus:'+500 pieces/j',       bonusDesc:'+500 pieces de bonus chaque jour' },
-  { level:12, xp:82000,  title:'Légende',       color:'#FF2288', emoji:'🏆', bonus:'+30% gains',          bonusDesc:'+30% sur tous vos gains + jackpot x2' },
-  { level:13, xp:100000, title:'Mythique',      color:'#CC00FF', emoji:'⚡', bonus:'Boost gratuit/sem',   bonusDesc:'1 boost gratuit au choix chaque semaine' },
-  { level:14, xp:120000, title:'Divin',         color:'#FF00CC', emoji:'🌈', bonus:'+40% gains',          bonusDesc:'+40% sur tous vos gains casino' },
-  { level:15, xp:150000, title:'Transcendant',  color:'#D4AF37', emoji:'✨', bonus:'Tout x2',             bonusDesc:'Tous vos gains sont doublés !' },
+  { level:2,  xp:500,    title:'Apprenti',      color:'#7888C0', emoji:'🃏', bonus:'+5% XP',              bonusDesc:'+5% XP sur toutes les parties' },
+  { level:3,  xp:1500,   title:'Joueur',        color:'#8899D0', emoji:'🎰', bonus:'+50 pieces/j',        bonusDesc:'+50 pieces de bonus chaque jour' },
+  { level:4,  xp:3000,   title:'Parieur',       color:'#99A8E0', emoji:'♠️', bonus:'+10% XP',             bonusDesc:'+10% XP sur toutes les parties' },
+  { level:5,  xp:5500,   title:'Habitué',       color:'#A0B0F0', emoji:'🍀', bonus:'Cooldown -2min',      bonusDesc:'Cooldown mini-jeux reduit de 2 minutes' },
+  { level:6,  xp:9000,   title:'Vétéran',       color:'#C0A060', emoji:'⭐', bonus:'+100 pieces/j',       bonusDesc:'+100 pieces de bonus chaque jour' },
+  { level:7,  xp:14000,  title:'Expert',        color:'#D4AF37', emoji:'💎', bonus:'+15% XP',             bonusDesc:'+15% XP et +5% gains casino' },
+  { level:8,  xp:20000,  title:'Champion',      color:'#E8C040', emoji:'👑', bonus:'+200 pieces/j',       bonusDesc:'+200 pieces de bonus chaque jour' },
+  { level:9,  xp:28000,  title:'Élite',         color:'#FF8C00', emoji:'🔥', bonus:'Protection offerte',  bonusDesc:'1 boost Protection offert par semaine' },
+  { level:10, xp:38000,  title:'Maître',        color:'#FF6B35', emoji:'💫', bonus:'+25% gains',          bonusDesc:'+25% sur tous vos gains casino' },
+  { level:11, xp:50000,  title:'Grand Maître',  color:'#FF4444', emoji:'🌟', bonus:'+500 pieces/j',       bonusDesc:'+500 pieces de bonus chaque jour' },
+  { level:12, xp:65000,  title:'Légende',       color:'#FF2288', emoji:'🏆', bonus:'+30% gains',          bonusDesc:'+30% sur tous vos gains + jackpot x2' },
+  { level:13, xp:82000,  title:'Mythique',      color:'#CC00FF', emoji:'⚡', bonus:'Boost gratuit/sem',   bonusDesc:'1 boost gratuit au choix chaque semaine' },
+  { level:14, xp:100000, title:'Divin',         color:'#FF00CC', emoji:'🌈', bonus:'+40% gains',          bonusDesc:'+40% sur tous vos gains casino' },
+  { level:15, xp:125000, title:'Transcendant',  color:'#D4AF37', emoji:'✨', bonus:'Tout x2',             bonusDesc:'Tous vos gains sont doublés !' },
 ];
 
 function getTitleForLevel(level) {
@@ -2808,20 +2797,27 @@ async function activateBoost(type,cost){
 }
 
 // ═══ TOURNOI ═════════════════════════════════════════════════════
-async function loadTournament(){
-  const r=await api('/api/tournament').catch(()=>null);
-  if(!r)return;
+async function loadXPLeaderboard(){
+  const data=await api('/api/xp-leaderboard').catch(()=>null);
+  if(!data)return;
+  const el=document.getElementById('xp-lb-list');if(!el)return;
   const medals=['🥇','🥈','🥉'];
-  const myEntry=r.scores.find(s=>s.discord_id===me?.discord_id);
-  const myRank=r.scores.findIndex(s=>s.discord_id===me?.discord_id)+1;
-  document.getElementById('tournament-list').innerHTML=r.scores.map((s,i)=>`
-    <div class="lbrow" style="${s.discord_id===me?.discord_id?'border-color:var(--gold)':''}">
+  el.innerHTML=data.map((u,i)=>{
+    const t=getTitleForLevel(u.level||1);
+    const xpProgress=(u.xp||0)%(u.level>=15?125000:500);
+    return `<div class="lbrow" style="${u.discord_id===me?.discord_id?'border-color:var(--gold)':''};animation-delay:${i*.05}s">
       <span class="lbrank">${medals[i]||'#'+(i+1)}</span>
-      <div class="lbav">${s.avatar?`<img src="https://cdn.discordapp.com/avatars/${s.discord_id}/${s.avatar}.png">`:s.username.slice(0,2)}</div>
-      <span class="lbname">${s.username}${s.discord_id===me?.discord_id?' (Vous)':''}</span>
-      <span class="lbcoins">${(s.weekly_score||0).toLocaleString()} pts</span>
-    </div>`).join('');
-  if(myRank>0)document.getElementById('tournament-r').textContent='Votre classement : #'+myRank+' avec '+(myEntry?.weekly_score||0).toLocaleString()+' points';
+      <div class="lbav">${u.avatar?`<img src="https://cdn.discordapp.com/avatars/${u.discord_id}/${u.avatar}.png">`:u.username.slice(0,2)}</div>
+      <div style="flex:1">
+        <div class="lbname">${u.username}${u.discord_id===me?.discord_id?' <span style="font-size:10px;color:var(--gold)">(Vous)</span>':''}</div>
+        <div style="font-size:11px;font-weight:800;color:${t.color};margin-top:2px">${t.emoji} ${t.title}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;font-weight:800;color:var(--gold)">Niv.${u.level||1}</div>
+        <div style="font-size:11px;color:var(--t2)">${(u.xp||0).toLocaleString()} XP</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // Update P function to load tournament

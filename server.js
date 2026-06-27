@@ -150,7 +150,7 @@ app.post('/api/coins', requireAuth, async (req, res) => {
   // XP system - gain XP for any game activity
   // XP system - hard progression
   let xpGain = 0;
-  if (amount !== 0) xpGain = Math.max(1, Math.abs(Math.floor(amount * 0.05))) + 3; // much less XP
+  if (amount !== 0) xpGain = Math.max(2, Math.abs(Math.floor(amount * 0.08))) + 8; // slightly easier
   const newXP = (user.xp || 0) + xpGain;
   // Much higher thresholds
   const XP_THRESHOLDS = [0,1000,3000,6000,10000,15000,22000,30000,40000,52000,66000,82000,100000,120000,150000];
@@ -194,6 +194,12 @@ app.get('/api/leaderboard', async (req, res) => {
 
 app.get('/api/online', requireAuth, (req, res) => {
   res.json({ online: Array.from(onlineUsers) });
+});
+
+// XP Leaderboard
+app.get('/api/xp-leaderboard', requireAuth, async (req, res) => {
+  const { data } = await supabase.from('users').select('discord_id,username,avatar,xp,level').order('xp', { ascending: false }).limit(20);
+  res.json(data || []);
 });
 
 // Jackpot
