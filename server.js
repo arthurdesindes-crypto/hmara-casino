@@ -231,6 +231,17 @@ app.post('/api/admin/coins', requireAdmin, async (req, res) => {
   res.json({ success: true, coins: newCoins });
 });
 
+app.post('/api/admin/xp', requireAdmin, async (req, res) => {
+  const { discord_id, amount } = req.body;
+  const { data: user } = await supabase.from('users').select('xp,level').eq('discord_id', discord_id).single();
+  if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+  const newXP = Math.max(0, (user.xp || 0) + amount);
+  const XP_THRESHOLDS = [0,200,500,900,1400,2000,2800,3800,5000,6500,8500,11000,14000,18000,25000];
+  const newLevel = XP_THRESHOLDS.filter(t => newXP >= t).length;
+  await supabase.from('users').update({ xp: newXP, level: newLevel }).eq('discord_id', discord_id);
+  res.json({ success: true, xp: newXP, level: newLevel });
+});
+
 app.post('/api/admin/ban', requireAdmin, async (req, res) => {
   const { discord_id } = req.body;
   await supabase.from('users').update({ banned: true }).eq('discord_id', discord_id);
