@@ -123,10 +123,13 @@ app.post('/api/coins', requireAuth, async (req, res) => {
   const newCoins = Math.max(0, (user.coins || 0) + finalAmount);
   
   // XP system - gain XP for any game activity
+  // XP system - easier progression, more XP per action
   let xpGain = 0;
-  if (amount !== 0) xpGain = Math.abs(Math.floor(amount * 0.1)) + 5;
+  if (amount !== 0) xpGain = Math.abs(Math.floor(amount * 0.3)) + 20; // 3x more XP
   const newXP = (user.xp || 0) + xpGain;
-  const newLevel = Math.floor(newXP / 1000) + 1;
+  // Level thresholds: 200, 500, 900, 1400, 2000, 2800, 3800, 5000, 6500, 8500, 11000, 14000, 18000, 25000
+  const XP_THRESHOLDS = [0,200,500,900,1400,2000,2800,3800,5000,6500,8500,11000,14000,18000,25000];
+  const newLevel = XP_THRESHOLDS.filter(t => newXP >= t).length;
   const levelUp = newLevel > (user.level || 1);
   
   // Jackpot contribution when losing
@@ -373,8 +376,15 @@ app.post('/api/malus/send', requireAuth, async (req, res) => {
   
   // Apply malus effect
   if (type === 'taxe') {
-    const tax = Math.floor(target.coins * 0.05);
+    const tax = Math.floor(target.coins * 0.08);
     await supabase.from('users').update({ coins: Math.max(0, target.coins - tax) }).eq('discord_id', targetId);
+  } else if (type === 'bomb') {
+    await supabase.from('users').update({ coins: Math.max(0, target.coins - 500) }).eq('discord_id', targetId);
+  } else if (type === 'tempete') {
+    const loss = Math.floor(target.coins * 0.10);
+    await supabase.from('users').update({ coins: Math.max(0, target.coins - loss) }).eq('discord_id', targetId);
+  } else if (type === 'stealboost') {
+    delete activeBoosts[targetId];
   }
   
   const MALUS_DURATIONS = { slow: 10*60*1000, confusion: 5*60*1000, silence: 10*60*1000, malediction: 30*60*1000, taxe: 0 };

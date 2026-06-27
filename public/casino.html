@@ -384,7 +384,10 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
       <div class="av" id="av"></div>
       <div style="font-size:9px;color:var(--gold);font-weight:700" id="level-display">Niv.1</div>
     </div>
+    <div style="display:flex;flex-direction:column;gap:1px">
     <span class="un" id="un"></span>
+    <span id="user-title" style="font-size:10px;font-weight:800;color:#6060A0"></span>
+  </div>
     <a id="al" href="/admin" class="hl al" style="display:none">Admin</a>
     <a href="/auth/logout" class="hl">Deconnexion</a>
   </div>
@@ -542,6 +545,7 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
     <button class="nb" onclick="P('musique',this)">Musique</button>
     <button class="nb" onclick="P('boosts',this)">Boosts</button>
     <button class="nb" onclick="P('tournament',this)">Tournoi</button>
+    <button class="nb" onclick="P('xpguide',this)">XP &amp; Niveaux</button>
     <button class="nb" onclick="P('shop',this)">Boutique</button>
     <button class="nb" onclick="P('lb',this)">Classement</button>
   </div>
@@ -1229,6 +1233,57 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   </div>
 </div>
 
+
+<!-- XP GUIDE -->
+<div class="page" id="page-xpguide">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">⭐ Systeme XP &amp; Niveaux</div></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:20px">Gagnez de l'XP en jouant et debloquez des titres exclusifs et des bonus permanents !</p>
+
+    <!-- How to earn XP -->
+    <div style="background:var(--c3);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">Comment gagner de l'XP ?</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)">
+          <span style="font-size:13px">🎰 Jouer une partie</span>
+          <span style="font-size:12px;font-weight:800;color:var(--gold)">5 XP minimum</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)">
+          <span style="font-size:13px">💰 Gagner des pieces</span>
+          <span style="font-size:12px;font-weight:800;color:var(--gold)">10% du gain en XP</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)">
+          <span style="font-size:13px">🔥 Streak quotidien</span>
+          <span style="font-size:12px;font-weight:800;color:var(--gold)">+50 XP par jour</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)">
+          <span style="font-size:13px">🎯 Defi quotidien complete</span>
+          <span style="font-size:12px;font-weight:800;color:var(--gold)">+100 XP bonus</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+          <span style="font-size:13px">📦 Ouvrir un coffre</span>
+          <span style="font-size:12px;font-weight:800;color:var(--gold)">+25 XP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- My progress -->
+    <div style="background:linear-gradient(135deg,#1A1400,#2A2000);border:1px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:16px;text-align:center" id="my-xp-card">
+      <div style="font-size:32px;margin-bottom:6px" id="my-title-emoji">🎲</div>
+      <div style="font-size:20px;font-weight:900;margin-bottom:4px" id="my-title-name" style="color:var(--gold)">Novice</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:12px" id="my-title-bonus">Aucun bonus</div>
+      <div style="height:8px;background:var(--c3);border-radius:4px;overflow:hidden;margin-bottom:6px">
+        <div id="my-xp-progress" style="height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold));width:0%;border-radius:4px;transition:width .8s"></div>
+      </div>
+      <div style="font-size:11px;color:var(--t2)" id="my-xp-details">0 / 200 XP vers le niveau suivant</div>
+    </div>
+
+    <!-- Level progression -->
+    <div style="font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">Tous les paliers</div>
+    <div style="display:flex;flex-direction:column;gap:8px" id="xp-levels-list"></div>
+  </div>
+</div>
+
 <!-- TRANSFERT -->
 <div class="page" id="page-transfer">
   <div class="gc">
@@ -1393,6 +1448,7 @@ function P(id,btn){
   if(id==='lb'&&typeof loadLB==='function')loadLB();
   if(id==='transfer'&&typeof loadTransferTargets==='function')loadTransferTargets();
   if(id==='tournament'&&typeof loadTournament==='function')loadTournament();
+  if(id==='xpguide'&&typeof renderXPLevelsList==='function')renderXPLevelsList();
   if(id==='boosts'){if(typeof loadBoost==='function')loadBoost();if(typeof renderBoostsPage==='function')renderBoostsPage();}
 }
 
@@ -1455,6 +1511,11 @@ function updateXPBar(xp,level){
   document.getElementById('xp-label').textContent='Niv.'+level;
   document.getElementById('xp-text').textContent=progress+'/1000 XP';
   document.getElementById('level-display').textContent='Niv.'+level;
+  if(typeof getTitleForLevel==='function'){
+    const t=getTitleForLevel(level);
+    const titleEl=document.getElementById('user-title');
+    if(titleEl){titleEl.textContent=t.emoji+' '+t.title;titleEl.style.color=t.color;}
+  }
 }
 function showLevelUp(level){
   toast('🎉 Niveau '+level+' atteint !','win');
@@ -2333,6 +2394,88 @@ function setVolume(v) {
 
 renderTracks();
 
+// ═══ XP TITLES SYSTEM ════════════════════════════════════════════
+const XP_LEVELS = [
+  { level:1,  xp:0,    title:'Novice',       color:'#6060A0', emoji:'🎲', bonus:null,                  bonusDesc:'Aucun bonus' },
+  { level:2,  xp:200,  title:'Apprenti',     color:'#7888C0', emoji:'🃏', bonus:'+5% XP',              bonusDesc:'+5% XP sur toutes les parties' },
+  { level:3,  xp:500,  title:'Joueur',       color:'#8899D0', emoji:'🎰', bonus:'+50 pieces/j',        bonusDesc:'+50 pieces de bonus chaque jour' },
+  { level:4,  xp:900,  title:'Parieur',      color:'#99A8E0', emoji:'♠️', bonus:'+10% XP',             bonusDesc:'+10% XP sur toutes les parties' },
+  { level:5,  xp:1400, title:'Habitué',      color:'#A0B0F0', emoji:'🍀', bonus:'Cooldown -2min',      bonusDesc:'Cooldown mini-jeux reduit de 2 minutes' },
+  { level:6,  xp:2000, title:'Vétéran',      color:'#C0A060', emoji:'⭐', bonus:'+100 pieces/j',       bonusDesc:'+100 pieces de bonus chaque jour' },
+  { level:7,  xp:2800, title:'Expert',       color:'#D4AF37', emoji:'💎', bonus:'+15% XP',             bonusDesc:'+15% XP et +5% gains casino' },
+  { level:8,  xp:3800, title:'Champion',     color:'#E8C040', emoji:'👑', bonus:'+200 pieces/j',       bonusDesc:'+200 pieces de bonus chaque jour' },
+  { level:9,  xp:5000, title:'Élite',        color:'#FF8C00', emoji:'🔥', bonus:'Protection offerte',  bonusDesc:'1 boost Protection offert par semaine' },
+  { level:10, xp:6500, title:'Maître',       color:'#FF6B35', emoji:'💫', bonus:'+25% gains',          bonusDesc:'+25% sur tous vos gains casino' },
+  { level:11, xp:8500, title:'Grand Maître', color:'#FF4444', emoji:'🌟', bonus:'+500 pieces/j',       bonusDesc:'+500 pieces de bonus chaque jour' },
+  { level:12, xp:11000,'title':'Légende',    color:'#FF2288', emoji:'🏆', bonus:'+30% gains',          bonusDesc:'+30% sur tous vos gains + jackpot x2' },
+  { level:13, xp:14000,'title':'Mythique',   color:'#CC00FF', emoji:'⚡', bonus:'Boost gratuit/sem',   bonusDesc:'1 boost gratuit au choix chaque semaine' },
+  { level:14, xp:18000,'title':'Divin',      color:'#FF00CC', emoji:'🌈', bonus:'+40% gains',          bonusDesc:'+40% sur tous vos gains casino' },
+  { level:15, xp:25000,'title':'Transcendant',color:'#D4AF37',emoji:'✨', bonus:'Tout x2',             bonusDesc:'Tous vos gains sont doubl\u00e9s !' },
+];
+
+function getTitleForLevel(level) {
+  const l = XP_LEVELS.filter(x => x.level <= level).pop();
+  return l || XP_LEVELS[0];
+}
+
+function getTitleForXP(xp) {
+  const l = XP_LEVELS.filter(x => x.xp <= xp).pop();
+  return l || XP_LEVELS[0];
+}
+
+function renderXPLevelsList() {
+  const el = document.getElementById('xp-levels-list');
+  if (!el) return;
+  const myXP = me?.xp || 0;
+  const myLevel = me?.level || 1;
+  
+  // Update my card
+  const myData = getTitleForLevel(myLevel);
+  const nextLevel = XP_LEVELS.find(l => l.level === myLevel + 1);
+  const emojiEl=document.getElementById('my-title-emoji');
+  const nameEl=document.getElementById('my-title-name');
+  const bonusEl=document.getElementById('my-title-bonus');
+  const progressEl=document.getElementById('my-xp-progress');
+  const detailsEl=document.getElementById('my-xp-details');
+  if(emojiEl)emojiEl.textContent=myData.emoji;
+  if(nameEl){nameEl.textContent=myData.title;nameEl.style.color=myData.color;}
+  if(bonusEl)bonusEl.textContent=myData.bonusDesc||'Aucun bonus';
+  if(nextLevel){
+    const prog=Math.max(0,myXP-myData.xp);const needed=nextLevel.xp-myData.xp;
+    const pct=Math.min(100,Math.round(prog/needed*100));
+    if(progressEl)progressEl.style.width=pct+'%';
+    if(detailsEl)detailsEl.textContent=prog.toLocaleString()+' / '+needed.toLocaleString()+' XP vers Niv.'+(myLevel+1)+' ('+pct+'%)';
+  } else {
+    if(progressEl)progressEl.style.width='100%';
+    if(detailsEl)detailsEl.textContent='Niveau maximum atteint !';
+  }
+  
+  el.innerHTML = XP_LEVELS.map(l => {
+    const reached = myXP >= l.xp;
+    const current = myLevel === l.level;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;
+      background:${current ? 'linear-gradient(135deg,#1A1400,#2A2000)' : reached ? 'var(--c2)' : 'var(--c3)'};
+      border:1px solid ${current ? 'var(--gold)' : reached ? '#ffffff10' : 'var(--bd)'};
+      opacity:${reached ? '1' : '.35'};transition:all .2s">
+      <div style="font-size:28px;width:36px;text-align:center">${l.emoji}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <span style="font-size:14px;font-weight:900;color:${l.color}">${l.title}</span>
+          ${current ? '<span style="background:var(--gold);color:#000;border-radius:4px;padding:2px 8px;font-size:9px;font-weight:900;letter-spacing:.5px">VOUS ICI</span>' : ''}
+          <span style="font-size:10px;color:var(--t2);background:var(--c3);border-radius:4px;padding:1px 6px">Niv.${l.level}</span>
+        </div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:4px">${l.xp.toLocaleString()} XP requis</div>
+        ${l.bonusDesc ? `<div style="font-size:11px;color:var(--gr);font-weight:600">✦ ${l.bonusDesc}</div>` : ''}
+      </div>
+      <div style="text-align:center;min-width:28px">
+        ${current ? `<span style="color:var(--gold);font-size:22px">★</span>` : reached ? '<span style="color:var(--gr);font-size:20px">✓</span>' : '<span style="color:var(--bd2);font-size:16px">○</span>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
+
 // ═══ CHAT ════════════════════════════════════════════════════════
 let chatOpen=false,chatUnread=0;
 async function toggleChat(){
@@ -2406,12 +2549,16 @@ const BOOSTS_DATA=[
   {e:'🔄',n:'Double Chance',d:'Relance auto si perte 5min',p:18000,t:'doublechance'},
 ];
 const MALUS_DATA=[
-  {e:'🐢',n:'Ralentissement',d:'Cooldown mini-jeux x3 10min',p:3000,t:'slow'},
-  {e:'💸',n:'Taxe',d:'Vole 5% de ses pieces',p:5000,t:'taxe'},
-  {e:'🎭',n:'Confusion',d:'Boutons melanges 5min',p:4000,t:'confusion'},
-  {e:'🔇',n:'Silence',d:'Chat bloque 10min',p:2000,t:'silence'},
+  {e:'🐢',n:'Ralentissement',d:'Cooldown x3 pendant 15min',p:2000,t:'slow'},
+  {e:'💸',n:'Taxe Brutale',d:'Vole 8% de ses pieces instantanement',p:6000,t:'taxe'},
+  {e:'🎭',n:'Confusion',d:'Interface melanges 5min',p:3000,t:'confusion'},
+  {e:'🔇',n:'Silence',d:'Chat bloque 15min',p:1500,t:'silence'},
   {e:'💀',n:'Malediction',d:'Prochaine mise perdue double',p:8000,t:'malediction'},
-  {e:'🌪️',n:'Tempete',d:'Perd 10% de ses pieces',p:12000,t:'tempete'},
+  {e:'🌪️',n:'Tempete',d:'Perd 10% de ses pieces',p:10000,t:'tempete'},
+  {e:'🃏',n:'Vol de Boost',d:'Annule son boost actif',p:5000,t:'stealboost'},
+  {e:'🔒',n:'Gel des Gains',d:'Ses gains reduits de 50% 10min',p:7000,t:'freeze'},
+  {e:'💣',n:'Bombe',d:'Perd 500 pieces fixes',p:4000,t:'bomb'},
+  {e:'👻',n:'Hante',d:'Perd 2% par minute pendant 10min',p:9000,t:'haunt'},
 ];
 
 function renderBoostsPage(){
