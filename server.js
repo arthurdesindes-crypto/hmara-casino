@@ -345,7 +345,7 @@ app.post('/api/transfer', requireAuth, async (req, res) => {
   const { targetId, amount } = req.body;
   if (!targetId || !amount || amount < 1) return res.status(400).json({ error: 'Donnees invalides' });
   if (targetId === req.session.user.discord_id) return res.status(400).json({ error: 'Vous ne pouvez pas vous envoyer des pieces' });
-  const amt = Math.min(parseInt(amount), 10000);
+  const amt = Math.min(parseInt(amount), 50000);
   const { data: sender } = await supabase.from('users').select('coins').eq('discord_id', req.session.user.discord_id).single();
   if (!sender || sender.coins < amt) return res.status(400).json({ error: 'Pas assez de pieces' });
   const { data: target } = await supabase.from('users').select('coins').eq('discord_id', targetId).single();
