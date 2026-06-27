@@ -370,6 +370,8 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+@keyframes chestin{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes chestspin{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
 </style>
 </head>
 <body>
@@ -442,8 +444,7 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   <div style="font-size:11px;color:var(--t2)" id="chest-prize-display">??? pieces</div>
   <div style="font-size:10px;color:var(--t2);margin-top:6px">5 minutes restantes</div>
 </div>
-@keyframes chestin{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
-@keyframes chestspin{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+
 
 <!-- JACKPOT WIN POPUP -->
 <div id="jackpot-popup" style="display:none;position:fixed;inset:0;z-index:9997;background:rgba(0,0,0,.9);
@@ -1199,9 +1200,9 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
           <div style="flex:1">
             <div style="font-size:14px;font-weight:700;margin-bottom:3px">Gains x2</div>
             <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Doublez vos gains pendant 10 minutes</div>
-            <div style="font-size:13px;font-weight:800;color:var(--gold)">2 000 pieces</div>
+            <div style="font-size:13px;font-weight:800;color:var(--gold)">10 000 pieces</div>
           </div>
-          <button class="bg" onclick="activateBoost('x2',2000)" style="padding:10px 16px;font-size:12px">Activer</button>
+          <button class="bg" onclick="activateBoost('x2',10000)" style="padding:10px 16px;font-size:12px">Activer</button>
         </div>
       </div>
       <div class="gc" style="margin-bottom:0;padding:18px">
@@ -1210,9 +1211,9 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
           <div style="flex:1">
             <div style="font-size:14px;font-weight:700;margin-bottom:3px">Protection de Mise</div>
             <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Votre prochaine perte est absorb&#233;e</div>
-            <div style="font-size:13px;font-weight:800;color:var(--gold)">1 500 pieces</div>
+            <div style="font-size:13px;font-weight:800;color:var(--gold)">7 500 pieces</div>
           </div>
-          <button class="bg" onclick="activateBoost('protect',1500)" style="padding:10px 16px;font-size:12px">Activer</button>
+          <button class="bg" onclick="activateBoost('protect',7500)" style="padding:10px 16px;font-size:12px">Activer</button>
         </div>
       </div>
       <div class="gc" style="margin-bottom:0;padding:18px">
@@ -1221,9 +1222,9 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
           <div style="flex:1">
             <div style="font-size:14px;font-weight:700;margin-bottom:3px">Boost de Chance</div>
             <div style="font-size:12px;color:var(--t2);margin-bottom:8px">+15% de chance de gagner pendant 15 min</div>
-            <div style="font-size:13px;font-weight:800;color:var(--gold)">3 000 pieces</div>
+            <div style="font-size:13px;font-weight:800;color:var(--gold)">15 000 pieces</div>
           </div>
-          <button class="bg" onclick="activateBoost('luck',3000)" style="padding:10px 16px;font-size:12px">Activer</button>
+          <button class="bg" onclick="activateBoost('luck',15000)" style="padding:10px 16px;font-size:12px">Activer</button>
         </div>
       </div>
     </div>
