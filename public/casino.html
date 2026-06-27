@@ -389,6 +389,48 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
 </header>
 
 
+
+<!-- CHAT FLOTTANT -->
+<button id="chat-toggle" onclick="toggleChat()" style="position:fixed;bottom:56px;right:24px;z-index:9989;
+  width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--pu),#6D28D9);
+  border:none;cursor:pointer;box-shadow:0 4px 20px #8B5CF650;font-size:22px;
+  display:flex;align-items:center;justify-content:center;transition:all .2s">💬
+  <span id="chat-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--rd);
+    color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:800;
+    align-items:center;justify-content:center">0</span>
+</button>
+
+<div id="chat-panel" style="display:none;position:fixed;bottom:100px;right:24px;z-index:9988;
+  width:320px;background:linear-gradient(145deg,var(--c1),var(--c2));
+  border:1px solid var(--bd2);border-radius:20px;box-shadow:0 20px 60px #000,0 0 40px #8B5CF620;
+  overflow:hidden;animation:pagein .3s ease">
+  <div style="background:linear-gradient(135deg,var(--pu),#6D28D9);padding:14px 18px;
+    display:flex;align-items:center;justify-content:space-between">
+    <span style="font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:#fff">Chat en Direct</span>
+    <span id="online-count" style="font-size:11px;color:#ffffff90"></span>
+  </div>
+  <div id="chat-messages" style="height:260px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px">
+    <div style="text-align:center;font-size:12px;color:var(--t2);padding:20px 0">Chargement...</div>
+  </div>
+  <div style="padding:10px;border-top:1px solid var(--bd);display:flex;gap:8px">
+    <input id="chat-input" class="bi" type="text" placeholder="Message..." maxlength="200"
+      style="flex:1;padding:9px 12px;font-size:12px"
+      onkeydown="if(e.key==='Enter'||event.key==='Enter')sendChat()">
+    <button class="bg" onclick="sendChat()" style="padding:9px 14px;font-size:14px">➤</button>
+  </div>
+</div>
+
+<!-- STREAK POPUP -->
+<div id="streak-popup" style="display:none;position:fixed;top:80px;right:24px;z-index:9995;
+  background:linear-gradient(135deg,#1A0A00,#2A1A00);border:2px solid var(--gold);
+  border-radius:18px;padding:20px 24px;text-align:center;
+  box-shadow:0 8px 40px #D4AF3750;animation:pagein .4s ease">
+  <div style="font-size:36px;margin-bottom:6px" id="streak-emoji">🔥</div>
+  <div style="font-family:'Cinzel',serif;font-size:16px;font-weight:800;color:var(--gold)" id="streak-title"></div>
+  <div style="font-size:13px;color:var(--t2);margin-top:4px" id="streak-bonus"></div>
+  <button class="bgh" onclick="document.getElementById('streak-popup').style.display='none'" style="margin-top:12px;padding:6px 16px;font-size:11px">OK</button>
+</div>
+
 <!-- COFFRE MYSTERE -->
 <div id="chest-notif" style="display:none;position:fixed;bottom:80px;right:24px;z-index:9990;
   background:linear-gradient(135deg,#1A1400,#2A2000);border:2px solid var(--gold);
@@ -497,6 +539,8 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   <div class="nav-games" id="nav-other" style="display:none">
     <button class="nb" onclick="P('transfer',this)">Transfert</button>
     <button class="nb" onclick="P('musique',this)">Musique</button>
+    <button class="nb" onclick="P('boosts',this)">Boosts</button>
+    <button class="nb" onclick="P('tournament',this)">Tournoi</button>
     <button class="nb" onclick="P('shop',this)">Boutique</button>
     <button class="nb" onclick="P('lb',this)">Classement</button>
   </div>
@@ -1138,6 +1182,70 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
     <div class="res" id="pong2-r">Premier a 7 points gagne ! Cooldown : 10min</div>
   </div>
 </div>
+
+<!-- BOOSTS -->
+<div class="page" id="page-boosts">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">⚡ Boosts Temporaires</div></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:20px">Activez un boost pour ameliorer vos gains ! Un seul boost actif a la fois.</p>
+    <div id="active-boost-display" style="display:none;background:linear-gradient(135deg,#1A1400,#2A2000);border:1px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:20px;text-align:center">
+      <div style="font-size:13px;font-weight:700;color:var(--gold)" id="active-boost-text">Aucun boost actif</div>
+      <div style="font-size:11px;color:var(--t2);margin-top:4px" id="active-boost-timer"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px" id="boosts-list">
+      <div class="gc" style="margin-bottom:0;padding:18px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="font-size:36px">⚡</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;margin-bottom:3px">Gains x2</div>
+            <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Doublez vos gains pendant 10 minutes</div>
+            <div style="font-size:13px;font-weight:800;color:var(--gold)">2 000 pieces</div>
+          </div>
+          <button class="bg" onclick="activateBoost('x2',2000)" style="padding:10px 16px;font-size:12px">Activer</button>
+        </div>
+      </div>
+      <div class="gc" style="margin-bottom:0;padding:18px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="font-size:36px">🛡️</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;margin-bottom:3px">Protection de Mise</div>
+            <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Votre prochaine perte est absorb&#233;e</div>
+            <div style="font-size:13px;font-weight:800;color:var(--gold)">1 500 pieces</div>
+          </div>
+          <button class="bg" onclick="activateBoost('protect',1500)" style="padding:10px 16px;font-size:12px">Activer</button>
+        </div>
+      </div>
+      <div class="gc" style="margin-bottom:0;padding:18px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="font-size:36px">🍀</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;margin-bottom:3px">Boost de Chance</div>
+            <div style="font-size:12px;color:var(--t2);margin-bottom:8px">+15% de chance de gagner pendant 15 min</div>
+            <div style="font-size:13px;font-weight:800;color:var(--gold)">3 000 pieces</div>
+          </div>
+          <button class="bg" onclick="activateBoost('luck',3000)" style="padding:10px 16px;font-size:12px">Activer</button>
+        </div>
+      </div>
+    </div>
+    <div class="res" style="margin-top:14px" id="boost-r">Choisissez un boost pour ameliorer vos chances !</div>
+  </div>
+</div>
+
+<!-- TOURNOI -->
+<div class="page" id="page-tournament">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">🏆 Tournoi Hebdomadaire</div></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:6px">Classement repart a zero chaque lundi. Top 3 gagnent des pieces massives !</p>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <div class="stat-card"><div class="stat-val" style="color:#FFD700">🥇 100 000</div><div class="stat-lbl">1er Prix</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:#C0C0C0">🥈 50 000</div><div class="stat-lbl">2e Prix</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:#CD7F32">🥉 25 000</div><div class="stat-lbl">3e Prix</div></div>
+    </div>
+    <div id="tournament-list"></div>
+    <div class="res" style="margin-top:14px" id="tournament-r">Jouez pour accumuler des points !</div>
+  </div>
+</div>
+
 <!-- TRANSFERT -->
 <div class="page" id="page-transfer">
   <div class="gc">
@@ -1301,6 +1409,8 @@ function P(id,btn){
   if(btn)btn.classList.add('active');
   if(id==='lb'&&typeof loadLB==='function')loadLB();
   if(id==='transfer'&&typeof loadTransferTargets==='function')loadTransferTargets();
+  if(id==='tournament'&&typeof loadTournament==='function')loadTournament();
+  if(id==='boosts'&&typeof loadBoost==='function')loadBoost();
 }
 
 const socket=io();
@@ -1385,6 +1495,13 @@ async function init(){
   else av.textContent=me.username.slice(0,2).toUpperCase();
   if(me.is_admin)document.getElementById('al').style.display='block';
   initRou();initLoto();renderShop();loadLB();loadMembers();
+  checkStreak();
+  loadBoost();
+  // Update online count in chat
+  socket.on('online:update',({online})=>{
+    const el=document.getElementById('online-count');
+    if(el)el.textContent=online.length+' en ligne';
+  });
   checkDailyWheel();
 }
 
@@ -2226,6 +2343,113 @@ function setVolume(v) {
 }
 
 renderTracks();
+
+// ═══ CHAT ════════════════════════════════════════════════════════
+let chatOpen=false,chatUnread=0;
+async function toggleChat(){
+  chatOpen=!chatOpen;
+  document.getElementById('chat-panel').style.display=chatOpen?'block':'none';
+  if(chatOpen){chatUnread=0;updateChatBadge();await loadChatHistory();}
+}
+async function loadChatHistory(){
+  const msgs=await api('/api/chat');
+  const el=document.getElementById('chat-messages');
+  el.innerHTML=msgs.map(renderChatMsg).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function renderChatMsg(msg){
+  const isMe=msg.discord_id===me?.discord_id;
+  return `<div style="display:flex;gap:8px;${isMe?'flex-direction:row-reverse':''}">
+    <div style="width:28px;height:28px;border-radius:50%;background:var(--pu);flex-shrink:0;overflow:hidden;border:1px solid var(--bd2)">
+      ${msg.avatar?`<img src="https://cdn.discordapp.com/avatars/${msg.discord_id}/${msg.avatar}.png" style="width:100%;height:100%;object-fit:cover">`:msg.username.slice(0,1)}
+    </div>
+    <div style="max-width:70%">
+      <div style="font-size:10px;color:var(--t2);margin-bottom:3px;${isMe?'text-align:right':''}">
+        <span style="color:var(--gold);font-weight:700">${msg.username}</span>
+        <span style="color:var(--pu);margin-left:4px">Niv.${msg.level||1}</span>
+        <span style="margin-left:4px">${msg.time}</span>
+      </div>
+      <div style="background:${isMe?'linear-gradient(135deg,var(--pu),#6D28D9)':'var(--c3)'};border-radius:${isMe?'12px 12px 2px 12px':'12px 12px 12px 2px'};padding:8px 12px;font-size:13px;word-break:break-word">${msg.message}</div>
+    </div>
+  </div>`;
+}
+function updateChatBadge(){
+  const badge=document.getElementById('chat-badge');
+  if(chatUnread>0){badge.style.display='flex';badge.textContent=chatUnread;}
+  else badge.style.display='none';
+}
+function sendChat(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim();
+  if(!msg)return;input.value='';
+  socket.emit('chat:send',{message:msg,username:me.username,avatar:me.avatar,discord_id:me.discord_id,level:me.level||1});
+}
+socket.on('chat:message',(msg)=>{
+  const el=document.getElementById('chat-messages');
+  if(el&&chatOpen){el.innerHTML+=renderChatMsg(msg);el.scrollTop=el.scrollHeight;}
+  else{chatUnread++;updateChatBadge();}
+  if(msg.discord_id!==me?.discord_id&&!chatOpen)toast(`💬 ${msg.username}: ${msg.message.slice(0,30)}...`);
+});
+
+// ═══ STREAK ══════════════════════════════════════════════════════
+async function checkStreak(){
+  const r=await api('/api/streak','POST',{}).catch(()=>null);
+  if(!r||r.already)return;
+  const el=document.getElementById('streak-popup');
+  document.getElementById('streak-emoji').textContent=r.streak>=7?'🔥':r.streak>=3?'⚡':'✨';
+  document.getElementById('streak-title').textContent=r.streak+' jours de suite !';
+  document.getElementById('streak-bonus').textContent=r.bonus>0?'+'+r.bonus.toLocaleString()+' pieces bonus':'Revenez demain pour un bonus !';
+  el.style.display='block';
+  if(r.bonus>0){coins+=r.bonus;document.getElementById('cd').textContent=coins.toLocaleString();}
+  setTimeout(()=>el.style.display='none',5000);
+}
+
+// ═══ BOOSTS ══════════════════════════════════════════════════════
+let currentBoost=null;
+async function loadBoost(){
+  const r=await api('/api/boosts').catch(()=>null);
+  if(r&&r.active){currentBoost=r.active;updateBoostDisplay();}
+}
+function updateBoostDisplay(){
+  if(!currentBoost)return;
+  const el=document.getElementById('active-boost-display');el.style.display='block';
+  const names={x2:'⚡ Gains x2 actif !',protect:'🛡️ Protection active !',luck:'🍀 Chance boost actif !'};
+  document.getElementById('active-boost-text').textContent=names[currentBoost.type]||'Boost actif';
+  const remaining=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/60000));
+  document.getElementById('active-boost-timer').textContent=remaining+' minutes restantes';
+}
+async function activateBoost(type,cost){
+  if(currentBoost&&new Date(currentBoost.expiresAt)>new Date()){toast('Un boost est deja actif !','lose');return;}
+  const r=await api('/api/boosts/activate','POST',{type,cost});
+  if(r.error){toast(r.error,'lose');return;}
+  coins=r.coins;document.getElementById('cd').textContent=coins.toLocaleString();
+  currentBoost=r.boost;updateBoostDisplay();
+  const names={x2:'Gains x2 active 10 min !',protect:'Protection active !',luck:'Boost de chance actif 15 min !'};
+  toast('⚡ '+(names[type]||'Boost active'),'win');
+  document.getElementById('boost-r').innerHTML='<span class="win">Boost active !</span>';
+}
+
+// ═══ TOURNOI ═════════════════════════════════════════════════════
+async function loadTournament(){
+  const r=await api('/api/tournament').catch(()=>null);
+  if(!r)return;
+  const medals=['🥇','🥈','🥉'];
+  const myEntry=r.scores.find(s=>s.discord_id===me?.discord_id);
+  const myRank=r.scores.findIndex(s=>s.discord_id===me?.discord_id)+1;
+  document.getElementById('tournament-list').innerHTML=r.scores.map((s,i)=>`
+    <div class="lbrow" style="${s.discord_id===me?.discord_id?'border-color:var(--gold)':''}">
+      <span class="lbrank">${medals[i]||'#'+(i+1)}</span>
+      <div class="lbav">${s.avatar?`<img src="https://cdn.discordapp.com/avatars/${s.discord_id}/${s.avatar}.png">`:s.username.slice(0,2)}</div>
+      <span class="lbname">${s.username}${s.discord_id===me?.discord_id?' (Vous)':''}</span>
+      <span class="lbcoins">${(s.weekly_score||0).toLocaleString()} pts</span>
+    </div>`).join('');
+  if(myRank>0)document.getElementById('tournament-r').textContent='Votre classement : #'+myRank+' avec '+(myEntry?.weekly_score||0).toLocaleString()+' points';
+}
+
+// Update P function to load tournament
+const _origP=P;
+// Override P to load data when navigating
+
 
 // ═══ MEMORY ══════════════════════════════════════════════════════
 const MEMORY_EMOJIS=['🎰','💎','👑','🃏','🎲','🍀','⭐','🔮'];

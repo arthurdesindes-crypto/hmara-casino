@@ -111,7 +111,16 @@ app.get('/api/me', requireAuth, async (req, res) => {
 app.post('/api/coins', requireAuth, async (req, res) => {
   const { amount } = req.body;
   const { data: user } = await supabase.from('users').select('coins,xp,level').eq('discord_id', req.session.user.discord_id).single();
-  const newCoins = Math.max(0, (user.coins || 0) + amount);
+  // Apply boost multiplier
+  let finalAmount = amount;
+  const boost = activeBoosts[req.session.user.discord_id];
+  if (boost && boost.type === 'x2' && amount > 0 && new Date(boost.expiresAt) > new Date()) {
+    finalAmount = amount * 2;
+  } else if (boost && boost.type === 'protect' && amount < 0 && new Date(boost.expiresAt) > new Date()) {
+    finalAmount = 0; // Protection absorbs loss
+    delete activeBoosts[req.session.user.discord_id];
+  }
+  const newCoins = Math.max(0, (user.coins || 0) + finalAmount);
   
   // XP system - gain XP for any game activity
   let xpGain = 0;
@@ -304,7 +313,67 @@ app.post('/api/transfer', requireAuth, async (req, res) => {
   res.json({ success: true, coins: sender.coins - amt });
 });
 
+
+// CHAT
+app.get('/api/chat', requireAuth, (req, res) => {
+  res.json(chatHistory.slice(-30));
+});
+
+// BOOSTS
+app.get('/api/boosts', requireAuth, (req, res) => {
+  const boost = activeBoosts[req.session.user.discord_id];
+  if (boost && new Date(boost.expiresAt) > new Date()) {
+    res.json({ active: boost });
+  } else {
+    delete activeBoosts[req.session.user.discord_id];
+    res.json({ active: null });
+  }
+});
+
+app.post('/api/boosts/activate', requireAuth, async (req, res) => {
+  const { type, cost } = req.body;
+  const { data: user } = await supabase.from('users').select('coins').eq('discord_id', req.session.user.discord_id).single();
+  if (!user || user.coins < cost) return res.status(400).json({ error: 'Pas assez de pieces' });
+  await supabase.from('users').update({ coins: user.coins - cost }).eq('discord_id', req.session.user.discord_id);
+  const duration = type === 'x2' ? 10 * 60 * 1000 : type === 'protect' ? 5 * 60 * 1000 : 15 * 60 * 1000;
+  activeBoosts[req.session.user.discord_id] = { type, expiresAt: new Date(Date.now() + duration) };
+  res.json({ success: true, boost: activeBoosts[req.session.user.discord_id], coins: user.coins - cost });
+});
+
+// TOURNOI HEBDOMADAIRE
+app.get('/api/tournament', requireAuth, async (req, res) => {
+  const weekKey = getWeekKey();
+  const { data } = await supabase.from('users').select('discord_id,username,avatar,weekly_score').order('weekly_score', { ascending: false }).limit(10);
+  res.json({ scores: data || [], weekKey });
+});
+
+app.post('/api/tournament/add', requireAuth, async (req, res) => {
+  const { score } = req.body;
+  const { data: user } = await supabase.from('users').select('weekly_score').eq('discord_id', req.session.user.discord_id).single();
+  const newScore = (user.weekly_score || 0) + score;
+  await supabase.from('users').update({ weekly_score: newScore }).eq('discord_id', req.session.user.discord_id);
+  res.json({ success: true, score: newScore });
+});
+
+// STREAK
+app.post('/api/streak', requireAuth, async (req, res) => {
+  const { data: user } = await supabase.from('users').select('streak,last_login,coins').eq('discord_id', req.session.user.discord_id).single();
+  const today = new Date().toDateString();
+  const lastLogin = user.last_login ? new Date(user.last_login).toDateString() : null;
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+  
+  if (lastLogin === today) return res.json({ streak: user.streak || 0, bonus: 0, already: true });
+  
+  const newStreak = lastLogin === yesterday ? (user.streak || 0) + 1 : 1;
+  const bonus = Math.min(newStreak * 50, 1000); // Max 1000 bonus
+  const newCoins = (user.coins || 0) + bonus;
+  
+  await supabase.from('users').update({ streak: newStreak, last_login: new Date().toISOString(), coins: newCoins }).eq('discord_id', req.session.user.discord_id);
+  res.json({ streak: newStreak, bonus, coins: newCoins });
+});
+
 // PAGES
+
 app.get('/', (req, res) => {
   if (req.session.user) return res.redirect('/casino');
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -318,6 +387,23 @@ app.get('/admin', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, 
 
 // SOCKET MULTIJOUEUR
 const rooms = {};
+
+// ═══ CHAT EN DIRECT ══════════════════════════════════════════════
+const chatHistory = [];
+const MAX_CHAT = 50;
+
+// ═══ BOOSTS ══════════════════════════════════════════════════════
+const activeBoosts = {}; // discord_id -> { type, expiresAt }
+
+// ═══ TOURNOI HEBDOMADAIRE ════════════════════════════════════════
+let weeklyScores = {}; // discord_id -> { username, avatar, score }
+
+function getWeekKey() {
+  const d = new Date();
+  const week = Math.floor(d.getTime() / (7 * 24 * 60 * 60 * 1000));
+  return `week_${week}`;
+}
+
 let jackpotPool = 5000; // Jackpot progressif
 let activeChest = null; // Coffre mystere
 const chestInterval = 60 * 60 * 1000; // 1 heure
@@ -622,6 +708,23 @@ io.on('connection', (socket) => {
       socket.leave(socket.roomId);
       socket.roomId = null;
     }
+  });
+
+  // CHAT
+  socket.on('chat:send', ({ message, username, avatar, discord_id, level }) => {
+    if (!message || message.length > 200) return;
+    const msg = {
+      id: Date.now(),
+      username,
+      avatar,
+      discord_id,
+      level: level || 1,
+      message: message.slice(0, 200),
+      time: new Date().toLocaleTimeString('fr', { hour: '2-digit', minute: '2-digit' })
+    };
+    chatHistory.push(msg);
+    if (chatHistory.length > MAX_CHAT) chatHistory.shift();
+    io.emit('chat:message', msg);
   });
 
   socket.on('disconnect', () => {
