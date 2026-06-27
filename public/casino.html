@@ -370,6 +370,10 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+.status-item{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:800;animation:pagein .3s ease;letter-spacing:.3px}
+.status-boost{background:linear-gradient(135deg,#1A1400,#2A2000);border:1px solid var(--gold);color:var(--gold)}
+.status-malus{background:linear-gradient(135deg,#1A0505,#2A0808);border:1px solid var(--rd);color:var(--rd)}
+.status-timer{font-size:10px;opacity:.7;font-weight:600}
 @keyframes chestin{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
 @keyframes chestspin{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
 </style>
@@ -385,13 +389,19 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
       <div style="font-size:9px;color:var(--gold);font-weight:700" id="level-display">Niv.1</div>
     </div>
     <div style="display:flex;flex-direction:column;gap:1px">
-    <span class="un" id="un"></span>
-    <span id="user-title" style="font-size:10px;font-weight:800;color:#6060A0"></span>
-  </div>
+      <span class="un" id="un"></span>
+      <span id="user-title" style="font-size:10px;font-weight:800;color:#6060A0"></span>
+    </div>
     <a id="al" href="/admin" class="hl al" style="display:none">Admin</a>
     <a href="/auth/logout" class="hl">Deconnexion</a>
   </div>
 </header>
+
+<!-- STATUS BAR - boost et malus actifs -->
+<div id="status-bar" style="display:none;position:sticky;top:62px;z-index:198;
+  display:flex;gap:8px;padding:8px 20px;flex-wrap:wrap;align-items:center;
+  background:rgba(2,2,9,.97);border-bottom:1px solid var(--bd);backdrop-filter:blur(20px)">
+</div>
 
 
 
@@ -1550,7 +1560,7 @@ async function init(){
     if(targetId!==me?.discord_id)return;
     const names={slow:'🐢 Ralentissement',taxe:'💸 Taxe',confusion:'🎭 Confusion',silence:'🔇 Silence',malediction:'💀 Malediction',tempete:'🌪️ Tempete'};
     toast('💀 '+from+' vous envoie un malus : '+(names[type]||type),'lose');
-    api('/api/malus').then(r=>{if(r&&r.active)updateMalusDisplay(r.active);});
+    api('/api/malus').then(r=>{if(r&&r.active){updateMalusDisplay(r.active);}updateStatusBar();});
   });
   checkDailyWheel();
 }
@@ -2605,6 +2615,7 @@ async function loadBoost(){
   if(r&&r.active){currentBoost=r.active;updateBoostDisplay();}
   const rm=await api('/api/malus').catch(()=>null);
   if(rm&&rm.active)updateMalusDisplay(rm.active);
+  updateStatusBar();
   renderBoostsPage();
 }
 
@@ -2618,20 +2629,78 @@ function updateMalusDisplay(malus){
 }
 function updateBoostDisplay(){
   if(!currentBoost)return;
-  const el=document.getElementById('active-boost-display');el.style.display='block';
-  const names={x2:'⚡ Gains x2 actif !',protect:'🛡️ Protection active !',luck:'🍀 Chance boost actif !'};
-  document.getElementById('active-boost-text').textContent=names[currentBoost.type]||'Boost actif';
+  const el=document.getElementById('active-boost-display');if(el)el.style.display='block';
+  const names={x2:'⚡ Gains x2 actif !',protect:'🛡️ Protection active !',luck:'🍀 Chance actif !',
+    eclair:'⚡ Vitesse Eclair !',precision:'🎯 Precision active !',vip:'👑 VIP actif !',doublechance:'🔄 Double Chance !'};
+  const txt=document.getElementById('active-boost-text');if(txt)txt.textContent=names[currentBoost.type]||'Boost actif';
   const remaining=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/60000));
-  document.getElementById('active-boost-timer').textContent=remaining+' minutes restantes';
+  const tmr=document.getElementById('active-boost-timer');if(tmr)tmr.textContent=remaining+' min restantes';
+  updateStatusBar();
 }
+
+let currentMalus=null;
+function updateMalusDisplay(malus){
+  currentMalus=malus;
+  const el=document.getElementById('active-malus-display');if(!el)return;
+  el.style.display='block';
+  const names={slow:'🐢 Ralentissement actif !',taxe:'💸 Taxe subie !',confusion:'🎭 Confusion active !',
+    silence:'🔇 Silence actif !',malediction:'💀 Malediction active !',tempete:'🌪️ Tempete active !',
+    stealboost:'🃏 Vol de Boost !',freeze:'🔒 Gel des Gains !',bomb:'💣 Bombe !',haunt:'👻 Hante !'};
+  const txt=document.getElementById('active-malus-text');if(txt)txt.textContent=(names[malus.type]||'Malus actif')+' — de '+malus.from;
+  const remaining=Math.max(0,Math.floor((new Date(malus.expiresAt)-Date.now())/60000));
+  const tmr=document.getElementById('active-malus-timer');if(tmr)tmr.textContent=remaining+' min restantes';
+  updateStatusBar();
+}
+
+function updateStatusBar(){
+  const bar=document.getElementById('status-bar');if(!bar)return;
+  const items=[];
+  
+  if(currentBoost&&new Date(currentBoost.expiresAt)>new Date()){
+    const boostNames={x2:'⚡ Gains x2',protect:'🛡️ Protection',luck:'🍀 Chance +25%',
+      eclair:'⚡ Vitesse Eclair',precision:'🎯 Precision',vip:'👑 VIP Mode',doublechance:'🔄 Double Chance'};
+    const remaining=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/60000));
+    const secs=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/1000)%60);
+    items.push(`<div class="status-item status-boost">
+      ${boostNames[currentBoost.type]||'Boost'} 
+      <span class="status-timer">${remaining}:${String(secs).padStart(2,'0')}</span>
+    </div>`);
+  }
+  
+  if(currentMalus&&new Date(currentMalus.expiresAt)>new Date()){
+    const malusNames={slow:'🐢 Ralenti',taxe:'💸 Taxe',confusion:'🎭 Confusion',
+      silence:'🔇 Silence',malediction:'💀 Malediction',tempete:'🌪️ Tempete',
+      stealboost:'🃏 Boost vole',freeze:'🔒 Gains geles',haunt:'👻 Hante'};
+    const remaining=Math.max(0,Math.floor((new Date(currentMalus.expiresAt)-Date.now())/60000));
+    const secs=Math.max(0,Math.floor((new Date(currentMalus.expiresAt)-Date.now())/1000)%60);
+    items.push(`<div class="status-item status-malus">
+      ${malusNames[currentMalus.type]||'Malus'} 
+      <span style="font-size:10px;opacity:.6;margin:0 4px">de ${currentMalus.from}</span>
+      <span class="status-timer">${remaining}:${String(secs).padStart(2,'0')}</span>
+    </div>`);
+  }
+  
+  if(items.length>0){
+    bar.style.display='flex';
+    bar.innerHTML='<span style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px;white-space:nowrap">Effets actifs :</span>'+items.join('');
+  } else {
+    bar.style.display='none';
+    bar.innerHTML='';
+  }
+}
+
+// Update status bar every second
+setInterval(updateStatusBar, 1000);
 async function activateBoost(type,cost){
   if(currentBoost&&new Date(currentBoost.expiresAt)>new Date()){toast('Un boost est deja actif !','lose');return;}
   const r=await api('/api/boosts/activate','POST',{type,cost});
   if(r.error){toast(r.error,'lose');return;}
   coins=r.coins;document.getElementById('cd').textContent=coins.toLocaleString();
   currentBoost=r.boost;updateBoostDisplay();
-  const names={x2:'Gains x2 active 10 min !',protect:'Protection active !',luck:'Boost de chance actif 15 min !'};
+  const names={x2:'Gains x2 actif 10 min !',protect:'Protection active !',luck:'Boost chance actif 15 min !',
+    eclair:'Vitesse Eclair active 20 min !',precision:'Precision active 15 min !',vip:'VIP Mode actif 10 min !',doublechance:'Double Chance active 5 min !'};
   toast('⚡ '+(names[type]||'Boost active'),'win');
+  updateStatusBar();
   document.getElementById('boost-r').innerHTML='<span class="win">Boost active !</span>';
 }
 
