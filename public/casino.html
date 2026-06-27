@@ -2640,14 +2640,14 @@ async function checkStreak(){
 // ═══ BOOSTS ══════════════════════════════════════════════════════
 let currentBoost=null;
 const BOOSTS_DATA=[
-  {e:'⚡',n:'Gains x2',d:'Doublez vos gains 10min',p:10000,t:'x2'},
-  {e:'🛡️',n:'Protection',d:'Prochaine perte absorbee',p:7500,t:'protect'},
-  {e:'🍀',n:'Boost Chance',d:'+25% gains 15min',p:15000,t:'luck'},
-  {e:'💰',n:'Super Cagnotte',d:'+500 pieces instantanees',p:5000,t:'cagnotte'},
-  {e:'⚡',n:'Vitesse Eclair',d:'Cooldown 2min pendant 20min',p:8000,t:'eclair'},
-  {e:'🎯',n:'Precision',d:'+25% gains solo 15min',p:12000,t:'precision'},
-  {e:'👑',n:'VIP Mode',d:'Mises x10 autorisees 10min',p:20000,t:'vip'},
-  {e:'🔄',n:'Double Chance',d:'Relance auto si perte 5min',p:18000,t:'doublechance'},
+  {e:'⚡',n:'Gains x2',d:'Tous vos gains doubles pendant 10 minutes',p:32000,t:'x2',dur:'10min'},
+  {e:'🛡️',n:'Bouclier',d:'Absorbe votre prochaine perte (usage unique)',p:20000,t:'protect',dur:'1 usage'},
+  {e:'🍀',n:'Boost Chance',d:'+20% sur tous vos gains pendant 15 minutes',p:24000,t:'luck',dur:'15min'},
+  {e:'⚡',n:'Vitesse Eclair',d:'Cooldown mini-jeux reduit a 2min pendant 30min',p:16000,t:'eclair',dur:'30min'},
+  {e:'💰',n:'Cagnotte',d:'+1000 pieces instantanement sur votre compte',p:12000,t:'cagnotte',dur:'Instantane'},
+  {e:'🔄',n:'Recharge',d:'Recharge immediatement tous vos cooldowns mini-jeux',p:20000,t:'recharge',dur:'Instantane'},
+  {e:'🔮',n:'Bouclier Anti-Malus',d:'Bloque le prochain malus que vous recevez (20min)',p:28000,t:'shield',dur:'20min'},
+  {e:'👑',n:'VIP',d:'Limite de mise portee a 50 000 pendant 5 minutes',p:60000,t:'vip',dur:'5min'},
 ];
 const MALUS_DATA=[
   {e:'🐢',n:'Ralentissement',d:'Cooldown x3 pendant 15min',p:2000,t:'slow'},
@@ -2665,11 +2665,12 @@ const MALUS_DATA=[
 function renderBoostsPage(){
   const bg=document.getElementById('boosts-grid');if(!bg)return;
   bg.innerHTML=BOOSTS_DATA.map(b=>`
-    <div style="background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid var(--bd);border-radius:14px;padding:14px;text-align:center">
-      <div style="font-size:28px;margin-bottom:6px">${b.e}</div>
-      <div style="font-size:12px;font-weight:700;margin-bottom:4px">${b.n}</div>
-      <div style="font-size:10px;color:var(--t2);margin-bottom:8px">${b.d}</div>
-      <div style="font-size:12px;font-weight:800;color:var(--gold);margin-bottom:8px">${b.p.toLocaleString()} ♦</div>
+    <div style="background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid var(--bd);border-radius:14px;padding:14px;text-align:center;transition:all .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--bd)'">
+      <div style="font-size:30px;margin-bottom:6px">${b.e}</div>
+      <div style="font-size:12px;font-weight:800;margin-bottom:4px;color:var(--tx)">${b.n}</div>
+      <div style="font-size:10px;color:var(--t2);margin-bottom:6px;line-height:1.4">${b.d}</div>
+      <div style="font-size:9px;font-weight:700;color:var(--pu);margin-bottom:8px;background:#8B5CF610;border-radius:4px;padding:2px 6px;display:inline-block">⏱ ${b.dur}</div>
+      <div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:8px">${b.p.toLocaleString()} ♦</div>
       <button class="bg" onclick="activateBoost('${b.t}',${b.p})" style="width:100%;padding:8px;font-size:11px">Activer</button>
     </div>`).join('');
   const mg=document.getElementById('malus-grid');if(!mg)return;
@@ -2721,8 +2722,9 @@ function updateMalusDisplay(malus){
 function updateBoostDisplay(){
   if(!currentBoost)return;
   const el=document.getElementById('active-boost-display');if(el)el.style.display='block';
-  const names={x2:'⚡ Gains x2 actif !',protect:'🛡️ Protection active !',luck:'🍀 Chance actif !',
-    eclair:'⚡ Vitesse Eclair !',precision:'🎯 Precision active !',vip:'👑 VIP actif !',doublechance:'🔄 Double Chance !'};
+  const names={x2:'⚡ Gains x2 actifs !',protect:'🛡️ Bouclier actif !',luck:'🍀 +20% Gains actifs !',
+    eclair:'⚡ Cooldown 2min actif !',vip:'👑 VIP Mode actif !',shield:'🔮 Anti-Malus actif !',
+    cagnotte:'💰 Cagnotte utilisee',recharge:'🔄 Recharge utilisee'};
   const txt=document.getElementById('active-boost-text');if(txt)txt.textContent=names[currentBoost.type]||'Boost actif';
   const remaining=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/60000));
   const tmr=document.getElementById('active-boost-timer');if(tmr)tmr.textContent=remaining+' min restantes';
@@ -2748,8 +2750,8 @@ function updateStatusBar(){
   const items=[];
   
   if(currentBoost&&new Date(currentBoost.expiresAt)>new Date()){
-    const boostNames={x2:'⚡ Gains x2',protect:'🛡️ Protection',luck:'🍀 Chance +25%',
-      eclair:'⚡ Vitesse Eclair',precision:'🎯 Precision',vip:'👑 VIP Mode',doublechance:'🔄 Double Chance'};
+    const boostNames={x2:'⚡ Gains x2',protect:'🛡️ Bouclier',luck:'🍀 +20% Gains',
+      eclair:'⚡ Cooldown 2min',vip:'👑 VIP Mode',shield:'🔮 Anti-Malus',cagnotte:'💰 Cagnotte',recharge:'🔄 Recharge'};
     const remaining=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/60000));
     const secs=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/1000)%60);
     items.push(`<div class="status-item status-boost">
@@ -2788,9 +2790,27 @@ async function activateBoost(type,cost){
   if(r.error){toast(r.error,'lose');return;}
   coins=r.coins;document.getElementById('cd').textContent=coins.toLocaleString();
   currentBoost=r.boost;updateBoostDisplay();
-  const names={x2:'Gains x2 actif 10 min !',protect:'Protection active !',luck:'Boost chance actif 15 min !',
-    eclair:'Vitesse Eclair active 20 min !',precision:'Precision active 15 min !',vip:'VIP Mode actif 10 min !',doublechance:'Double Chance active 5 min !'};
-  toast('⚡ '+(names[type]||'Boost active'),'win');
+  const names={
+    x2:'⚡ Gains x2 actifs pendant 10 min !',
+    protect:'🛡️ Bouclier active — prochaine perte absorbee !',
+    luck:'🍀 +20% gains actifs pendant 15 min !',
+    eclair:'⚡ Cooldown 2min actif pendant 30 min !',
+    cagnotte:'💰 +1000 pieces ajoutees !',
+    recharge:'🔄 Tous vos cooldowns ont ete recharges !',
+    shield:'🔮 Bouclier Anti-Malus actif 20 min !',
+    vip:'👑 VIP Mode actif 5 min — mises jusqu'a 50 000 !'
+  };
+  toast(names[type]||'Boost active','win');
+  // Handle recharge - reset all cooldowns in localStorage
+  if(type==='recharge'){
+    const today=new Date().toDateString();
+    ['reaction','pendu','clicker','simon','brique','snake','wam','flappy','pingpong','taquin',
+     'memory','typing','maths','pfc','colors','aim','jeu2048','dino','wordscramble','pong2'].forEach(g=>{
+      localStorage.removeItem('cd_'+g+'_'+me.discord_id);
+    });
+    toast('🔄 Tous vos cooldowns ont ete recharges !','win');
+  }
+  if(type==='vip'){window._vipBoost=new Date(Date.now()+5*60*1000);}
   updateStatusBar();
   document.getElementById('boost-r').innerHTML='<span class="win">Boost active !</span>';
 }

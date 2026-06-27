@@ -116,30 +116,29 @@ app.post('/api/coins', requireAuth, async (req, res) => {
   const boost = activeBoosts[req.session.user.discord_id];
   const malus = activeMalus[req.session.user.discord_id];
   
+  const boostActive = boost && new Date(boost.expiresAt) > new Date();
+  const malusActive = malus && new Date(malus.expiresAt) > new Date();
+
   if (amount > 0) {
-    // Boosts on wins
-    if (boost && boost.type === 'x2' && new Date(boost.expiresAt) > new Date()) {
-      finalAmount = amount * 2;
-    } else if (boost && boost.type === 'precision' && new Date(boost.expiresAt) > new Date()) {
-      finalAmount = Math.round(amount * 1.25);
-    } else if (boost && boost.type === 'luck' && new Date(boost.expiresAt) > new Date()) {
-      finalAmount = Math.round(amount * 1.25);
-    } else if (boost && boost.type === 'doublechance' && new Date(boost.expiresAt) > new Date()) {
-      finalAmount = Math.round(amount * 1.5);
-    }
-    // Freeze malus reduces gains
-    if (malus && malus.type === 'freeze' && new Date(malus.expiresAt) > new Date()) {
-      finalAmount = Math.round(finalAmount * 0.5);
-    }
+    // x2 boost doubles all wins
+    if (boostActive && boost.type === 'x2') finalAmount = amount * 2;
+    // luck boost adds 20%
+    else if (boostActive && boost.type === 'luck') finalAmount = Math.round(amount * 1.2);
+    // freeze malus halves gains
+    if (malusActive && malus.type === 'freeze') finalAmount = Math.round(finalAmount * 0.5);
   } else if (amount < 0) {
-    // Protection absorbs loss
-    if (boost && boost.type === 'protect' && new Date(boost.expiresAt) > new Date()) {
+    // Shield blocks malus effects
+    if (boostActive && boost.type === 'shield') {
+      // Shield active - no effect on losses from malus
+    }
+    // Protect absorbs ONE loss
+    if (boostActive && boost.type === 'protect') {
       finalAmount = 0;
       delete activeBoosts[req.session.user.discord_id];
       io.emit('malus:effect', { targetId: req.session.user.discord_id, type: 'protect_used' });
     }
     // Malediction doubles next loss
-    if (malus && malus.type === 'malediction' && new Date(malus.expiresAt) > new Date()) {
+    if (malusActive && malus.type === 'malediction') {
       finalAmount = amount * 2;
       delete activeMalus[req.session.user.discord_id];
       io.emit('malus:effect', { targetId: req.session.user.discord_id, type: 'malediction_triggered', amount: finalAmount });
@@ -150,7 +149,7 @@ app.post('/api/coins', requireAuth, async (req, res) => {
   // XP system - gain XP for any game activity
   // XP system - hard progression
   let xpGain = 0;
-  if (amount !== 0) xpGain = Math.max(2, Math.abs(Math.floor(amount * 0.08))) + 8; // slightly easier
+  if (amount !== 0) xpGain = Math.max(1, Math.abs(Math.floor(amount * 0.016))) + 1; // 5x harder
   const newXP = (user.xp || 0) + xpGain;
   // Much higher thresholds
   const XP_THRESHOLDS = [0,1000,3000,6000,10000,15000,22000,30000,40000,52000,66000,82000,100000,120000,150000];
@@ -377,10 +376,16 @@ app.get('/api/boosts', requireAuth, (req, res) => {
 
 const activeMalus = {}; // discord_id -> { type, expiresAt }
 
+// Boost durations in ms
 const BOOST_DURATIONS = {
-  x2: 10*60*1000, protect: 5*60*1000, luck: 15*60*1000,
-  cagnotte: 0, eclair: 20*60*1000, precision: 15*60*1000,
-  vip: 10*60*1000, doublechance: 5*60*1000
+  x2: 10*60*1000,       // Gains x2 pendant 10min
+  protect: 0,            // Protection 1 perte (instantané)
+  luck: 15*60*1000,      // +20% gains pendant 15min
+  eclair: 30*60*1000,    // Cooldown mini-jeux 2min pendant 30min
+  vip: 5*60*1000,        // Mise max x5 pendant 5min
+  cagnotte: 0,           // +1000 pieces instantanées
+  recharge: 0,           // Recharge tous les cooldowns maintenant
+  shield: 20*60*1000,    // Bloque le prochain malus pendant 20min
 };
 
 app.post('/api/boosts/activate', requireAuth, async (req, res) => {
@@ -389,17 +394,30 @@ app.post('/api/boosts/activate', requireAuth, async (req, res) => {
   if (!user || user.coins < cost) return res.status(400).json({ error: 'Pas assez de pieces' });
   
   let newCoins = user.coins - cost;
+  let instantBonus = 0;
   
-  // Special: cagnotte gives instant coins
   if (type === 'cagnotte') {
-    newCoins += 500;
+    // +1000 pieces instantanées
+    newCoins += 1000;
+    instantBonus = 1000;
     await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
-    return res.json({ success: true, boost: null, coins: newCoins, instant: 500 });
+    return res.json({ success: true, boost: null, coins: newCoins, instant: instantBonus });
+  }
+  
+  if (type === 'recharge') {
+    // Recharge cooldowns - just notify client
+    await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
+    return res.json({ success: true, boost: null, coins: newCoins, recharge: true });
   }
   
   await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
   const duration = BOOST_DURATIONS[type] || 10*60*1000;
-  activeBoosts[req.session.user.discord_id] = { type, expiresAt: new Date(Date.now() + duration) };
+  if (duration > 0) {
+    activeBoosts[req.session.user.discord_id] = { type, expiresAt: new Date(Date.now() + duration) };
+  } else {
+    // protect - store as special flag
+    activeBoosts[req.session.user.discord_id] = { type, expiresAt: new Date(Date.now() + 60*60*1000), oneTime: true };
+  }
   res.json({ success: true, boost: activeBoosts[req.session.user.discord_id], coins: newCoins });
 });
 
