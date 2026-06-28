@@ -3072,15 +3072,21 @@ function rollReward(rewards) {
 
 async function openCoffre(type, keyCost) {
   if(playerKeys < keyCost) {
-    toast('Pas assez de clés ! Il vous faut ' + keyCost + ' clé(s)', 'lose');
+    toast('Pas assez de cles ! Il vous faut ' + keyCost + ' cle(s)', 'lose');
     return;
   }
   
-  // Deduct keys
+  // Deduct keys from localStorage
   const usedGames = keyCost * 10;
   gamesPlayed = Math.max(0, gamesPlayed - usedGames);
   localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
-  playerKeys = Math.floor(gamesPlayed / 10);
+  // Also deduct from bonus_keys if needed
+  const r2 = await api('/api/keys').catch(()=>({bonus_keys:0}));
+  if(r2.bonus_keys > 0) {
+    const useBonus = Math.min(r2.bonus_keys, keyCost);
+    await api('/api/admin/give-keys','POST',{discord_id:me.discord_id,amount:-useBonus}).catch(()=>{});
+  }
+  playerKeys = Math.floor(gamesPlayed / 10) + Math.max(0,(r2.bonus_keys||0));
   updateKeysDisplay();
   
   // Roll reward
@@ -3092,14 +3098,19 @@ async function openCoffre(type, keyCost) {
   
   if(reward.type === 'coins') {
     const amount = Math.floor(reward.min + Math.random() * (reward.max - reward.min));
-    await updC(amount);
-    rewardText = '+' + amount.toLocaleString() + ' pièces !';
-    rewardDesc = 'Ajoutées à votre compte';
+    // Use server API to add coins properly
+    const cr = await api('/api/coins','POST',{amount});
+    coins = cr.coins;
+    document.getElementById('cd').textContent = coins.toLocaleString();
+    rewardText = '+' + amount.toLocaleString() + ' pieces !';
+    rewardDesc = 'Ajoutees a votre compte';
   } else if(reward.type === 'boost') {
     if(reward.instant) {
-      await updC(reward.instant);
+      const cr = await api('/api/coins','POST',{amount:reward.instant});
+      coins = cr.coins;
+      document.getElementById('cd').textContent = coins.toLocaleString();
       rewardText = reward.label;
-      rewardDesc = '+' + reward.instant.toLocaleString() + ' pièces instantanées';
+      rewardDesc = '+' + reward.instant.toLocaleString() + ' pieces instantanees';
     } else {
       // Add to inventory instead of activating directly
       addToInventory({
