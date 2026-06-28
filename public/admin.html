@@ -3,213 +3,349 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin — HmaraCasino</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--gold:#C99720;--gold2:#F0D060;--gold-dim:#C9972020;--bg:#05050A;--card:#0D0D1A;--card2:#10101E;--border:#ffffff0D;--text:#EEE8D5;--text2:#7070A0;--green:#1DB954;--red:#E53935;--r:14px}
+:root{--gold:#D4AF37;--bg:#020209;--c1:#08081A;--c2:#0D0D24;--bd:#ffffff0D;--bd2:#D4AF3730;--tx:#F0E6C8;--t2:#6060A0;--gr:#00C875;--rd:#FF4444;--r:12px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 20%,#7C3AED0A,transparent 50%),radial-gradient(ellipse at 90% 80%,#C9972008,transparent 50%);pointer-events:none;z-index:0}
-header{position:sticky;top:0;z-index:100;background:rgba(5,5,10,.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-size:18px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.admin-badge{background:#7C3AED20;color:#A78BFA;border:1px solid #7C3AED40;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
-.back-btn{color:var(--text2);text-decoration:none;font-size:13px;font-weight:600;padding:8px 16px;border:1px solid var(--border);border-radius:10px;transition:all .2s}
-.back-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
-.container{max-width:1100px;margin:0 auto;padding:32px;position:relative;z-index:1}
-.tabs{display:flex;gap:4px;margin-bottom:28px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:6px}
-.tab{background:none;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;letter-spacing:.3px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+header{position:sticky;top:0;z-index:100;background:rgba(2,2,9,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd2);padding:14px 28px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Cinzel',serif;font-size:18px;font-weight:900;color:var(--gold);letter-spacing:2px}
+.back{color:var(--t2);text-decoration:none;font-size:12px;font-weight:700;padding:8px 16px;border:1px solid var(--bd);border-radius:8px;transition:all .2s}
+.back:hover{color:var(--gold);border-color:var(--bd2)}
+.container{max-width:900px;margin:0 auto;padding:28px 20px}
+.tabs{display:flex;gap:4px;background:var(--c1);border:1px solid var(--bd);border-radius:var(--r);padding:5px;margin-bottom:24px}
+.tab{flex:1;background:none;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-align:center}
 .tab.active{background:var(--gold);color:#000}
-.tab:hover:not(.active){color:var(--text);background:var(--card2)}
-.section{display:none}
-.section.active{display:block;animation:fadeUp .3s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
-.stat-val{font-size:32px;font-weight:800;color:var(--gold);margin-bottom:4px}
-.stat-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
-.table{width:100%;border-collapse:collapse}
-.table th{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;padding:12px 16px;text-align:left;border-bottom:1px solid var(--border)}
-.table td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle}
-.table tr:hover td{background:#ffffff03}
-.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-.avatar-sm{width:32px;height:32px;border-radius:50%;background:#7C3AED;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;vertical-align:middle;margin-right:10px;overflow:hidden}
-.avatar-sm img{width:100%;height:100%;object-fit:cover}
-.coins-val{font-weight:700;color:var(--gold)}
-.action-row{display:flex;gap:8px;align-items:center}
-.input-sm{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--text);font-size:13px;font-weight:600;width:100px;font-family:'Inter',sans-serif}
-.input-sm:focus{outline:none;border-color:var(--gold)}
-.btn-sm{border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;letter-spacing:.3px}
-.btn-add{background:#1DB95420;color:var(--green);border:1px solid #1DB95430}
-.btn-add:hover{background:#1DB95430}
-.btn-remove{background:#E5393520;color:var(--red);border:1px solid #E5393530}
-.btn-remove:hover{background:#E5393530}
-.btn-ban{background:#E5393510;color:var(--red);border:1px solid #E5393520}
-.btn-ban:hover{background:#E5393530}
-.btn-unban{background:#1DB95410;color:var(--green);border:1px solid #1DB95420}
-.btn-unban:hover{background:#1DB95430}
-.badge-banned{background:#E5393520;color:var(--red);border:1px solid #E5393530;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700}
-.badge-ok{background:#1DB95415;color:var(--green);border:1px solid #1DB95425;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700}
-.search-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;width:100%;margin-bottom:16px;transition:border-color .2s}
-.search-bar:focus{outline:none;border-color:var(--gold-dim)}
-.purchase-row td:first-child{color:var(--text2);font-size:12px}
-.empty{text-align:center;color:var(--text2);padding:40px;font-size:14px}
-#toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;display:none;animation:fadeUp .3s ease;backdrop-filter:blur(20px)}
+.sec{display:none}.sec.active{display:block}
+.card{background:var(--c1);border:1px solid var(--bd);border-radius:var(--r);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.label{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+.inp{background:var(--c2);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;width:120px}
+.inp:focus{outline:none;border-color:var(--gold)}
+.inp-wide{width:100%}
+.btn{border:none;border-radius:8px;padding:9px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-gold{background:linear-gradient(135deg,#A07010,var(--gold));color:#000}
+.btn-gold:hover{opacity:.85}
+.btn-gr{background:#00C87520;color:var(--gr);border:1px solid #00C87530}
+.btn-gr:hover{background:#00C87530}
+.btn-rd{background:#FF444420;color:var(--rd);border:1px solid #FF444430}
+.btn-rd:hover{background:#FF444430}
+.btn-pu{background:#8B5CF620;color:#A78BFA;border:1px solid #8B5CF630}
+.btn-pu:hover{background:#8B5CF630}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--c2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;text-align:center}
+.stat-v{font-size:26px;font-weight:800;color:var(--gold)}
+.stat-l{font-size:11px;color:var(--t2);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.player-card{background:var(--c2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:8px}
+.player-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.av{width:34px;height:34px;border-radius:50%;background:#8B5CF6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;overflow:hidden;flex-shrink:0;border:1px solid var(--bd2)}
+.av img{width:100%;height:100%;object-fit:cover}
+.player-name{font-size:14px;font-weight:700;flex:1}
+.player-info{font-size:11px;color:var(--t2)}
+.badge-ban{background:#FF444420;color:var(--rd);border:1px solid #FF444430;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800}
+.badge-ok{background:#00C87520;color:var(--gr);border:1px solid #00C87530;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800}
+.actions{display:flex;flex-wrap:wrap;gap:6px}
+.sep{height:1px;background:var(--bd);margin:10px 0}
+.toast-box{position:fixed;bottom:20px;right:20px;z-index:999;background:var(--c1);border:1px solid var(--bd2);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:700;display:none;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+.search{background:var(--c2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;width:100%;margin-bottom:14px}
+.search:focus{outline:none;border-color:var(--gold)}
+.section-title{font-size:13px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.danger-zone{background:#1A0505;border:1px solid #FF444430;border-radius:var(--r);padding:16px;margin-top:16px}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">HmaraCasino</div>
-  <div class="admin-badge">Panel Admin</div>
-  <a href="/casino" class="back-btn">Retour au casino</a>
+  <div class="logo">⚙️ ADMIN</div>
+  <a href="/casino" class="back">← Retour au casino</a>
 </header>
 
 <div class="container">
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-val" id="stat-players">—</div><div class="stat-label">Joueurs total</div></div>
-    <div class="stat-card"><div class="stat-val" id="stat-coins">—</div><div class="stat-label">Pièces en circulation</div></div>
-    <div class="stat-card"><div class="stat-val" id="stat-purchases">—</div><div class="stat-label">Achats boutique</div></div>
-    <div class="stat-card"><div class="stat-val" id="stat-banned">—</div><div class="stat-label">Joueurs bannis</div></div>
-  </div>
-
   <div class="tabs">
-    <button class="tab active" onclick="showTab('players',this)">Joueurs</button>
-    <button class="tab" onclick="showTab('purchases',this)">Historique achats</button>
+    <button class="tab active" onclick="showTab('stats',this)">📊 Stats</button>
+    <button class="tab" onclick="showTab('players',this)">👥 Joueurs</button>
+    <button class="tab" onclick="showTab('tools',this)">🔧 Outils</button>
+    <button class="tab" onclick="showTab('purchases',this)">🛒 Achats</button>
   </div>
 
-  <!-- PLAYERS -->
-  <div class="section active" id="tab-players">
-    <input class="search-bar" type="text" id="search" placeholder="Rechercher un joueur..." oninput="filterPlayers()">
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr><th>Joueur</th><th>Pièces</th><th>XP / Niveau</th><th>Statut</th><th>Modifier les coins</th><th>Modifier XP</th><th>Actions</th></tr></thead>
-        <tbody id="players-tbody"></tbody>
-      </table>
+  <!-- STATS -->
+  <div class="sec active" id="sec-stats">
+    <div class="stats" id="stats-grid"></div>
+    <div class="card">
+      <div class="section-title">Top Joueurs</div>
+      <div id="top-players"></div>
     </div>
   </div>
 
-  <!-- PURCHASES -->
-  <div class="section" id="tab-purchases">
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr><th>Date</th><th>Joueur</th><th>Récompense</th><th>Prix payé</th></tr></thead>
-        <tbody id="purchases-tbody"></tbody>
-      </table>
+  <!-- JOUEURS -->
+  <div class="sec" id="sec-players">
+    <input class="search" type="text" placeholder="🔍 Rechercher un joueur..." oninput="filterPlayers(this.value)">
+    <div id="players-list"></div>
+  </div>
+
+  <!-- OUTILS -->
+  <div class="sec" id="sec-tools">
+    <div class="card">
+      <div class="section-title">💰 Modifier les pièces</div>
+      <div class="row">
+        <select class="inp inp-wide" id="tool-player-coins" style="width:200px"></select>
+        <input class="inp" type="number" id="tool-amount-coins" value="1000" min="1">
+        <button class="btn btn-gr" onclick="toolCoins(1)">+ Ajouter</button>
+        <button class="btn btn-rd" onclick="toolCoins(-1)">- Retirer</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">⭐ Modifier l'XP</div>
+      <div class="row">
+        <select class="inp inp-wide" id="tool-player-xp" style="width:200px"></select>
+        <input class="inp" type="number" id="tool-amount-xp" value="500" min="1">
+        <button class="btn btn-gr" onclick="toolXP(1)">+ Ajouter</button>
+        <button class="btn btn-rd" onclick="toolXP(-1)">- Retirer</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">🗝️ Gérer les Clés</div>
+      <div class="row">
+        <select class="inp inp-wide" id="tool-player-keys" style="width:200px"></select>
+        <input class="inp" type="number" id="tool-amount-keys" value="5" min="1">
+        <button class="btn btn-gr" onclick="toolGiveKeys()">+ Donner des clés</button>
+      </div>
+      <div class="sep"></div>
+      <div class="row">
+        <button class="btn btn-rd" onclick="toolResetAllKeys()">🗑️ Reset TOUTES les clés</button>
+      </div>
+    </div>
+
+    <div class="danger-zone">
+      <div class="section-title" style="color:var(--rd)">⚠️ Zone Dangereuse</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:12px">Ces actions sont irréversibles !</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button class="btn btn-rd" onclick="toolResetCoins()">💰 Reset pièces de TOUS (→500)</button>
+        <button class="btn btn-rd" onclick="toolResetXP()">⭐ Reset XP de TOUS (→0)</button>
+        <button class="btn btn-pu" onclick="toolResetCoinsOne()">💰 Reset pièces d'UN joueur</button>
+        <button class="btn btn-pu" onclick="toolResetXPOne()">⭐ Reset XP d'UN joueur</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACHATS -->
+  <div class="sec" id="sec-purchases">
+    <div class="card">
+      <div class="section-title">Derniers achats boutique</div>
+      <div id="purchases-list"></div>
     </div>
   </div>
 </div>
 
-<div id="toast"></div>
+<div class="toast-box" id="toast"></div>
 
 <script>
-let allPlayers=[];
+let allPlayers = [];
 
-async function api(path,method='GET',body=null){
-  const o={method,headers:{'Content-Type':'application/json'},credentials:'include'};
-  if(body)o.body=JSON.stringify(body);
-  const r=await fetch(path,o);return r.json();
+async function api(path, method='GET', body=null) {
+  const o = {method, headers:{'Content-Type':'application/json'}, credentials:'include'};
+  if(body) o.body = JSON.stringify(body);
+  const r = await fetch(path, o);
+  return r.json();
 }
 
-function toast(msg,t=''){
-  const el=document.getElementById('toast');el.textContent=msg;
-  el.style.borderColor=t==='ok'?'#1DB95440':t==='err'?'#E5393540':'var(--border)';
-  el.style.display='block';setTimeout(()=>el.style.display='none',3000);
+function toast(msg, type='ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.color = type==='ok' ? 'var(--gr)' : 'var(--rd)';
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
 }
 
-function showTab(id,btn){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
+function showTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
   btn.classList.add('active');
+  document.getElementById('sec-'+id).classList.add('active');
+  if(id==='players') loadPlayers();
+  if(id==='stats') loadStats();
+  if(id==='purchases') loadPurchases();
+  if(id==='tools') loadToolPlayers();
 }
 
-function avHTML(u){
-  if(u.avatar)return`<img src="https://cdn.discordapp.com/avatars/${u.discord_id}/${u.avatar}.png">`;
-  return(u.username||'?').slice(0,2).toUpperCase();
+function avHTML(u) {
+  if(u.avatar) return `<img src="https://cdn.discordapp.com/avatars/${u.discord_id}/${u.avatar}.png">`;
+  return (u.username||'?').slice(0,2).toUpperCase();
 }
 
-function renderPlayers(players){
-  const tbody=document.getElementById('players-tbody');
-  if(!players.length){tbody.innerHTML=`<tr><td colspan="5" class="empty">Aucun joueur trouvé</td></tr>`;return;}
-  tbody.innerHTML=players.map(u=>`
-    <tr id="row-${u.discord_id}">
-      <td><span class="avatar-sm">${avHTML(u)}</span>${u.username}</td>
-      <td class="coins-val" id="coins-${u.discord_id}">${(u.coins||0).toLocaleString()} 🪙</td>
-      <td style="font-size:12px;color:var(--text2)" id="xp-val-${u.discord_id}">XP: ${u.xp||0} | Niv.${u.level||1}</td>
-      <td>${u.banned?'<span class="badge-banned">Banni</span>':'<span class="badge-ok">Actif</span>'}</td>
-      <td>
-        <div class="action-row">
-          <input class="input-sm" type="number" id="amt-${u.discord_id}" value="500" min="1">
-          <button class="btn-sm btn-add" onclick="modCoins('${u.discord_id}',1)">+ Ajouter</button>
-          <button class="btn-sm btn-remove" onclick="modCoins('${u.discord_id}',-1)">- Retirer</button>
+async function loadStats() {
+  const data = await api('/api/admin/users');
+  allPlayers = data;
+  const total = data.length;
+  const totalCoins = data.reduce((s,u) => s+(u.coins||0), 0);
+  const banned = data.filter(u => u.banned).length;
+  const maxCoins = data.reduce((m,u) => u.coins>m.coins?u:m, {coins:0});
+  
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat"><div class="stat-v">${total}</div><div class="stat-l">Joueurs</div></div>
+    <div class="stat"><div class="stat-v">${totalCoins.toLocaleString()}</div><div class="stat-l">Pièces totales</div></div>
+    <div class="stat"><div class="stat-v">${banned}</div><div class="stat-l">Bannis</div></div>
+    <div class="stat"><div class="stat-v">${maxCoins.username||'-'}</div><div class="stat-l">Plus riche</div></div>
+  `;
+  
+  document.getElementById('top-players').innerHTML = data.slice(0,5).map((u,i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
+      <span style="font-size:18px">${['🥇','🥈','🥉','4️⃣','5️⃣'][i]}</span>
+      <div class="av">${avHTML(u)}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700">${u.username}</div>
+        <div style="font-size:11px;color:var(--t2)">Niv.${u.level||1} • ${(u.xp||0).toLocaleString()} XP</div>
+      </div>
+      <div style="font-size:13px;font-weight:800;color:var(--gold)">${(u.coins||0).toLocaleString()} ♦</div>
+    </div>`).join('');
+}
+
+async function loadPlayers() {
+  const data = await api('/api/admin/users');
+  allPlayers = data;
+  renderPlayers(data);
+  loadToolPlayers();
+}
+
+function renderPlayers(data) {
+  document.getElementById('players-list').innerHTML = data.map(u => `
+    <div class="player-card" id="pc-${u.discord_id}">
+      <div class="player-top">
+        <div class="av">${avHTML(u)}</div>
+        <div style="flex:1">
+          <div class="player-name">${u.username} <span class="${u.banned?'badge-ban':'badge-ok'}">${u.banned?'Banni':'Actif'}</span></div>
+          <div class="player-info">♦ <span id="pc-coins-${u.discord_id}">${(u.coins||0).toLocaleString()}</span> • XP: <span id="pc-xp-${u.discord_id}">${u.xp||0}</span> Niv.<span id="pc-lv-${u.discord_id}">${u.level||1}</span></div>
         </div>
-      </td>
-      <td>
-        <div class="action-row">
-          <input class="input-sm" type="number" id="xp-amt-${u.discord_id}" value="100" min="1" style="width:70px">
-          <button class="btn-sm btn-add" onclick="modXP('${u.discord_id}',1)">+ XP</button>
-          <button class="btn-sm btn-remove" onclick="modXP('${u.discord_id}',-1)">- XP</button>
-        </div>
-      </td>
-      <td>
-        ${u.banned
-          ?`<button class="btn-sm btn-unban" onclick="toggleBan('${u.discord_id}',false)">Débannir</button>`
-          :`<button class="btn-sm btn-ban" onclick="toggleBan('${u.discord_id}',true)">Bannir</button>`
-        }
-      </td>
-    </tr>`).join('');
+      </div>
+      <div class="actions">
+        <input class="inp" type="number" id="ai-${u.discord_id}" value="500" min="1" style="width:80px">
+        <button class="btn btn-gr" onclick="modCoins('${u.discord_id}',1)">+♦</button>
+        <button class="btn btn-rd" onclick="modCoins('${u.discord_id}',-1)">-♦</button>
+        <input class="inp" type="number" id="xi-${u.discord_id}" value="100" min="1" style="width:80px">
+        <button class="btn btn-pu" onclick="modXP('${u.discord_id}',1)">+XP</button>
+        <button class="btn btn-pu" onclick="modXP('${u.discord_id}',-1)">-XP</button>
+        <button class="btn ${u.banned?'btn-gr':'btn-rd'}" onclick="toggleBan('${u.discord_id}',${!u.banned})">${u.banned?'Débannir':'Bannir'}</button>
+        <button class="btn btn-rd" onclick="resetOne('${u.discord_id}')">Reset</button>
+      </div>
+    </div>`).join('');
 }
 
-async function modCoins(discord_id, sign){
-  const amt=parseInt(document.getElementById('amt-'+discord_id).value)||500;
-  const data=await api('/api/admin/coins','POST',{discord_id,amount:amt*sign});
-  if(data.error){toast(data.error,'err');return;}
-  document.getElementById('coins-'+discord_id).textContent=data.coins.toLocaleString()+' 🪙';
-  toast(sign>0?`+${amt} coins ajoutés`:`-${amt} coins retirés`,sign>0?'ok':'err');
+function filterPlayers(q) {
+  const f = allPlayers.filter(u => u.username.toLowerCase().includes(q.toLowerCase()));
+  renderPlayers(f);
 }
 
-async function modXP(discord_id, sign){
-  const amt=parseInt(document.getElementById('xp-amt-'+discord_id).value)||100;
-  const data=await api('/api/admin/xp','POST',{discord_id,amount:amt*sign});
-  if(data.error){toast(data.error,'err');return;}
-  const xpEl=document.getElementById('xp-val-'+discord_id);
-  if(xpEl)xpEl.textContent='XP: '+data.xp+' | Niv.'+data.level;
-  toast(sign>0?`+${amt} XP ajoutés — Niv.${data.level}`:`-${amt} XP retirés — Niv.${data.level}`,sign>0?'ok':'err');
+async function modCoins(id, sign) {
+  const amt = parseInt(document.getElementById('ai-'+id).value)||500;
+  const r = await api('/api/admin/coins','POST',{discord_id:id,amount:amt*sign});
+  if(r.error){toast(r.error,'err');return;}
+  document.getElementById('pc-coins-'+id).textContent = r.coins.toLocaleString();
+  toast((sign>0?'+':'')+amt*sign+' pièces');
 }
 
-async function toggleBan(discord_id,ban){
-  const data=await api(ban?'/api/admin/ban':'/api/admin/unban','POST',{discord_id});
-  if(data.error){toast(data.error,'err');return;}
-  toast(ban?'Joueur banni':'Joueur débanni',ban?'err':'ok');
-  loadData();
+async function modXP(id, sign) {
+  const amt = parseInt(document.getElementById('xi-'+id).value)||100;
+  const r = await api('/api/admin/xp','POST',{discord_id:id,amount:amt*sign});
+  if(r.error){toast(r.error,'err');return;}
+  document.getElementById('pc-xp-'+id).textContent = r.xp;
+  document.getElementById('pc-lv-'+id).textContent = r.level;
+  toast((sign>0?'+':'')+amt*sign+' XP → Niv.'+r.level);
 }
 
-function filterPlayers(){
-  const q=document.getElementById('search').value.toLowerCase();
-  renderPlayers(allPlayers.filter(p=>p.username.toLowerCase().includes(q)));
+async function toggleBan(id, ban) {
+  await api(ban?'/api/admin/ban':'/api/admin/unban','POST',{discord_id:id});
+  toast(ban?'Joueur banni':'Joueur débanni');
+  loadPlayers();
 }
 
-async function loadData(){
-  const [players,purchases]=await Promise.all([api('/api/admin/users'),api('/api/admin/purchases')]);
-  allPlayers=players;
-  renderPlayers(players);
-  // Stats
-  document.getElementById('stat-players').textContent=players.length;
-  document.getElementById('stat-coins').textContent=players.reduce((a,p)=>a+(p.coins||0),0).toLocaleString();
-  document.getElementById('stat-banned').textContent=players.filter(p=>p.banned).length;
-  document.getElementById('stat-purchases').textContent=purchases.length;
-  // Purchases
-  const pb=document.getElementById('purchases-tbody');
-  if(!purchases.length){pb.innerHTML=`<tr><td colspan="4" class="empty">Aucun achat</td></tr>`;return;}
-  pb.innerHTML=purchases.map(p=>`
-    <tr class="purchase-row">
-      <td>${new Date(p.purchased_at).toLocaleString('fr-FR')}</td>
-      <td>${p.users?.username||p.discord_id}</td>
-      <td>${p.reward_name}</td>
-      <td class="coins-val">${(p.price||0).toLocaleString()} 🪙</td>
-    </tr>`).join('');
+async function resetOne(id) {
+  if(!confirm('Reset pièces ET XP de ce joueur ?')) return;
+  await api('/api/admin/reset-coins','POST',{discord_id:id});
+  await api('/api/admin/reset-xp','POST',{discord_id:id});
+  toast('Reset effectué !');
+  loadPlayers();
 }
 
-loadData();
+function loadToolPlayers() {
+  const opts = allPlayers.length ? allPlayers.map(u=>`<option value="${u.discord_id}">${u.username}</option>`).join('') : '<option>Chargement...</option>';
+  ['tool-player-coins','tool-player-xp','tool-player-keys'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.innerHTML=opts;
+  });
+}
+
+async function toolCoins(sign) {
+  const id = document.getElementById('tool-player-coins').value;
+  const amt = parseInt(document.getElementById('tool-amount-coins').value)||1000;
+  const r = await api('/api/admin/coins','POST',{discord_id:id,amount:amt*sign});
+  if(r.error){toast(r.error,'err');return;}
+  toast((sign>0?'+':'')+amt*sign+' pièces à '+allPlayers.find(u=>u.discord_id===id)?.username);
+}
+
+async function toolXP(sign) {
+  const id = document.getElementById('tool-player-xp').value;
+  const amt = parseInt(document.getElementById('tool-amount-xp').value)||500;
+  const r = await api('/api/admin/xp','POST',{discord_id:id,amount:amt*sign});
+  if(r.error){toast(r.error,'err');return;}
+  toast((sign>0?'+':'')+amt*sign+' XP → Niv.'+r.level);
+}
+
+async function toolGiveKeys() {
+  const id = document.getElementById('tool-player-keys').value;
+  const amt = parseInt(document.getElementById('tool-amount-keys').value)||5;
+  const r = await api('/api/admin/give-keys','POST',{discord_id:id,amount:amt});
+  if(r.error){toast(r.error,'err');return;}
+  toast('+'+amt+' clés envoyées à '+allPlayers.find(u=>u.discord_id===id)?.username);
+}
+
+async function toolResetAllKeys() {
+  if(!confirm('Reset les clés de TOUS les joueurs ?')) return;
+  await api('/api/admin/reset-keys','POST',{});
+  toast('Toutes les clés ont été reset !');
+}
+
+async function toolResetCoins() {
+  if(!confirm('Reset les pièces de TOUS les joueurs à 500 ?')) return;
+  await api('/api/admin/reset-coins','POST',{});
+  toast('Toutes les pièces resetées à 500 !');
+}
+
+async function toolResetXP() {
+  if(!confirm('Reset le XP de TOUS les joueurs à 0 ?')) return;
+  await api('/api/admin/reset-xp','POST',{});
+  toast('Tout le XP reseté à 0 !');
+}
+
+async function toolResetCoinsOne() {
+  const id = document.getElementById('tool-player-coins').value;
+  if(!confirm('Reset les pièces de ce joueur à 500 ?')) return;
+  await api('/api/admin/reset-coins','POST',{discord_id:id});
+  toast('Pièces resetées à 500 !');
+}
+
+async function toolResetXPOne() {
+  const id = document.getElementById('tool-player-xp').value;
+  if(!confirm('Reset le XP de ce joueur à 0 ?')) return;
+  await api('/api/admin/reset-xp','POST',{discord_id:id});
+  toast('XP reseté à 0 !');
+}
+
+async function loadPurchases() {
+  const data = await api('/api/admin/purchases');
+  document.getElementById('purchases-list').innerHTML = data.map(p => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700">${p.users?.username||p.discord_id}</div>
+        <div style="font-size:11px;color:var(--t2)">${p.reward_name} • ${new Date(p.purchased_at).toLocaleString('fr')}</div>
+      </div>
+      <div style="font-size:12px;font-weight:800;color:var(--gold)">${(p.price||0).toLocaleString()} ♦</div>
+    </div>`).join('');
+}
+
+// Init
+loadStats();
 </script>
 </body>
 </html>

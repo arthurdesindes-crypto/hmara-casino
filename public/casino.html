@@ -1785,6 +1785,21 @@ async function init(){
     const el=document.getElementById('online-count');
     if(el)el.textContent=online.length+' en ligne';
   });
+  socket.on('admin:give-keys',({targetId,amount})=>{
+    if(targetId!==me?.discord_id)return;
+    gamesPlayed+=(amount*10);
+    localStorage.setItem('games_played_'+me.discord_id,gamesPlayed);
+    playerKeys=Math.floor(gamesPlayed/10);
+    updateKeysDisplay();
+    toast('🗝️ +'+amount+' clé(s) reçues de l'admin !','win');
+  });
+  socket.on('admin:reset-keys',()=>{
+    gamesPlayed=0;
+    localStorage.setItem('games_played_'+me.discord_id,0);
+    playerKeys=0;
+    updateKeysDisplay();
+    toast('🗝️ Vos clés ont été resetées par l'admin','lose');
+  });
   socket.on('malus:received',({targetId,type,from})=>{
     if(targetId!==me?.discord_id)return;
     const names={slow:'🐢 Ralentissement',taxe:'💸 Taxe brutale',confusion:'🎭 Confusion',
