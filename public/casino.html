@@ -1593,6 +1593,11 @@ async function init(){
     if(type==='protect_used'){
       toast('🛡️ Protection utilisee — perte absorbee !','win');
     }
+    if(type==='shield2_used'){
+      const rem=data.remaining||0;
+      toast('🛡️🛡️ Double Bouclier — perte absorbee ! '+(rem>0?rem+' usage(s) restant':'Bouclier epuise'),'win');
+      if(rem<=0){currentBoost=null;window.currentBoost=null;updateStatusBar();}
+    }
   });
   checkDailyWheel();
 }
@@ -2662,7 +2667,7 @@ const BOOSTS_DATA=[
   {e:'💰',n:'Cagnotte',d:'+1000 pieces instantanement sur votre compte',p:18000,t:'cagnotte',dur:'Instantane'},
   {e:'🔄',n:'Recharge',d:'Recharge immediatement tous vos cooldowns mini-jeux',p:30000,t:'recharge',dur:'Instantane'},
   {e:'🔮',n:'Bouclier Anti-Malus',d:'Bloque le prochain malus que vous recevez (20min)',p:42000,t:'shield',dur:'20min'},
-  {e:'👑',n:'VIP',d:'Limite de mise portee a 50 000 pendant 5 minutes',p:90000,t:'vip',dur:'5min'},
+  {e:'🛡️🛡️',n:'Double Bouclier',d:'Absorbe vos 2 prochaines pertes consecutives',p:90000,t:'shield2',dur:'2 usages'},
 ];
 const MALUS_DATA=[
   {e:'🐢',n:'Ralentissement',d:'Cooldown x3 pendant 15min',p:2000,t:'slow'},
@@ -2739,7 +2744,7 @@ function updateBoostDisplay(){
   const el=document.getElementById('active-boost-display');if(el)el.style.display='block';
   const names={x2:'⚡ Tout x2 actif !',protect:'🛡️ Bouclier actif !',luck:'🍀 +20% Gains actifs !',
     eclair:'⚡ Cooldown 2min actif !',vip:'👑 VIP Mode actif — Mise max 50 000 !',shield:'🔮 Anti-Malus actif !',
-    cagnotte:'💰 Cagnotte utilisee',recharge:'🔄 Recharge utilisee'};
+    cagnotte:'💰 Cagnotte utilisee',recharge:'🔄 Recharge utilisee',shield2:'🛡️🛡️ Double Bouclier actif — 2 pertes absorbees !'};
   const txt=document.getElementById('active-boost-text');if(txt)txt.textContent=names[currentBoost.type]||'Boost actif';
   const remaining=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/60000));
   const tmr=document.getElementById('active-boost-timer');if(tmr)tmr.textContent=remaining+' min restantes';
@@ -2766,7 +2771,7 @@ function updateStatusBar(){
   
   if(currentBoost&&new Date(currentBoost.expiresAt)>new Date()){
     const boostNames={x2:'⚡ Tout x2',protect:'🛡️ Bouclier',luck:'🍀 +20% Gains',
-      eclair:'⚡ Cooldown 2min',vip:'👑 VIP 50k max',shield:'🔮 Anti-Malus',cagnotte:'💰 Cagnotte',recharge:'🔄 Recharge'};
+      eclair:'⚡ Cooldown 2min',vip:'👑 VIP 50k max',shield:'🔮 Anti-Malus',cagnotte:'💰 Cagnotte',recharge:'🔄 Recharge',shield2:'🛡️🛡️ Double Bouclier'};
     const remaining=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/60000));
     const secs=Math.max(0,Math.floor((new Date(currentBoost.expiresAt)-Date.now())/1000)%60);
     items.push(`<div class="status-item status-boost">
