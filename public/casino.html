@@ -553,6 +553,7 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
     <button class="nb" onclick="P('transfer',this)">Transfert</button>
     <button class="nb" onclick="P('musique',this)">Musique</button>
     <button class="nb" onclick="P('boosts',this)">Boosts</button>
+    <button class="nb" onclick="P('coffres',this)">Coffres</button>
     <button class="nb" onclick="P('xpguide',this)">XP &amp; Niveaux</button>
     <button class="nb" onclick="P('shop',this)">Boutique</button>
     <button class="nb" onclick="P('lb',this)">Classement</button>
@@ -1283,6 +1284,116 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   </div>
 </div>
 
+
+<!-- COFFRES -->
+<div class="page" id="page-coffres">
+  <div class="gc" style="margin-bottom:14px">
+    <div class="gtitle"><div class="gtl">🗝️ Coffres Mystères</div></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:8px">Ouvrez des coffres pour obtenir des pièces et des boosts exclusifs introuvables en boutique !</p>
+    <div style="background:linear-gradient(135deg,#1A1400,#2A2000);border:1px solid var(--gold);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:22px">🗝️</span>
+      <div>
+        <div style="font-size:13px;font-weight:800;color:var(--gold)">Vos clés : <span id="keys-count">0</span></div>
+        <div style="font-size:11px;color:var(--t2)">Gagnez 1 clé toutes les 10 parties jouées</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px" id="coffres-list">
+
+    <!-- COMMUN -->
+    <div class="gc" style="margin-bottom:0;border-color:#78888820">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:48px;filter:drop-shadow(0 0 8px #888)">📦</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:900;color:#A0A0C0">Coffre Commun</span>
+            <span style="background:#78888820;color:#A0A0C0;border-radius:4px;padding:2px 8px;font-size:9px;font-weight:800">COMMUN</span>
+          </div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:6px">100 — 800 pieces • Boost Eclair possible</div>
+          <div style="font-size:11px;color:#A0A0C0">🗝️ 1 clé requise</div>
+        </div>
+        <button class="bg" onclick="openCoffre('commun',1)" style="padding:12px 20px;font-size:12px;background:linear-gradient(135deg,#606080,#808090)">Ouvrir</button>
+      </div>
+    </div>
+
+    <!-- RARE -->
+    <div class="gc" style="margin-bottom:0;border-color:#4488FF30">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:48px;filter:drop-shadow(0 0 12px #4488FF)">🟦</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:900;color:#4488FF">Coffre Rare</span>
+            <span style="background:#4488FF20;color:#4488FF;border-radius:4px;padding:2px 8px;font-size:9px;font-weight:800">RARE</span>
+          </div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:6px">500 — 3 000 pieces • Boost Chance x2 ou Cagnotte x2 possible</div>
+          <div style="font-size:11px;color:#4488FF">🗝️ 3 clés requises</div>
+        </div>
+        <button class="bg" onclick="openCoffre('rare',3)" style="padding:12px 20px;font-size:12px;background:linear-gradient(135deg,#1144AA,#4488FF)">Ouvrir</button>
+      </div>
+    </div>
+
+    <!-- EPIQUE -->
+    <div class="gc" style="margin-bottom:0;border-color:#AA44FF30">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:48px;filter:drop-shadow(0 0 16px #AA44FF)">🟣</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:900;color:#AA44FF">Coffre Épique</span>
+            <span style="background:#AA44FF20;color:#AA44FF;border-radius:4px;padding:2px 8px;font-size:9px;font-weight:800">ÉPIQUE</span>
+          </div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:6px">2 000 — 10 000 pieces • Gains x3 ou Triple Bouclier possible</div>
+          <div style="font-size:11px;color:#AA44FF">🗝️ 6 clés requises</div>
+        </div>
+        <button class="bg" onclick="openCoffre('epique',6)" style="padding:12px 20px;font-size:12px;background:linear-gradient(135deg,#6600AA,#AA44FF)">Ouvrir</button>
+      </div>
+    </div>
+
+    <!-- LEGENDAIRE -->
+    <div class="gc" style="margin-bottom:0;border-color:#FF880040;background:linear-gradient(145deg,#0D0800,#1A1200)">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:48px;filter:drop-shadow(0 0 20px #FF8800);animation:jpglow 2s ease-in-out infinite alternate">🟡</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:900;color:#FF8800">Coffre Légendaire</span>
+            <span style="background:#FF880025;color:#FF8800;border-radius:4px;padding:2px 8px;font-size:9px;font-weight:800">LÉGENDAIRE</span>
+          </div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:6px">10 000 — 50 000 pieces • Boost Jackpot x5 ou Immunité 1h possible</div>
+          <div style="font-size:11px;color:#FF8800">🗝️ 12 clés requises</div>
+        </div>
+        <button class="bg" onclick="openCoffre('legendaire',12)" style="padding:12px 20px;font-size:12px;background:linear-gradient(135deg,#AA4400,#FF8800)">Ouvrir</button>
+      </div>
+    </div>
+
+    <!-- DIVIN -->
+    <div class="gc" style="margin-bottom:0;border-color:#FF00FF40;background:linear-gradient(145deg,#0A0010,#150020)">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:48px;filter:drop-shadow(0 0 25px #FF00FF);animation:jpglow 1.5s ease-in-out infinite alternate">✨</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:900;color:#FF00FF">Coffre Divin</span>
+            <span style="background:#FF00FF25;color:#FF00FF;border-radius:4px;padding:2px 8px;font-size:9px;font-weight:800">✨ DIVIN</span>
+          </div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:6px">50 000 — 200 000 pieces • Boost DIVIN exclusif • Malus Dieu possible</div>
+          <div style="font-size:11px;color:#FF00FF">🗝️ 25 clés requises</div>
+        </div>
+        <button class="bg" onclick="openCoffre('divin',25)" style="padding:12px 20px;font-size:12px;background:linear-gradient(135deg,#880088,#FF00FF)">Ouvrir</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RESULT POPUP -->
+  <div id="coffre-result" style="display:none;margin-top:16px">
+    <div style="background:linear-gradient(145deg,var(--c1),var(--c2));border:2px solid var(--gold);border-radius:20px;padding:28px;text-align:center;animation:pagein .4s ease">
+      <div style="font-size:60px;margin-bottom:12px" id="cr-emoji">📦</div>
+      <div style="font-family:'Cinzel',serif;font-size:20px;font-weight:900;color:var(--gold);margin-bottom:8px" id="cr-title">Coffre ouvert !</div>
+      <div style="font-size:16px;font-weight:800;color:var(--tx);margin-bottom:6px" id="cr-reward"></div>
+      <div style="font-size:13px;color:var(--t2)" id="cr-desc"></div>
+    </div>
+  </div>
+</div>
+
 <!-- TRANSFERT -->
 <div class="page" id="page-transfer">
   <div class="gc">
@@ -1447,6 +1558,7 @@ function P(id,btn){
   if(id==='lb'&&typeof loadLB==='function')loadLB();
   if(id==='transfer'&&typeof loadTransferTargets==='function')loadTransferTargets();
   if(id==='xpguide'){if(typeof renderXPLevelsList==='function')renderXPLevelsList();if(typeof loadXPLeaderboard==='function')loadXPLeaderboard();}
+  if(id==='coffres'&&typeof loadPlayerKeys==='function')loadPlayerKeys();
   if(id==='boosts'){if(typeof loadBoost==='function')loadBoost();if(typeof renderBoostsPage==='function')renderBoostsPage();}
 }
 
@@ -1508,6 +1620,8 @@ async function updC(d){
     if(r.xp!==undefined)updateXPBar(r.xp,r.level||1);
     if(r.levelUp)showLevelUp(r.level);
     if(r.jackpotWon){document.getElementById('jackpot-popup-msg').textContent=`Vous gagnez le jackpot de ${r.jackpotPrize.toLocaleString()} pieces !`;document.getElementById('jackpot-popup').classList.add('show');}
+    // Track game for keys
+    if(typeof trackGamePlayed==='function')trackGamePlayed();
   }
   document.getElementById('cd').textContent=coins.toLocaleString();
 }
@@ -1555,6 +1669,7 @@ async function init(){
   checkStreak();
   checkActiveMalus();
   loadBoost();
+  setTimeout(()=>{if(typeof loadPlayerKeys==='function')loadPlayerKeys();},500);
   // Update online count in chat
   socket.on('online:update',({online})=>{
     const el=document.getElementById('online-count');
@@ -2440,6 +2555,138 @@ function setVolume(v) {
 }
 
 renderTracks();
+
+// ═══ COFFRES SYSTÈME ══════════════════════════════════════════════
+let playerKeys = 0;
+let gamesPlayed = parseInt(localStorage.getItem('games_played_' + (me?.discord_id||'')) || '0');
+
+function updateKeysDisplay() {
+  const el = document.getElementById('keys-count');
+  if(el) el.textContent = playerKeys;
+}
+
+async function loadPlayerKeys() {
+  // Keys stored in localStorage - 1 key per 10 games
+  gamesPlayed = parseInt(localStorage.getItem('games_played_' + me.discord_id) || '0');
+  playerKeys = Math.floor(gamesPlayed / 10);
+  updateKeysDisplay();
+}
+
+function trackGamePlayed() {
+  gamesPlayed++;
+  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
+  playerKeys = Math.floor(gamesPlayed / 10);
+  updateKeysDisplay();
+  // Notify when new key earned
+  if(gamesPlayed % 10 === 0) {
+    toast('🗝️ Nouvelle clé obtenue ! Vous avez ' + playerKeys + ' clé(s)', 'win');
+  }
+}
+
+const COFFRE_REWARDS = {
+  commun: [
+    { chance: 60, type: 'coins', min: 100, max: 400, label: 'pieces', emoji: '💰' },
+    { chance: 30, type: 'coins', min: 400, max: 800, label: 'pieces', emoji: '💰' },
+    { chance: 10, type: 'boost', boost: 'eclair', label: 'Boost Vitesse Eclair !', emoji: '⚡', dur: 30*60*1000 },
+  ],
+  rare: [
+    { chance: 50, type: 'coins', min: 500, max: 1500, label: 'pieces', emoji: '💰' },
+    { chance: 30, type: 'coins', min: 1500, max: 3000, label: 'pieces', emoji: '💰' },
+    { chance: 15, type: 'boost', boost: 'luck2', label: 'Boost Chance x2 (30min) !', emoji: '🍀🍀', dur: 30*60*1000 },
+    { chance: 5, type: 'boost', boost: 'cagnotte2', label: '+3000 pieces bonus !', emoji: '💰💰', instant: 3000 },
+  ],
+  epique: [
+    { chance: 40, type: 'coins', min: 2000, max: 5000, label: 'pieces', emoji: '💰' },
+    { chance: 30, type: 'coins', min: 5000, max: 10000, label: 'pieces', emoji: '💰' },
+    { chance: 20, type: 'boost', boost: 'x3', label: 'Gains x3 pendant 10min !', emoji: '⚡⚡', dur: 10*60*1000 },
+    { chance: 10, type: 'boost', boost: 'shield3', label: 'Triple Bouclier — 3 pertes absorbees !', emoji: '🛡️🛡️🛡️', uses: 3 },
+  ],
+  legendaire: [
+    { chance: 35, type: 'coins', min: 10000, max: 25000, label: 'pieces', emoji: '👑' },
+    { chance: 30, type: 'coins', min: 25000, max: 50000, label: 'pieces', emoji: '👑' },
+    { chance: 20, type: 'boost', boost: 'jackpot5', label: 'Jackpot x5 — prochain jackpot multiplie par 5 !', emoji: '🎰', dur: 60*60*1000 },
+    { chance: 15, type: 'boost', boost: 'immunity', label: 'Immunite 1h — aucun malus possible !', emoji: '🔐', dur: 60*60*1000 },
+  ],
+  divin: [
+    { chance: 30, type: 'coins', min: 50000, max: 100000, label: 'pieces', emoji: '✨' },
+    { chance: 25, type: 'coins', min: 100000, max: 200000, label: 'pieces', emoji: '✨' },
+    { chance: 25, type: 'boost', boost: 'divin_x5', label: 'DIVIN — Gains x5 pendant 15min !', emoji: '🌟', dur: 15*60*1000 },
+    { chance: 15, type: 'boost', boost: 'divin_protect', label: 'DIVIN — Immunite totale 2h !', emoji: '💫', dur: 2*60*60*1000 },
+    { chance: 5, type: 'boost', boost: 'divin_all', label: 'DIVIN ABSOLU — Tous boosts actifs 30min !', emoji: '🔱', dur: 30*60*1000 },
+  ]
+};
+
+function rollReward(rewards) {
+  const roll = Math.random() * 100;
+  let cumulative = 0;
+  for(const r of rewards) {
+    cumulative += r.chance;
+    if(roll < cumulative) return r;
+  }
+  return rewards[rewards.length - 1];
+}
+
+async function openCoffre(type, keyCost) {
+  if(playerKeys < keyCost) {
+    toast('Pas assez de clés ! Il vous faut ' + keyCost + ' clé(s)', 'lose');
+    return;
+  }
+  
+  // Deduct keys
+  const usedGames = keyCost * 10;
+  gamesPlayed = Math.max(0, gamesPlayed - usedGames);
+  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
+  playerKeys = Math.floor(gamesPlayed / 10);
+  updateKeysDisplay();
+  
+  // Roll reward
+  const rewards = COFFRE_REWARDS[type];
+  const reward = rollReward(rewards);
+  
+  let rewardText = '';
+  let rewardDesc = '';
+  
+  if(reward.type === 'coins') {
+    const amount = Math.floor(reward.min + Math.random() * (reward.max - reward.min));
+    await updC(amount);
+    rewardText = '+' + amount.toLocaleString() + ' pièces !';
+    rewardDesc = 'Ajoutées à votre compte';
+  } else if(reward.type === 'boost') {
+    if(reward.instant) {
+      await updC(reward.instant);
+      rewardText = reward.label;
+      rewardDesc = '+' + reward.instant.toLocaleString() + ' pièces instantanées';
+    } else {
+      // Apply boost via API
+      const dur = reward.dur || 10*60*1000;
+      const r = await api('/api/coffre/boost', 'POST', { 
+        boostType: reward.boost, 
+        duration: dur,
+        uses: reward.uses || null
+      }).catch(() => null);
+      if(r && r.boost) {
+        currentBoost = r.boost;
+        window.currentBoost = r.boost;
+        updateBoostDisplay();
+        updateStatusBar();
+      }
+      rewardText = reward.label;
+      rewardDesc = 'Boost exclusif activé !';
+    }
+  }
+  
+  // Show result
+  const resultEl = document.getElementById('coffre-result');
+  document.getElementById('cr-emoji').textContent = reward.emoji;
+  document.getElementById('cr-title').textContent = 'Coffre ouvert !';
+  document.getElementById('cr-reward').textContent = rewardText;
+  document.getElementById('cr-desc').textContent = rewardDesc;
+  resultEl.style.display = 'block';
+  toast(reward.emoji + ' ' + rewardText, 'win');
+  
+  setTimeout(() => resultEl.style.display = 'none', 4000);
+}
+
 
 // ═══ MALUS EFFECTS ═══════════════════════════════════════════════
 let malusEffects = {};
