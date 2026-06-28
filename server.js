@@ -46,8 +46,7 @@ app.get('/auth/login', (req, res) => {
     client_id: process.env.DISCORD_CLIENT_ID,
     redirect_uri: `${process.env.BASE_URL}/auth/callback`,
     response_type: 'code',
-    scope: 'identify',
-    prompt: 'none'  // Skip auth screen if already authorized
+    scope: 'identify'
   });
   res.redirect(`https://discord.com/oauth2/authorize?${params}`);
 });
