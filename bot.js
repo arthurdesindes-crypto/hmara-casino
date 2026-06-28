@@ -22,6 +22,9 @@ client.once('ready', () => {
   console.log(`Bot connecte : ${client.user.tag}`);
 });
 
+// Ping endpoint pour UptimeRobot
+app.get('/', (req, res) => res.json({ status: 'ok', bot: client.user?.tag || 'connecting' }));
+
 // Récupérer tous les membres du serveur
 app.get('/members', async (req, res) => {
   try {

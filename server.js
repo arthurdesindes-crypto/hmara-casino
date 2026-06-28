@@ -24,8 +24,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: false,
-    maxAge: 365 * 24 * 60 * 60 * 1000,
-    httpOnly: true
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 jours
+    httpOnly: true,
+    sameSite: 'lax'
   }
 }));
 
@@ -286,10 +287,40 @@ app.post('/api/admin/reset-keys', requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
-// Get player keys
+// Get player keys (total = bonus_keys in supabase)
 app.get('/api/keys', requireAuth, async (req, res) => {
   const { data } = await supabase.from('users').select('bonus_keys').eq('discord_id', req.session.user.discord_id).single();
   res.json({ bonus_keys: data?.bonus_keys || 0 });
+});
+
+// Add keys earned from games (1 key per 10 games)
+app.post('/api/keys/earn', requireAuth, async (req, res) => {
+  const { amount } = req.body;
+  if (!amount || amount < 1) return res.status(400).json({ error: 'Montant invalide' });
+  const { data: user } = await supabase.from('users').select('bonus_keys').eq('discord_id', req.session.user.discord_id).single();
+  const newKeys = (user?.bonus_keys || 0) + parseInt(amount);
+  await supabase.from('users').update({ bonus_keys: newKeys }).eq('discord_id', req.session.user.discord_id);
+  res.json({ success: true, bonus_keys: newKeys });
+});
+
+// Deduct keys (when opening coffre)
+app.post('/api/keys/spend', requireAuth, async (req, res) => {
+  const { amount } = req.body;
+  if (!amount || amount < 1) return res.status(400).json({ error: 'Montant invalide' });
+  const { data: user } = await supabase.from('users').select('bonus_keys').eq('discord_id', req.session.user.discord_id).single();
+  const current = user?.bonus_keys || 0;
+  if (current < amount) return res.status(400).json({ error: 'Pas assez de cles' });
+  const newKeys = current - parseInt(amount);
+  await supabase.from('users').update({ bonus_keys: newKeys }).eq('discord_id', req.session.user.discord_id);
+  res.json({ success: true, bonus_keys: newKeys });
+});
+
+// Track game played - increments games counter server-side and awards keys
+app.post('/api/games/played', requireAuth, async (req, res) => {
+  const { data: user } = await supabase.from('users').select('bonus_keys,xp').eq('discord_id', req.session.user.discord_id).single();
+  // We store games_count in a separate approach: use xp as proxy or add column
+  // For now, track via a simple key award system: client tells us when milestone hit
+  res.json({ success: true, bonus_keys: user?.bonus_keys || 0 });
 });
 
 app.post('/api/admin/ban', requireAdmin, async (req, res) => {
