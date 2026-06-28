@@ -552,8 +552,10 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   <div class="nav-games" id="nav-other" style="display:none">
     <button class="nb" onclick="P('transfer',this)">Transfert</button>
     <button class="nb" onclick="P('musique',this)">Musique</button>
+    <button class="nb" onclick="P('inventaire',this)">Inventaire</button>
     <button class="nb" onclick="P('boosts',this)">Boosts</button>
     <button class="nb" onclick="P('coffres',this)">Coffres</button>
+    <button class="nb" onclick="P('cles',this)">🗝️ Clés</button>
     <button class="nb" onclick="P('xpguide',this)">XP &amp; Niveaux</button>
     <button class="nb" onclick="P('shop',this)">Boutique</button>
     <button class="nb" onclick="P('lb',this)">Classement</button>
@@ -1394,6 +1396,108 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   </div>
 </div>
 
+
+<!-- INVENTAIRE -->
+<div class="page" id="page-inventaire">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">🎒 Inventaire</div></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Vos boosts achetés et trouvés dans les coffres. Activez-les quand vous voulez !</p>
+    <div id="inventaire-list" style="display:flex;flex-direction:column;gap:10px">
+      <div style="text-align:center;padding:30px;color:var(--t2);font-size:13px">Inventaire vide — achetez des boosts ou ouvrez des coffres !</div>
+    </div>
+  </div>
+</div>
+
+<!-- CLES - Façons d'en gagner -->
+<div class="page" id="page-cles">
+  <div class="gc" style="margin-bottom:14px">
+    <div class="gtitle"><div class="gtl">🗝️ Vos Clés</div></div>
+    <div style="background:linear-gradient(135deg,#1A1400,#2A2000);border:2px solid var(--gold);border-radius:16px;padding:20px;text-align:center;margin-bottom:20px">
+      <div style="font-size:52px;margin-bottom:8px">🗝️</div>
+      <div style="font-family:'Cinzel',serif;font-size:32px;font-weight:900;color:var(--gold)" id="keys-big">0</div>
+      <div style="font-size:13px;color:var(--t2);margin-top:4px">clés disponibles</div>
+    </div>
+    <div style="font-size:11px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">Progression</div>
+    <div style="background:var(--c3);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:12px;color:var(--t2)">Parties jouées vers prochaine clé</span>
+        <span style="font-size:12px;font-weight:800;color:var(--gold)" id="keys-progress-text">0/10</span>
+      </div>
+      <div style="height:8px;background:var(--c2);border-radius:4px;overflow:hidden">
+        <div id="keys-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold));width:0%;border-radius:4px;transition:width .5s"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">⚡ Défis Spéciaux — Gagnez des Clés</div></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Des défis originaux pour obtenir des clés supplémentaires !</p>
+    <div style="display:flex;flex-direction:column;gap:10px" id="key-challenges">
+
+      <div style="background:var(--c3);border:1px solid var(--bd);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">🔥</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">Streak de 3 jours</div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Connectez-vous 3 jours de suite pour gagner 2 clés</div>
+            <div style="font-size:11px;color:var(--gold)">Streak actuel : <span id="streak-display">0</span> jours</div>
+          </div>
+          <button class="bg" id="streak-key-btn" onclick="claimStreakKey()" style="padding:8px 14px;font-size:11px;display:none">Réclamer</button>
+        </div>
+      </div>
+
+      <div style="background:var(--c3);border:1px solid var(--bd);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">🎯</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">Jackpot du Jour</div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Gagnez au moins 10 000 pièces en une seule mise aujourd'hui</div>
+            <div style="font-size:11px;color:var(--t2)" id="jackpot-key-status">Non accompli</div>
+          </div>
+          <button class="bg" id="jackpot-key-btn" onclick="claimJackpotKey()" style="padding:8px 14px;font-size:11px;display:none">Réclamer</button>
+        </div>
+      </div>
+
+      <div style="background:var(--c3);border:1px solid var(--bd);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">🌙</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">Noctambule</div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Jouez entre 00h et 04h du matin pour obtenir 1 clé bonus</div>
+            <div style="font-size:11px;color:var(--t2)" id="night-key-status">Disponible entre minuit et 4h</div>
+          </div>
+          <button class="bg" id="night-key-btn" onclick="claimNightKey()" style="padding:8px 14px;font-size:11px;display:none">Réclamer</button>
+        </div>
+      </div>
+
+      <div style="background:var(--c3);border:1px solid var(--bd);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">💸</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">Généreux</div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Transférez 5 000 pièces à un autre joueur — obtenez 1 clé</div>
+            <div style="font-size:11px;color:var(--t2)" id="generous-key-status">Non accompli aujourd'hui</div>
+          </div>
+          <button class="bg" id="generous-key-btn" onclick="claimGenerousKey()" style="padding:8px 14px;font-size:11px;display:none">Réclamer</button>
+        </div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,#0A0010,#150020);border:1px solid #AA44FF30;border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">🎰</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px;color:#AA44FF">Jackpot Légendaire</div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Déclenchez un jackpot au slots → 5 clés instantanément !</div>
+            <div style="font-size:11px;color:#AA44FF">Se déclenche automatiquement</div>
+          </div>
+          <span style="font-size:20px">🗝️🗝️🗝️🗝️🗝️</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- TRANSFERT -->
 <div class="page" id="page-transfer">
   <div class="gc">
@@ -1559,6 +1663,8 @@ function P(id,btn){
   if(id==='transfer'&&typeof loadTransferTargets==='function')loadTransferTargets();
   if(id==='xpguide'){if(typeof renderXPLevelsList==='function')renderXPLevelsList();if(typeof loadXPLeaderboard==='function')loadXPLeaderboard();}
   if(id==='coffres'&&typeof loadPlayerKeys==='function')loadPlayerKeys();
+  if(id==='inventaire'&&typeof loadInventory==='function')loadInventory();
+  if(id==='cles'&&typeof loadKeysPage==='function')loadKeysPage();
   if(id==='boosts'){if(typeof loadBoost==='function')loadBoost();if(typeof renderBoostsPage==='function')renderBoostsPage();}
 }
 
@@ -1669,7 +1775,10 @@ async function init(){
   checkStreak();
   checkActiveMalus();
   loadBoost();
-  setTimeout(()=>{if(typeof loadPlayerKeys==='function')loadPlayerKeys();},500);
+  setTimeout(()=>{
+    if(typeof loadPlayerKeys==='function')loadPlayerKeys();
+    if(typeof loadInventory==='function')loadInventory();
+  },500);
   // Update online count in chat
   socket.on('online:update',({online})=>{
     const el=document.getElementById('online-count');
@@ -1803,6 +1912,9 @@ async function playSlots(){
     const m=res[0]==='D'?15:res[0]==='7'?10:6;const w=bet*m;await updC(w);
     reels.forEach(r=>r.classList.add('jp'));
     el.innerHTML=`<span class="win">JACKPOT x${m} — +${w.toLocaleString()} pieces</span>`;toast(`+${w.toLocaleString()}`,'win');
+    // Award 5 keys for jackpot
+    gamesPlayed+=50;localStorage.setItem('games_played_'+me.discord_id,gamesPlayed);playerKeys=Math.floor(gamesPlayed/10);updateKeysDisplay();
+    toast('🗝️🗝️🗝️🗝️🗝️ JACKPOT LÉGENDAIRE — +5 clés !','win');
   }else if(res[0]===res[1]||res[1]===res[2]||res[0]===res[2]){
     const w=Math.round(bet*1.25);await updC(w);
     el.innerHTML=`<span class="win">Paire — +${w.toLocaleString()} pieces</span>`;
@@ -2131,7 +2243,9 @@ async function doTransfer(){
   if(data.error){toast(data.error,'lose');return;}
   coins=data.coins;document.getElementById('cd').textContent=coins.toLocaleString();
   document.getElementById('tf-r').innerHTML=`<span class="win">+${amount.toLocaleString()} pieces envoyes !</span>`;
-  toast(`Transfert effectue !`,'win');
+  toast('Transfert effectue !','win');
+  // Generous key tracking
+  if(amount>=5000){const today=new Date().toDateString();localStorage.setItem('generous_key_earned_'+me.discord_id+'_'+today,'1');const btn=document.getElementById('generous-key-btn');if(btn)btn.style.display='block';toast('💸 Défi Généreux accompli ! Allez réclamer votre clé','win');}
   loadTransferTargets();
 }
 
@@ -2556,6 +2670,200 @@ function setVolume(v) {
 
 renderTracks();
 
+// ═══ INVENTAIRE ═══════════════════════════════════════════════════
+let inventory = [];
+
+function loadInventory() {
+  const saved = localStorage.getItem('inv_' + me.discord_id);
+  inventory = saved ? JSON.parse(saved) : [];
+  renderInventory();
+}
+
+function saveInventory() {
+  localStorage.setItem('inv_' + me.discord_id, JSON.stringify(inventory));
+}
+
+function addToInventory(item) {
+  inventory.push(item);
+  saveInventory();
+  toast('🎒 ' + item.emoji + ' ' + item.label + ' ajouté à l'inventaire !', 'win');
+  renderInventory();
+}
+
+const RARITY_COLORS = {
+  boutique: '#A0A0C0',
+  commun: '#A0A0C0',
+  rare: '#4488FF',
+  epique: '#AA44FF',
+  legendaire: '#FF8800',
+  divin: '#FF00FF'
+};
+
+const RARITY_LABELS = {
+  boutique: 'Boutique',
+  commun: 'Commun',
+  rare: 'Rare',
+  epique: 'Épique',
+  legendaire: 'Légendaire',
+  divin: '✨ Divin'
+};
+
+function renderInventory() {
+  const el = document.getElementById('inventaire-list');
+  if(!el) return;
+  if(!inventory.length) {
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--t2);font-size:13px">Inventaire vide — achetez des boosts ou ouvrez des coffres !</div>';
+    return;
+  }
+  el.innerHTML = inventory.map((item, i) => {
+    const color = RARITY_COLORS[item.rarity] || '#A0A0C0';
+    const label = RARITY_LABELS[item.rarity] || item.rarity;
+    const durMin = item.dur ? Math.floor(item.dur/60000) : null;
+    return `<div style="background:linear-gradient(145deg,var(--c1),var(--c2));border:1px solid ${color}30;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:32px;flex-shrink:0">${item.emoji}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:800;color:var(--tx)">${item.label}</span>
+          <span style="background:${color}20;color:${color};border-radius:4px;padding:1px 7px;font-size:9px;font-weight:800">${label}</span>
+        </div>
+        <div style="font-size:11px;color:var(--t2)">
+          ${durMin ? '⏱ ' + durMin + ' min' : ''}
+          ${item.uses ? '• ' + item.uses + ' usage(s)' : ''}
+        </div>
+      </div>
+      <button class="bg" onclick="useInventoryItem(${i})" style="padding:10px 16px;font-size:11px;flex-shrink:0">Utiliser</button>
+    </div>`;
+  }).join('');
+}
+
+async function useInventoryItem(idx) {
+  const item = inventory[idx];
+  if(!item) return;
+  
+  // Check if boost already active
+  if(currentBoost && new Date(currentBoost.expiresAt) > new Date()) {
+    toast('Un boost est déjà actif ! Attendez qu'il expire.', 'lose');
+    return;
+  }
+  
+  // Activate via API
+  const r = await api('/api/coffre/boost', 'POST', {
+    boostType: item.type,
+    duration: item.dur || 10*60*1000,
+    uses: item.uses || null
+  }).catch(() => null);
+  
+  if(r && r.boost) {
+    currentBoost = r.boost;
+    window.currentBoost = r.boost;
+    updateBoostDisplay();
+    updateStatusBar();
+  }
+  
+  // Remove from inventory
+  inventory.splice(idx, 1);
+  saveInventory();
+  renderInventory();
+  toast('⚡ ' + item.emoji + ' ' + item.label + ' activé !', 'win');
+}
+
+// ═══ CLÉS SPÉCIALES ══════════════════════════════════════════════
+function loadKeysPage() {
+  loadPlayerKeys();
+  const big = document.getElementById('keys-big');
+  if(big) big.textContent = playerKeys;
+  
+  const progress = gamesPlayed % 10;
+  const pb = document.getElementById('keys-progress-bar');
+  const pt = document.getElementById('keys-progress-text');
+  if(pb) pb.style.width = (progress * 10) + '%';
+  if(pt) pt.textContent = progress + '/10';
+  
+  // Streak key
+  const streak = parseInt(localStorage.getItem('streak_' + me.discord_id) || '0');
+  const sdEl = document.getElementById('streak-display');
+  if(sdEl) sdEl.textContent = streak;
+  const streakKeyBtn = document.getElementById('streak-key-btn');
+  const streakClaimed = localStorage.getItem('streak_key_' + me.discord_id + '_' + new Date().toDateString());
+  if(streakKeyBtn && streak >= 3 && !streakClaimed) streakKeyBtn.style.display = 'block';
+  
+  // Night key
+  const hour = new Date().getHours();
+  const nightBtn = document.getElementById('night-key-btn');
+  const nightStatus = document.getElementById('night-key-status');
+  const nightClaimed = localStorage.getItem('night_key_' + me.discord_id + '_' + new Date().toDateString());
+  if(hour >= 0 && hour < 4) {
+    if(nightStatus) nightStatus.textContent = '🌙 Vous êtes noctambule ! Réclamez votre clé';
+    if(nightBtn && !nightClaimed) nightBtn.style.display = 'block';
+  }
+  
+  // Jackpot key
+  const jackpotToday = localStorage.getItem('jackpot_key_earned_' + me.discord_id + '_' + new Date().toDateString());
+  const jackpotClaimed = localStorage.getItem('jackpot_key_claimed_' + me.discord_id + '_' + new Date().toDateString());
+  const jpStatus = document.getElementById('jackpot-key-status');
+  const jpBtn = document.getElementById('jackpot-key-btn');
+  if(jackpotToday && !jackpotClaimed) {
+    if(jpStatus) jpStatus.textContent = '✅ Accompli ! Réclamez votre clé';
+    if(jpBtn) jpBtn.style.display = 'block';
+  }
+  
+  // Generous key
+  const generousClaimed = localStorage.getItem('generous_key_' + me.discord_id + '_' + new Date().toDateString());
+  const genStatus = document.getElementById('generous-key-status');
+  if(generousClaimed) { if(genStatus) genStatus.textContent = '✅ Déjà réclamé aujourd'hui'; }
+}
+
+function claimStreakKey() {
+  const today = new Date().toDateString();
+  localStorage.setItem('streak_key_' + me.discord_id + '_' + today, '1');
+  gamesPlayed += 20; // 2 keys worth
+  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
+  playerKeys = Math.floor(gamesPlayed / 10);
+  updateKeysDisplay();
+  document.getElementById('streak-key-btn').style.display = 'none';
+  toast('🔥 Streak ! +2 clés récupérées !', 'win');
+  loadKeysPage();
+}
+
+function claimNightKey() {
+  const today = new Date().toDateString();
+  localStorage.setItem('night_key_' + me.discord_id + '_' + today, '1');
+  gamesPlayed += 10;
+  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
+  playerKeys = Math.floor(gamesPlayed / 10);
+  updateKeysDisplay();
+  document.getElementById('night-key-btn').style.display = 'none';
+  toast('🌙 Noctambule ! +1 clé récupérée !', 'win');
+  loadKeysPage();
+}
+
+function claimJackpotKey() {
+  const today = new Date().toDateString();
+  localStorage.setItem('jackpot_key_claimed_' + me.discord_id + '_' + today, '1');
+  gamesPlayed += 10;
+  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
+  playerKeys = Math.floor(gamesPlayed / 10);
+  updateKeysDisplay();
+  document.getElementById('jackpot-key-btn').style.display = 'none';
+  toast('🎯 Jackpot du Jour ! +1 clé récupérée !', 'win');
+  loadKeysPage();
+}
+
+function claimGenerousKey() {
+  const today = new Date().toDateString();
+  localStorage.setItem('generous_key_' + me.discord_id + '_' + today, '1');
+  gamesPlayed += 10;
+  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
+  playerKeys = Math.floor(gamesPlayed / 10);
+  updateKeysDisplay();
+  toast('💸 Généreux ! +1 clé récupérée !', 'win');
+  loadKeysPage();
+}
+
+// Track big wins for jackpot key
+const _origUpdC = updC;
+
+
 // ═══ COFFRES SYSTÈME ══════════════════════════════════════════════
 let playerKeys = 0;
 let gamesPlayed = parseInt(localStorage.getItem('games_played_' + (me?.discord_id||'')) || '0');
@@ -2657,21 +2965,19 @@ async function openCoffre(type, keyCost) {
       rewardText = reward.label;
       rewardDesc = '+' + reward.instant.toLocaleString() + ' pièces instantanées';
     } else {
-      // Apply boost via API
-      const dur = reward.dur || 10*60*1000;
-      const r = await api('/api/coffre/boost', 'POST', { 
-        boostType: reward.boost, 
-        duration: dur,
-        uses: reward.uses || null
-      }).catch(() => null);
-      if(r && r.boost) {
-        currentBoost = r.boost;
-        window.currentBoost = r.boost;
-        updateBoostDisplay();
-        updateStatusBar();
-      }
+      // Add to inventory instead of activating directly
+      addToInventory({
+        id: Date.now(),
+        type: reward.boost,
+        label: reward.label,
+        emoji: reward.emoji,
+        dur: reward.dur || 10*60*1000,
+        uses: reward.uses || null,
+        from: 'coffre_' + type,
+        rarity: type
+      });
       rewardText = reward.label;
-      rewardDesc = 'Boost exclusif activé !';
+      rewardDesc = 'Ajouté à votre inventaire !';
     }
   }
   
@@ -3056,7 +3362,20 @@ async function activateBoost(type,cost){
   const r=await api('/api/boosts/activate','POST',{type,cost});
   if(r.error){toast(r.error,'lose');return;}
   coins=r.coins;document.getElementById('cd').textContent=coins.toLocaleString();
-  currentBoost=r.boost;window.currentBoost=r.boost;updateBoostDisplay();
+  if(r.boost){
+    // Add to inventory
+    addToInventory({
+      id: Date.now(),
+      type: type,
+      label: BOOSTS_DATA.find(b=>b.t===type)?.n || type,
+      emoji: BOOSTS_DATA.find(b=>b.t===type)?.e || '⚡',
+      dur: r.boost.expiresAt ? new Date(r.boost.expiresAt)-Date.now() : 10*60*1000,
+      uses: r.boost.uses || null,
+      from: 'boutique',
+      rarity: 'boutique'
+    });
+    // Don't activate yet - user activates from inventory
+  }
   const names={
     x2:'⚡ Gains x2 actifs pendant 10 min !',
     protect:'🛡️ Bouclier active — prochaine perte absorbee !',
