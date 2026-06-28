@@ -1791,14 +1791,14 @@ async function init(){
     localStorage.setItem('games_played_'+me.discord_id,gamesPlayed);
     playerKeys=Math.floor(gamesPlayed/10);
     updateKeysDisplay();
-    toast('🗝️ +'+amount+' clé(s) reçues de l'admin !','win');
+    toast('🗝️ +'+amount+' cles recues de l admin !','win');
   });
   socket.on('admin:reset-keys',()=>{
     gamesPlayed=0;
     localStorage.setItem('games_played_'+me.discord_id,0);
     playerKeys=0;
     updateKeysDisplay();
-    toast('🗝️ Vos clés ont été resetées par l'admin','lose');
+    toast('🗝️ Vos cles ont ete resetees par l admin','lose');
   });
   socket.on('malus:received',({targetId,type,from})=>{
     if(targetId!==me?.discord_id)return;
