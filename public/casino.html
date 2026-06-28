@@ -1495,6 +1495,42 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
         </div>
       </div>
 
+      <div style="background:var(--c3);border:1px solid var(--bd);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">🏆</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">Champion du Classement</div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Soyez 1er au classement → 3 clés chaque jour</div>
+            <div style="font-size:11px;color:var(--t2)" id="rank-key-status">Verifiez votre position...</div>
+          </div>
+          <button class="bg" id="rank-key-btn" onclick="claimRankKey()" style="padding:8px 14px;font-size:11px;display:none">Reclamer</button>
+        </div>
+      </div>
+
+      <div style="background:var(--c3);border:1px solid var(--bd);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">🎯</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">Marathon du Jour</div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Jouez 50 parties en une journee → 3 clés</div>
+            <div style="font-size:11px;color:var(--t2)">Parties aujourd'hui : <span id="daily-games-count" style="color:var(--gold);font-weight:700">0</span>/50</div>
+          </div>
+          <button class="bg" id="marathon-key-btn" onclick="claimMarathonKey()" style="padding:8px 14px;font-size:11px;display:none">Reclamer</button>
+        </div>
+      </div>
+
+      <div style="background:var(--c3);border:1px solid var(--bd);border-radius:12px;padding:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px">💬</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">Bavard</div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px">Envoyez 20 messages dans le chat → 1 cle</div>
+            <div style="font-size:11px;color:var(--t2)">Messages : <span id="chat-count-display" style="color:var(--gold);font-weight:700">0</span>/20</div>
+          </div>
+          <button class="bg" id="chat-key-btn" onclick="claimChatKey()" style="padding:8px 14px;font-size:11px;display:none">Reclamer</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -2784,10 +2820,36 @@ async function useInventoryItem(idx) {
 }
 
 // ═══ CLÉS SPÉCIALES ══════════════════════════════════════════════
-function loadKeysPage() {
-  loadPlayerKeys();
+async function loadKeysPage() {
+  await loadPlayerKeys();
   const big = document.getElementById('keys-big');
   if(big) big.textContent = playerKeys;
+  
+  // Daily games
+  const today = new Date().toDateString();
+  dailyGamesCount = parseInt(localStorage.getItem('daily_games_'+today+'_'+me.discord_id)||'0');
+  const dgEl = document.getElementById('daily-games-count');
+  if(dgEl) dgEl.textContent = dailyGamesCount;
+  const marathonClaimed = localStorage.getItem('marathon_key_'+me.discord_id+'_'+today);
+  if(dailyGamesCount>=50&&!marathonClaimed){const btn=document.getElementById('marathon-key-btn');if(btn)btn.style.display='block';}
+
+  // Chat count
+  chatMsgCount = parseInt(localStorage.getItem('chat_msgs_'+today+'_'+me.discord_id)||'0');
+  const ccEl = document.getElementById('chat-count-display');if(ccEl)ccEl.textContent=chatMsgCount;
+  const chatClaimed = localStorage.getItem('chat_key_'+me.discord_id+'_'+today);
+  if(chatMsgCount>=20&&!chatClaimed){const btn=document.getElementById('chat-key-btn');if(btn)btn.style.display='block';}
+
+  // Check rank
+  const lbData = await api('/api/leaderboard').catch(()=>[]);
+  const rankClaimed = localStorage.getItem('rank_key_'+me.discord_id+'_'+today);
+  if(lbData[0]?.discord_id===me.discord_id&&!rankClaimed){
+    const btn=document.getElementById('rank-key-btn');if(btn)btn.style.display='block';
+    const st=document.getElementById('rank-key-status');if(st)st.textContent='Vous etes 1er ! Reclamez vos 3 cles';
+  } else {
+    const rank=lbData.findIndex(u=>u.discord_id===me.discord_id)+1;
+    const st=document.getElementById('rank-key-status');
+    if(st)st.textContent=rank>0?'Votre rang : #'+rank+' — Soyez 1er pour la cle':'Non classe';
+  }
   
   const progress = gamesPlayed % 10;
   const pb = document.getElementById('keys-progress-bar');
@@ -2872,8 +2934,59 @@ function claimGenerousKey() {
   localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
   playerKeys = Math.floor(gamesPlayed / 10);
   updateKeysDisplay();
-  toast('💸 Généreux ! +1 clé récupérée !', 'win');
+  toast('💸 Genereux ! +1 cle recuperee !', 'win');
   loadKeysPage();
+}
+
+// Track daily games
+let dailyGamesCount = parseInt(localStorage.getItem('daily_games_'+new Date().toDateString()+'_'+(me?.discord_id||'')) || '0');
+
+function trackDailyGame() {
+  const today = new Date().toDateString();
+  dailyGamesCount++;
+  localStorage.setItem('daily_games_'+today+'_'+me.discord_id, dailyGamesCount);
+  const el = document.getElementById('daily-games-count');
+  if(el) el.textContent = dailyGamesCount;
+  if(dailyGamesCount >= 50) {
+    const btn = document.getElementById('marathon-key-btn');
+    if(btn) btn.style.display = 'block';
+  }
+}
+
+// Track chat messages
+let chatMsgCount = parseInt(localStorage.getItem('chat_msgs_'+new Date().toDateString()+'_'+(me?.discord_id||'')) || '0');
+
+function claimRankKey() {
+  const today = new Date().toDateString();
+  localStorage.setItem('rank_key_'+me.discord_id+'_'+today, '1');
+  gamesPlayed += 30;
+  localStorage.setItem('games_played_'+me.discord_id, gamesPlayed);
+  playerKeys = Math.floor(gamesPlayed/10);
+  updateKeysDisplay();
+  document.getElementById('rank-key-btn').style.display='none';
+  toast('🏆 Champion ! +3 cles !', 'win');
+}
+
+function claimMarathonKey() {
+  const today = new Date().toDateString();
+  localStorage.setItem('marathon_key_'+me.discord_id+'_'+today, '1');
+  gamesPlayed += 30;
+  localStorage.setItem('games_played_'+me.discord_id, gamesPlayed);
+  playerKeys = Math.floor(gamesPlayed/10);
+  updateKeysDisplay();
+  document.getElementById('marathon-key-btn').style.display='none';
+  toast('🎯 Marathon ! +3 cles !', 'win');
+}
+
+function claimChatKey() {
+  const today = new Date().toDateString();
+  localStorage.setItem('chat_key_'+me.discord_id+'_'+today, '1');
+  gamesPlayed += 10;
+  localStorage.setItem('games_played_'+me.discord_id, gamesPlayed);
+  playerKeys = Math.floor(gamesPlayed/10);
+  updateKeysDisplay();
+  document.getElementById('chat-key-btn').style.display='none';
+  toast('💬 Bavard ! +1 cle !', 'win');
 }
 
 // Track big wins for jackpot key
@@ -2894,9 +3007,12 @@ function updateKeysDisplay() {
 }
 
 async function loadPlayerKeys() {
-  // Keys stored in localStorage - 1 key per 10 games
   gamesPlayed = parseInt(localStorage.getItem('games_played_' + me.discord_id) || '0');
-  playerKeys = Math.floor(gamesPlayed / 10);
+  const localKeys = Math.floor(gamesPlayed / 10);
+  // Also fetch bonus keys from server (given by admin)
+  const r = await api('/api/keys').catch(() => ({bonus_keys:0}));
+  const bonusKeys = r.bonus_keys || 0;
+  playerKeys = localKeys + bonusKeys;
   updateKeysDisplay();
 }
 
@@ -2905,10 +3021,10 @@ function trackGamePlayed() {
   localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
   playerKeys = Math.floor(gamesPlayed / 10);
   updateKeysDisplay();
-  // Notify when new key earned
   if(gamesPlayed % 10 === 0) {
-    toast('🗝️ Nouvelle clé obtenue ! Vous avez ' + playerKeys + ' clé(s)', 'win');
+    toast('🗝️ Nouvelle cle obtenue ! Vous avez ' + playerKeys + ' cle(s)', 'win');
   }
+  if(typeof trackDailyGame==='function') trackDailyGame();
 }
 
 const COFFRE_REWARDS = {
@@ -3209,6 +3325,14 @@ function sendChat(){
   const msg=input.value.trim();
   if(!msg)return;input.value='';
   socket.emit('chat:send',{message:msg,username:me.username,avatar:me.avatar,discord_id:me.discord_id,level:me.level||1});
+  // Track chat for key quest
+  const today=new Date().toDateString();
+  chatMsgCount++;
+  localStorage.setItem('chat_msgs_'+today+'_'+me.discord_id, chatMsgCount);
+  const el=document.getElementById('chat-count-display');if(el)el.textContent=chatMsgCount;
+  if(chatMsgCount>=20&&!localStorage.getItem('chat_key_'+me.discord_id+'_'+today)){
+    const btn=document.getElementById('chat-key-btn');if(btn)btn.style.display='block';
+  }
 }
 socket.on('chat:message',(msg)=>{
   const el=document.getElementById('chat-messages');

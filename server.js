@@ -269,17 +269,27 @@ app.post('/api/admin/reset-xp', requireAdmin, async (req, res) => {
   res.json({ success: true });
 });
 
-// Give keys (stored client-side but we can notify via socket)
+// Give keys - stored server-side in supabase
 app.post('/api/admin/give-keys', requireAdmin, async (req, res) => {
   const { discord_id, amount } = req.body;
+  const { data: user } = await supabase.from('users').select('bonus_keys').eq('discord_id', discord_id).single();
+  const newKeys = (user?.bonus_keys || 0) + (parseInt(amount) || 1);
+  await supabase.from('users').update({ bonus_keys: newKeys }).eq('discord_id', discord_id);
   io.emit('admin:give-keys', { targetId: discord_id, amount: parseInt(amount) || 1 });
-  res.json({ success: true });
+  res.json({ success: true, keys: newKeys });
 });
 
 // Reset all keys
 app.post('/api/admin/reset-keys', requireAdmin, async (req, res) => {
+  await supabase.from('users').update({ bonus_keys: 0 });
   io.emit('admin:reset-keys', {});
   res.json({ success: true });
+});
+
+// Get player keys
+app.get('/api/keys', requireAuth, async (req, res) => {
+  const { data } = await supabase.from('users').select('bonus_keys').eq('discord_id', req.session.user.discord_id).single();
+  res.json({ bonus_keys: data?.bonus_keys || 0 });
 });
 
 app.post('/api/admin/ban', requireAdmin, async (req, res) => {
