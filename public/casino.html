@@ -90,7 +90,7 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   font-size:6px;font-weight:800;border-radius:3px;padding:1px 3px;letter-spacing:0}
 
 /* PAGES */
-.page{display:none;padding:28px 24px;max-width:860px;margin:0 auto;position:relative;z-index:1}
+.page{display:none;padding:28px 32px;max-width:1100px;margin:0 auto;position:relative;z-index:1}
 .page.active{display:block;animation:pagein .35s cubic-bezier(.2,0,.3,1)}
 @keyframes pagein{from{opacity:0;transform:translateY(16px) scale(.99)}to{opacity:1;transform:none}}
 
@@ -1823,15 +1823,11 @@ async function init(){
   });
   socket.on('admin:give-keys',({targetId,amount})=>{
     if(targetId!==me?.discord_id)return;
-    gamesPlayed+=(amount*10);
-    localStorage.setItem('games_played_'+me.discord_id,gamesPlayed);
-    playerKeys=Math.floor(gamesPlayed/10);
+    playerKeys += amount;
     updateKeysDisplay();
     toast('🗝️ +'+amount+' cles recues de l admin !','win');
   });
   socket.on('admin:reset-keys',()=>{
-    gamesPlayed=0;
-    localStorage.setItem('games_played_'+me.discord_id,0);
     playerKeys=0;
     updateKeysDisplay();
     toast('🗝️ Vos cles ont ete resetees par l admin','lose');
@@ -1964,9 +1960,9 @@ async function playSlots(){
     const m=res[0]==='D'?15:res[0]==='7'?10:6;const w=bet*m;await updC(w);
     reels.forEach(r=>r.classList.add('jp'));
     el.innerHTML=`<span class="win">JACKPOT x${m} — +${w.toLocaleString()} pieces</span>`;toast(`+${w.toLocaleString()}`,'win');
-    // Award 5 keys for jackpot
-    gamesPlayed+=50;localStorage.setItem('games_played_'+me.discord_id,gamesPlayed);playerKeys=Math.floor(gamesPlayed/10);updateKeysDisplay();
-    toast('🗝️🗝️🗝️🗝️🗝️ JACKPOT LÉGENDAIRE — +5 clés !','win');
+    // Award 5 keys for jackpot - server side
+    api('/api/keys/earn','POST',{amount:5}).then(r=>{if(r){playerKeys=r.bonus_keys;updateKeysDisplay();}});
+    toast('🗝️🗝️🗝️🗝️🗝️ JACKPOT LEGENDAIRE — +5 cles !','win');
   }else if(res[0]===res[1]||res[1]===res[2]||res[0]===res[2]){
     const w=Math.round(bet*1.25);await updC(w);
     el.innerHTML=`<span class="win">Paire — +${w.toLocaleString()} pieces</span>`;
@@ -2891,49 +2887,41 @@ async function loadKeysPage() {
   if(generousClaimed) { if(genStatus) genStatus.textContent = "✅ Deja reclame aujourd'hui"; }
 }
 
-function claimStreakKey() {
+async function claimStreakKey() {
   const today = new Date().toDateString();
   localStorage.setItem('streak_key_' + me.discord_id + '_' + today, '1');
-  gamesPlayed += 20; // 2 keys worth
-  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
-  playerKeys = Math.floor(gamesPlayed / 10);
-  updateKeysDisplay();
+  const r = await api('/api/keys/earn', 'POST', { amount: 2 }).catch(() => null);
+  if(r) { playerKeys = r.bonus_keys; updateKeysDisplay(); }
   document.getElementById('streak-key-btn').style.display = 'none';
-  toast('🔥 Streak ! +2 clés récupérées !', 'win');
+  toast('🔥 Streak ! +2 cles recuperees !', 'win');
   loadKeysPage();
 }
 
-function claimNightKey() {
+async function claimNightKey() {
   const today = new Date().toDateString();
   localStorage.setItem('night_key_' + me.discord_id + '_' + today, '1');
-  gamesPlayed += 10;
-  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
-  playerKeys = Math.floor(gamesPlayed / 10);
-  updateKeysDisplay();
+  const r = await api('/api/keys/earn', 'POST', { amount: 1 }).catch(() => null);
+  if(r) { playerKeys = r.bonus_keys; updateKeysDisplay(); }
   document.getElementById('night-key-btn').style.display = 'none';
-  toast('🌙 Noctambule ! +1 clé récupérée !', 'win');
+  toast('🌙 Noctambule ! +1 cle recuperee !', 'win');
   loadKeysPage();
 }
 
-function claimJackpotKey() {
+async function claimJackpotKey() {
   const today = new Date().toDateString();
   localStorage.setItem('jackpot_key_claimed_' + me.discord_id + '_' + today, '1');
-  gamesPlayed += 10;
-  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
-  playerKeys = Math.floor(gamesPlayed / 10);
-  updateKeysDisplay();
+  const r = await api('/api/keys/earn', 'POST', { amount: 1 }).catch(() => null);
+  if(r) { playerKeys = r.bonus_keys; updateKeysDisplay(); }
   document.getElementById('jackpot-key-btn').style.display = 'none';
-  toast('🎯 Jackpot du Jour ! +1 clé récupérée !', 'win');
+  toast('🎯 Jackpot du Jour ! +1 cle recuperee !', 'win');
   loadKeysPage();
 }
 
-function claimGenerousKey() {
+async function claimGenerousKey() {
   const today = new Date().toDateString();
   localStorage.setItem('generous_key_' + me.discord_id + '_' + today, '1');
-  gamesPlayed += 10;
-  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
-  playerKeys = Math.floor(gamesPlayed / 10);
-  updateKeysDisplay();
+  const r = await api('/api/keys/earn', 'POST', { amount: 1 }).catch(() => null);
+  if(r) { playerKeys = r.bonus_keys; updateKeysDisplay(); }
   toast('💸 Genereux ! +1 cle recuperee !', 'win');
   loadKeysPage();
 }
@@ -2956,35 +2944,29 @@ function trackDailyGame() {
 // Track chat messages
 let chatMsgCount = parseInt(localStorage.getItem('chat_msgs_'+new Date().toDateString()+'_'+(me?.discord_id||'')) || '0');
 
-function claimRankKey() {
+async function claimRankKey() {
   const today = new Date().toDateString();
   localStorage.setItem('rank_key_'+me.discord_id+'_'+today, '1');
-  gamesPlayed += 30;
-  localStorage.setItem('games_played_'+me.discord_id, gamesPlayed);
-  playerKeys = Math.floor(gamesPlayed/10);
-  updateKeysDisplay();
+  const r = await api('/api/keys/earn','POST',{amount:3}).catch(()=>null);
+  if(r){playerKeys=r.bonus_keys;updateKeysDisplay();}
   document.getElementById('rank-key-btn').style.display='none';
   toast('🏆 Champion ! +3 cles !', 'win');
 }
 
-function claimMarathonKey() {
+async function claimMarathonKey() {
   const today = new Date().toDateString();
   localStorage.setItem('marathon_key_'+me.discord_id+'_'+today, '1');
-  gamesPlayed += 30;
-  localStorage.setItem('games_played_'+me.discord_id, gamesPlayed);
-  playerKeys = Math.floor(gamesPlayed/10);
-  updateKeysDisplay();
+  const r = await api('/api/keys/earn','POST',{amount:3}).catch(()=>null);
+  if(r){playerKeys=r.bonus_keys;updateKeysDisplay();}
   document.getElementById('marathon-key-btn').style.display='none';
   toast('🎯 Marathon ! +3 cles !', 'win');
 }
 
-function claimChatKey() {
+async function claimChatKey() {
   const today = new Date().toDateString();
   localStorage.setItem('chat_key_'+me.discord_id+'_'+today, '1');
-  gamesPlayed += 10;
-  localStorage.setItem('games_played_'+me.discord_id, gamesPlayed);
-  playerKeys = Math.floor(gamesPlayed/10);
-  updateKeysDisplay();
+  const r = await api('/api/keys/earn','POST',{amount:1}).catch(()=>null);
+  if(r){playerKeys=r.bonus_keys;updateKeysDisplay();}
   document.getElementById('chat-key-btn').style.display='none';
   toast('💬 Bavard ! +1 cle !', 'win');
 }
@@ -2995,6 +2977,7 @@ const _origUpdC = updC;
 
 // ═══ COFFRES SYSTÈME ══════════════════════════════════════════════
 let playerKeys = 0;
+// gamesPlayed is now tracked server-side via bonus_keys, localStorage only for milestone tracking
 let gamesPlayed = parseInt(localStorage.getItem('games_played_' + (me?.discord_id||'')) || '0');
 
 function updateKeysDisplay() {
@@ -3007,22 +2990,23 @@ function updateKeysDisplay() {
 }
 
 async function loadPlayerKeys() {
-  gamesPlayed = parseInt(localStorage.getItem('games_played_' + me.discord_id) || '0');
-  const localKeys = Math.floor(gamesPlayed / 10);
-  // Also fetch bonus keys from server (given by admin)
+  // Load all keys from server (persistent across devices)
   const r = await api('/api/keys').catch(() => ({bonus_keys:0}));
-  const bonusKeys = r.bonus_keys || 0;
-  playerKeys = localKeys + bonusKeys;
+  playerKeys = r.bonus_keys || 0;
   updateKeysDisplay();
 }
 
-function trackGamePlayed() {
+async function trackGamePlayed() {
   gamesPlayed++;
   localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
-  playerKeys = Math.floor(gamesPlayed / 10);
-  updateKeysDisplay();
+  // Every 10 games, award 1 key server-side
   if(gamesPlayed % 10 === 0) {
-    toast('🗝️ Nouvelle cle obtenue ! Vous avez ' + playerKeys + ' cle(s)', 'win');
+    const r = await api('/api/keys/earn', 'POST', { amount: 1 }).catch(() => null);
+    if(r) {
+      playerKeys = r.bonus_keys;
+      updateKeysDisplay();
+      toast('🗝️ Nouvelle cle obtenue ! Vous avez ' + playerKeys + ' cle(s)', 'win');
+    }
   }
   if(typeof trackDailyGame==='function') trackDailyGame();
 }
@@ -3076,17 +3060,13 @@ async function openCoffre(type, keyCost) {
     return;
   }
   
-  // Deduct keys from localStorage
-  const usedGames = keyCost * 10;
-  gamesPlayed = Math.max(0, gamesPlayed - usedGames);
-  localStorage.setItem('games_played_' + me.discord_id, gamesPlayed);
-  // Also deduct from bonus_keys if needed
-  const r2 = await api('/api/keys').catch(()=>({bonus_keys:0}));
-  if(r2.bonus_keys > 0) {
-    const useBonus = Math.min(r2.bonus_keys, keyCost);
-    await api('/api/admin/give-keys','POST',{discord_id:me.discord_id,amount:-useBonus}).catch(()=>{});
+  // Deduct keys server-side (persistent)
+  const spendRes = await api('/api/keys/spend', 'POST', { amount: keyCost }).catch(() => null);
+  if(!spendRes || !spendRes.success) {
+    toast('Erreur lors de l utilisation des cles', 'lose');
+    return;
   }
-  playerKeys = Math.floor(gamesPlayed / 10) + Math.max(0,(r2.bonus_keys||0));
+  playerKeys = spendRes.bonus_keys;
   updateKeysDisplay();
   
   // Roll reward
@@ -4414,10 +4394,22 @@ initKeno();initFortune();initParadice();
 
 init();
 
+// Maintien de la connexion - ping toutes les 10 minutes pour garder la session active
+setInterval(async () => {
+  try {
+    const r = await fetch('/api/me', { credentials: 'include' });
+    if(r.status === 401) {
+      // Session expirée, rediriger vers login
+      window.location.href = '/auth/login';
+    }
+  } catch(e) {}
+}, 10 * 60 * 1000);
+
 socket.on('connect', () => {
   if(me && me.discord_id) socket.emit('user:online', { discord_id: me.discord_id });
 });
 socket.on('online:update', ({ online }) => { window._onlineUsers = online; });
+
 </script>
 </body>
 </html>
