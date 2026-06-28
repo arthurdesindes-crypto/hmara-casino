@@ -1475,8 +1475,11 @@ socket.on('chest:opened',({username,prize})=>{
 let coins=0,me=null,members=[];
 const BASE_MAX_BET=10000;
 function getMaxBet(){
-  try{if(typeof currentBoost!=='undefined'&&currentBoost&&currentBoost.type==='vip'&&new Date(currentBoost.expiresAt)>new Date())return 50000;}catch(e){}
-  return BASE_MAX_BET;
+  if(window.currentBoost&&window.currentBoost.type==='vip'){
+    const exp=new Date(window.currentBoost.expiresAt);
+    if(exp>new Date())return 50000;
+  }
+  return 10000;
 }
 const MAX_BET=10000; // kept for reference, use getMaxBet() for actual limit
 const SYMS=['C','L','O','E','D','7'];
@@ -1523,12 +1526,15 @@ function updateXPBar(xp,level){
 function showLevelUp(level){
   toast('🎉 Niveau '+level+' atteint !','win');
 }
-function SB(id,v){document.getElementById(id).value=Math.min(v,getMaxBet());}
+function SB(id,v){
+  const max=getMaxBet();
+  document.getElementById(id).value=Math.min(v,max);
+}
 function R(a){return a[Math.floor(Math.random()*a.length)];}
 function clamp(v){
-  const max=getMaxBet();
   const val=parseInt(v)||0;
-  return Math.min(val,max);
+  const isVIP=window.currentBoost&&window.currentBoost.type==='vip'&&new Date(window.currentBoost.expiresAt)>new Date();
+  return Math.min(val,isVIP?50000:10000);
 }
 function toast(msg,t=''){
   const el=document.getElementById('toast');el.textContent=msg;
@@ -2647,7 +2653,7 @@ async function checkStreak(){
 }
 
 // ═══ BOOSTS ══════════════════════════════════════════════════════
-let currentBoost=null;
+window.currentBoost=null;let currentBoost=null;
 const BOOSTS_DATA=[
   {e:'⚡',n:'Tout x2',d:'Gains ET pertes doubles pendant 10 minutes — jouez prudemment !',p:48000,t:'x2',dur:'10min'},
   {e:'🛡️',n:'Bouclier',d:'Absorbe votre prochaine perte (usage unique)',p:30000,t:'protect',dur:'1 usage'},
@@ -2713,7 +2719,7 @@ async function sendMalus(type,cost){
 
 async function loadBoost(){
   const r=await api('/api/boosts').catch(()=>null);
-  if(r&&r.active){currentBoost=r.active;updateBoostDisplay();}
+  if(r&&r.active){currentBoost=r.active;window.currentBoost=r.active;updateBoostDisplay();}
   const rm=await api('/api/malus').catch(()=>null);
   if(rm&&rm.active)updateMalusDisplay(rm.active);
   updateStatusBar();
@@ -2798,7 +2804,7 @@ async function activateBoost(type,cost){
   const r=await api('/api/boosts/activate','POST',{type,cost});
   if(r.error){toast(r.error,'lose');return;}
   coins=r.coins;document.getElementById('cd').textContent=coins.toLocaleString();
-  currentBoost=r.boost;updateBoostDisplay();
+  currentBoost=r.boost;window.currentBoost=r.boost;updateBoostDisplay();
   const names={
     x2:'⚡ Gains x2 actifs pendant 10 min !',
     protect:'🛡️ Bouclier active — prochaine perte absorbee !',
