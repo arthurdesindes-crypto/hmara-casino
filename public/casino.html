@@ -2687,7 +2687,7 @@ function saveInventory() {
 function addToInventory(item) {
   inventory.push(item);
   saveInventory();
-  toast('🎒 ' + item.emoji + ' ' + item.label + ' ajouté à l'inventaire !', 'win');
+  toast('🎒 ' + item.emoji + ' ' + item.label + ' ajoute a l inventaire !', 'win');
   renderInventory();
 }
 
@@ -2743,7 +2743,7 @@ async function useInventoryItem(idx) {
   
   // Check if boost already active
   if(currentBoost && new Date(currentBoost.expiresAt) > new Date()) {
-    toast('Un boost est déjà actif ! Attendez qu'il expire.', 'lose');
+    toast("Un boost est deja actif ! Attendez qu'il expire.", 'lose');
     return;
   }
   
@@ -2811,7 +2811,7 @@ function loadKeysPage() {
   // Generous key
   const generousClaimed = localStorage.getItem('generous_key_' + me.discord_id + '_' + new Date().toDateString());
   const genStatus = document.getElementById('generous-key-status');
-  if(generousClaimed) { if(genStatus) genStatus.textContent = '✅ Déjà réclamé aujourd'hui'; }
+  if(generousClaimed) { if(genStatus) genStatus.textContent = "✅ Deja reclame aujourd'hui"; }
 }
 
 function claimStreakKey() {
