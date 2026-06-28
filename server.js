@@ -15,40 +15,10 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 
 const ADMIN_IDS = ['856946688064225331'];
 
-// Custom Supabase session store
-const Store = require('express-session').Store;
-class SupabaseStore extends Store {
-  async get(sid, cb) {
-    try {
-      const { data } = await supabase.from('sessions').select('sess,expire').eq('sid', sid).single();
-      if (!data) return cb(null, null);
-      if (new Date(data.expire) < new Date()) {
-        await supabase.from('sessions').delete().eq('sid', sid);
-        return cb(null, null);
-      }
-      cb(null, data.sess);
-    } catch (e) { cb(null, null); }
-  }
-  async set(sid, sess, cb) {
-    try {
-      const expire = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-      await supabase.from('sessions').upsert({ sid, sess, expire });
-      cb(null);
-    } catch (e) { cb(e); }
-  }
-  async destroy(sid, cb) {
-    try {
-      await supabase.from('sessions').delete().eq('sid', sid);
-      cb(null);
-    } catch (e) { cb(e); }
-  }
-}
-
 app.use(cors({ origin: process.env.BASE_URL, credentials: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-  store: new SupabaseStore(),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
@@ -120,15 +90,23 @@ app.post('/api/coins', requireAuth, async (req, res) => {
   const malusActive = malus && new Date(malus.expiresAt) > new Date();
 
   if (amount > 0) {
-    // x2 boost doubles wins
+    // x2 and exclusive boosts double/triple wins
     if (boostActive && boost.type === 'x2') finalAmount = amount * 2;
+    else if (boostActive && boost.type === 'x3') finalAmount = amount * 3;
+    else if (boostActive && (boost.type === 'divin_x5')) finalAmount = amount * 5;
+    else if (boostActive && boost.type === 'divin_all') finalAmount = amount * 3;
     // luck boost adds 20%
     else if (boostActive && boost.type === 'luck') finalAmount = Math.round(amount * 1.2);
     // freeze malus halves gains
     if (malusActive && malus.type === 'freeze') finalAmount = Math.round(finalAmount * 0.5);
   } else if (amount < 0) {
-    // x2 boost ALSO doubles losses
+    // x2/x3 boosts also affect losses
     if (boostActive && boost.type === 'x2') finalAmount = amount * 2;
+    else if (boostActive && boost.type === 'x3') finalAmount = amount * 3;
+    // immunity and divin_protect block all losses
+    if (boostActive && (boost.type === 'immunity' || boost.type === 'divin_protect' || boost.type === 'divin_all')) {
+      finalAmount = 0;
+    }
     // Protect absorbs ONE loss (after x2 check so protect still works)
     if (boostActive && boost.type === 'protect') {
       finalAmount = 0;
@@ -270,6 +248,41 @@ app.post('/api/admin/xp', requireAdmin, async (req, res) => {
   res.json({ success: true, xp: newXP, level: newLevel });
 });
 
+// Reset coins to 500
+app.post('/api/admin/reset-coins', requireAdmin, async (req, res) => {
+  const { discord_id } = req.body;
+  if (discord_id) {
+    await supabase.from('users').update({ coins: 500 }).eq('discord_id', discord_id);
+  } else {
+    await supabase.from('users').update({ coins: 500 });
+  }
+  res.json({ success: true });
+});
+
+// Reset XP to 0
+app.post('/api/admin/reset-xp', requireAdmin, async (req, res) => {
+  const { discord_id } = req.body;
+  if (discord_id) {
+    await supabase.from('users').update({ xp: 0, level: 1 }).eq('discord_id', discord_id);
+  } else {
+    await supabase.from('users').update({ xp: 0, level: 1 });
+  }
+  res.json({ success: true });
+});
+
+// Give keys (stored client-side but we can notify via socket)
+app.post('/api/admin/give-keys', requireAdmin, async (req, res) => {
+  const { discord_id, amount } = req.body;
+  io.emit('admin:give-keys', { targetId: discord_id, amount: parseInt(amount) || 1 });
+  res.json({ success: true });
+});
+
+// Reset all keys
+app.post('/api/admin/reset-keys', requireAdmin, async (req, res) => {
+  io.emit('admin:reset-keys', {});
+  res.json({ success: true });
+});
+
 app.post('/api/admin/ban', requireAdmin, async (req, res) => {
   const { discord_id } = req.body;
   await supabase.from('users').update({ banned: true }).eq('discord_id', discord_id);
@@ -380,7 +393,7 @@ const BOOST_DURATIONS = {
   protect: 0,            // Protection 1 perte (instantané)
   luck: 15*60*1000,      // +20% gains pendant 15min
   eclair: 30*60*1000,    // Cooldown mini-jeux 2min pendant 30min
-  vip: 5*60*1000,        // Mise max x5 pendant 5min
+  shield2: 0,             // Double bouclier - 2 usages
   cagnotte: 0,           // +1000 pieces instantanées
   recharge: 0,           // Recharge tous les cooldowns maintenant
   shield: 20*60*1000,    // Bloque le prochain malus pendant 20min
@@ -403,9 +416,13 @@ app.post('/api/boosts/activate', requireAuth, async (req, res) => {
   }
   
   if (type === 'recharge') {
-    // Recharge cooldowns - just notify client
     await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
     return res.json({ success: true, boost: null, coins: newCoins, recharge: true });
+  }
+  if (type === 'shield2') {
+    await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
+    activeBoosts[req.session.user.discord_id] = { type: 'shield2', uses: 2, expiresAt: new Date(Date.now() + 24*60*60*1000) };
+    return res.json({ success: true, boost: activeBoosts[req.session.user.discord_id], coins: newCoins });
   }
   
   await supabase.from('users').update({ coins: newCoins }).eq('discord_id', req.session.user.discord_id);
@@ -495,7 +512,17 @@ app.get('/api/malus', requireAuth, (req, res) => {
   }
 });
 
+// COFFRE BOOST - exclusive boosts from chests
+app.post('/api/coffre/boost', requireAuth, async (req, res) => {
+  const { boostType, duration, uses } = req.body;
+  const expiresAt = new Date(Date.now() + (duration || 10*60*1000));
+  const boost = { type: boostType, expiresAt, uses: uses || null };
+  activeBoosts[req.session.user.discord_id] = boost;
+  res.json({ success: true, boost });
+});
+
 // STREAK
+
 app.post('/api/streak', requireAuth, async (req, res) => {
   const { data: user } = await supabase.from('users').select('streak,last_login,coins').eq('discord_id', req.session.user.discord_id).single();
   const today = new Date().toDateString();
