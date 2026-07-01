@@ -1958,14 +1958,14 @@ async function playSlots(){
   reels.forEach((r,i)=>{r.classList.remove('spin');r.innerHTML=SYMEM[res[i]];});
   const el=document.getElementById('slots-r');
   if(res[0]===res[1]&&res[1]===res[2]){
-    const m=res[0]==='D'?15:res[0]==='7'?10:6;const w=bet*m;await updC(w);
+    const m=res[0]==='D'?12:res[0]==='7'?8:5;const w=bet*m;await updC(w);
     reels.forEach(r=>r.classList.add('jp'));
     el.innerHTML=`<span class="win">JACKPOT x${m} — +${w.toLocaleString()} pieces</span>`;toast(`+${w.toLocaleString()}`,'win');
     // Award 5 keys for jackpot - server side
     api('/api/keys/earn','POST',{amount:5}).then(r=>{if(r){playerKeys=r.bonus_keys;updateKeysDisplay();}});
     toast('🗝️🗝️🗝️🗝️🗝️ JACKPOT LEGENDAIRE — +5 cles !','win');
   }else if(res[0]===res[1]||res[1]===res[2]||res[0]===res[2]){
-    const w=Math.round(bet*1.25);await updC(w);
+    const w=Math.round(bet*1.1);await updC(w);
     el.innerHTML=`<span class="win">Paire — +${w.toLocaleString()} pieces</span>`;
   }else el.innerHTML=`<span class="lose">Perdu — -${bet.toLocaleString()} pieces</span>`;
 }
@@ -1987,7 +1987,7 @@ async function bjDeal(){
 }
 function bjHit(){bjP.push(dC());rBJ();if(sc(bjP)>21){document.getElementById('bj-r').innerHTML='<span class="lose">Bust — depasse 21.</span>';endBJ();}}
 async function bjStand(){
-  bjOn=false;while(sc(bjD)<18)bjD.push(dC());rBJ();
+  bjOn=false;while(sc(bjD)<19)bjD.push(dC());rBJ();
   const p=sc(bjP),d=sc(bjD),bet=Math.min(clamp(document.getElementById('bjb').value),MAX_BET);
   if(d>21||p>d){await updC(bet*2);document.getElementById('bj-r').innerHTML=`<span class="win">Gagne — +${bet.toLocaleString()} pieces</span>`;toast(`+${bet.toLocaleString()}`,'win');}
   else if(p===d){await updC(bet);document.getElementById('bj-r').textContent='Egalite — mise remboursee.';}
@@ -2023,7 +2023,7 @@ async function playCF(choice){
   await updC(-bet);
   const coin=document.getElementById('coin');coin.classList.add('flip');
   await new Promise(r=>setTimeout(r,700));
-  const flip=Math.random()<0.40?choice:(choice==='pile'?'face':'pile');
+  const flip=Math.random()<0.45?choice:(choice==='pile'?'face':'pile');
   coin.classList.remove('flip');coin.innerHTML=flip==='pile'?'&#x1FA99;':'&#x2B55;';
   if(flip===choice){await updC(bet*2);document.getElementById('cf-r').innerHTML=`<span class="win">${flip.toUpperCase()} — +${bet.toLocaleString()} pieces</span>`;toast(`+${bet.toLocaleString()}`,'win');}
   else document.getElementById('cf-r').innerHTML=`<span class="lose">${flip.toUpperCase()} — -${bet.toLocaleString()} pieces</span>`;
@@ -2038,7 +2038,7 @@ function startCrash(){
   crBet=bet;cOut=false;updC(-bet);crOn=true;crMult=1;
   document.getElementById('cr-btn').disabled=true;document.getElementById('co-btn').disabled=false;
   document.getElementById('crash-r').textContent='En vol — encaissez avant le crash !';
-  const crashAt=Math.max(1.0,Math.random()<0.55?1+Math.random()*0.8:1+Math.random()*Math.random()*5);
+  const crashAt=Math.max(1.0,Math.random()<0.65?1+Math.random()*0.6:1+Math.random()*Math.random()*3.5);
   const el=document.getElementById('crm');const fill=document.getElementById('crf');
   crInt=setInterval(async()=>{
     crMult=Math.round(crMult*103)/100;
@@ -2087,7 +2087,7 @@ async function clickM(i,el){
 }
 async function minesCashout(){
   if(!mOn)return;mOn=false;
-  const mult=1+mFound*0.28;const win=Math.round(mBet*mult);await updC(win);
+  const mult=1+mFound*0.22;const win=Math.round(mBet*mult);await updC(win);
   document.getElementById('mines-r').innerHTML=`<span class="win">Encaisse — +${win.toLocaleString()} pieces (x${mult.toFixed(2)})</span>`;
   document.getElementById('ms-btn').disabled=false;document.getElementById('mc-btn').disabled=true;
   toast(`+${win.toLocaleString()}`,'win');
@@ -3899,9 +3899,9 @@ async function playBac(bet_on){
   document.getElementById('bac-bscore').textContent=bs;
   const el=document.getElementById('bac-r');
   let won=false,mult=0;
-  if(bet_on==='player'&&ps>bs){won=true;mult=2;}
-  else if(bet_on==='banker'&&bs>ps){won=true;mult=2;}
-  else if(bet_on==='tie'&&ps===bs){won=true;mult=8;}
+  if(bet_on==='player'&&ps>bs){won=true;mult=1.9;}
+  else if(bet_on==='banker'&&bs>ps){won=true;mult=1.85;}
+  else if(bet_on==='tie'&&ps===bs){won=true;mult=6;}
   if(won){await updC(bet*mult);el.innerHTML=`<span class="win">Gagne x${mult} — +${(bet*mult-bet).toLocaleString()} pieces</span>`;toast(`+${(bet*mult-bet).toLocaleString()}`,'win');}
   else if(ps===bs&&bet_on!=='tie'){await updC(bet);el.textContent='Egalite — mise remboursee.';}
   else el.innerHTML=`<span class="lose">Perdu — -${bet.toLocaleString()} pieces</span>`;
@@ -3932,7 +3932,7 @@ async function playKeno(){
   const drawn=[];while(drawn.length<20){const n=Math.floor(Math.random()*80)+1;if(!drawn.includes(n))drawn.push(n);}
   const hits=kenoSel.filter(n=>drawn.includes(n)).length;
   const total=kenoSel.length;
-  const payTable={1:[0,3],2:[0,1,9],3:[0,0,2,25],4:[0,0,1,4,72],5:[0,0,1,3,15,120],6:[0,0,1,2,5,30,300],7:[0,0,0,1,3,15,100,700],8:[0,0,0,1,2,8,50,500,3000],9:[0,0,0,0,1,4,20,200,1000,8000],10:[0,0,0,0,1,2,10,100,500,2000,10000]};
+  const payTable={1:[0,2],2:[0,0,7],3:[0,0,1,18],4:[0,0,0,3,55],5:[0,0,0,2,10,90],6:[0,0,0,1,4,22,220],7:[0,0,0,0,2,10,75,500],8:[0,0,0,0,1,6,35,350,2000],9:[0,0,0,0,0,3,15,150,750,5000],10:[0,0,0,0,0,1,7,70,350,1400,7000]};
   const mult=(payTable[total]&&payTable[total][hits])||0;
   const win=Math.round(bet*mult);
   document.querySelectorAll('#keno-grid div').forEach((d,i)=>{
@@ -3945,7 +3945,7 @@ async function playKeno(){
 }
 
 // ═══ ROUE FORTUNE ═══════════════════════════════════════════════
-const FORTUNE_SEGS=[{label:'x0',mult:0,color:'#1A0505'},{label:'x0.5',mult:0.5,color:'#2A1A00'},{label:'x0',mult:0,color:'#1A0505'},{label:'x1.5',mult:1.5,color:'#0A1A0A'},{label:'x0',mult:0,color:'#1A0505'},{label:'x0.5',mult:0.5,color:'#2A1A00'},{label:'x0',mult:0,color:'#1A0505'},{label:'x2',mult:2,color:'#0A1A0A'},{label:'x0',mult:0,color:'#1A0505'},{label:'x0.5',mult:0.5,color:'#2A1A00'},{label:'x0',mult:0,color:'#1A0505'},{label:'x3',mult:3,color:'#0A0A2A'},{label:'x0',mult:0,color:'#1A0505'},{label:'x0.5',mult:0.5,color:'#2A1A00'},{label:'x0',mult:0,color:'#1A0505'},{label:'x5',mult:5,color:'#2A1A05'}];
+const FORTUNE_SEGS=[{label:'x0',mult:0,color:'#1A0505'},{label:'x0.4',mult:0.4,color:'#2A1A00'},{label:'x0',mult:0,color:'#1A0505'},{label:'x1.2',mult:1.2,color:'#0A1A0A'},{label:'x0',mult:0,color:'#1A0505'},{label:'x0.4',mult:0.4,color:'#2A1A00'},{label:'x0',mult:0,color:'#1A0505'},{label:'x1.5',mult:1.5,color:'#0A1A0A'},{label:'x0',mult:0,color:'#1A0505'},{label:'x0.4',mult:0.4,color:'#2A1A00'},{label:'x0',mult:0,color:'#1A0505'},{label:'x2.5',mult:2.5,color:'#0A0A2A'},{label:'x0',mult:0,color:'#1A0505'},{label:'x0.4',mult:0.4,color:'#2A1A00'},{label:'x0',mult:0,color:'#1A0505'},{label:'x4',mult:4,color:'#2A1A05'}];
 let fortuneSpinning=false;
 function initFortune(){
   const canvas=document.getElementById('fortune-canvas');if(!canvas)return;
@@ -4017,7 +4017,7 @@ async function guessHilo(dir){
   hiloCard=next;const red=['h','d'].includes(next.s);
   document.getElementById('hilo-card').innerHTML=`<span style="color:${red?'#C00':'#111'}">${next.v}${red?'♥':'♠'}</span>`;
   if(correct){
-    hiloMult=Math.round(hiloMult*1.5*10)/10;hiloPot=Math.round(hiloBet*hiloMult);
+    hiloMult=Math.round(hiloMult*1.35*10)/10;hiloPot=Math.round(hiloBet*hiloMult);
     document.getElementById('hilo-pot').textContent=hiloPot.toLocaleString();
     document.getElementById('hilo-mult').textContent=hiloMult.toFixed(1);
     document.getElementById('hilo-r').innerHTML=`<span class="win">Correct ! Continuez ou encaissez ${hiloPot.toLocaleString()} pieces</span>`;
@@ -4054,10 +4054,10 @@ async function playParadice(){
   const r1=Math.ceil(Math.random()*6),r2=Math.ceil(Math.random()*6),total=r1+r2;
   document.getElementById('d1').textContent=DICE_EMOJI[r1-1];document.getElementById('d2').textContent=DICE_EMOJI[r2-1];
   let won=false,mult=0;
-  if(paradiceType==='exact'&&total===paradiceNum){won=true;mult=5;}
-  else if(paradiceType==='over7'&&total>7){won=true;mult=1.8;}
-  else if(paradiceType==='under7'&&total<7){won=true;mult=1.8;}
-  else if(paradiceType==='seven'&&total===7){won=true;mult=4;}
+  if(paradiceType==='exact'&&total===paradiceNum){won=true;mult=4;}
+  else if(paradiceType==='over7'&&total>7){won=true;mult=1.6;}
+  else if(paradiceType==='under7'&&total<7){won=true;mult=1.6;}
+  else if(paradiceType==='seven'&&total===7){won=true;mult=3.5;}
   if(won){const w=Math.round(bet*mult);await updC(w);document.getElementById('paradice-r').innerHTML=`<span class="win">Total ${total} — Gagne x${mult} — +${w.toLocaleString()} pieces</span>`;toast(`+${w.toLocaleString()}`,'win');}
   else document.getElementById('paradice-r').innerHTML=`<span class="lose">Total ${total} — Perdu — -${bet.toLocaleString()} pieces</span>`;
 }
