@@ -12,147 +12,175 @@ header{position:sticky;top:0;z-index:100;background:rgba(2,2,9,.97);backdrop-fil
 .logo{font-family:'Cinzel',serif;font-size:18px;font-weight:900;color:var(--gold);letter-spacing:2px}
 .back{color:var(--t2);text-decoration:none;font-size:12px;font-weight:700;padding:8px 16px;border:1px solid var(--bd);border-radius:8px;transition:all .2s}
 .back:hover{color:var(--gold);border-color:var(--bd2)}
-.container{max-width:900px;margin:0 auto;padding:28px 20px}
-.tabs{display:flex;gap:4px;background:var(--c1);border:1px solid var(--bd);border-radius:var(--r);padding:5px;margin-bottom:24px}
-.tab{flex:1;background:none;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-align:center}
+.container{max-width:960px;margin:0 auto;padding:28px 20px}
+.tabs{display:flex;gap:4px;background:var(--c1);border:1px solid var(--bd);border-radius:var(--r);padding:5px;margin-bottom:24px;flex-wrap:wrap}
+.tab{flex:1;background:none;border:none;border-radius:8px;padding:10px 8px;font-size:11px;font-weight:700;color:var(--t2);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-align:center;white-space:nowrap}
 .tab.active{background:var(--gold);color:#000}
 .sec{display:none}.sec.active{display:block}
 .card{background:var(--c1);border:1px solid var(--bd);border-radius:var(--r);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
-.row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.label{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
-.inp{background:var(--c2);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;width:120px}
+.card-title{font-size:13px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.inp{background:var(--c2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;font-weight:600;font-family:'Inter',sans-serif}
 .inp:focus{outline:none;border-color:var(--gold)}
-.inp-wide{width:100%}
-.btn{border:none;border-radius:8px;padding:9px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.sel{background:var(--c2);border:1px solid var(--bd);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;flex:1;min-width:160px}
+.sel:focus{outline:none;border-color:var(--gold)}
+.btn{border:none;border-radius:8px;padding:9px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;white-space:nowrap}
 .btn-gold{background:linear-gradient(135deg,#A07010,var(--gold));color:#000}
-.btn-gold:hover{opacity:.85}
-.btn-gr{background:#00C87520;color:var(--gr);border:1px solid #00C87530}
-.btn-gr:hover{background:#00C87530}
-.btn-rd{background:#FF444420;color:var(--rd);border:1px solid #FF444430}
-.btn-rd:hover{background:#FF444430}
-.btn-pu{background:#8B5CF620;color:#A78BFA;border:1px solid #8B5CF630}
-.btn-pu:hover{background:#8B5CF630}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
-.stat{background:var(--c2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;text-align:center}
-.stat-v{font-size:26px;font-weight:800;color:var(--gold)}
-.stat-l{font-size:11px;color:var(--t2);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
-.player-card{background:var(--c2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:8px}
-.player-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.av{width:34px;height:34px;border-radius:50%;background:#8B5CF6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;overflow:hidden;flex-shrink:0;border:1px solid var(--bd2)}
+.btn-gr{background:#00C87520;color:var(--gr);border:1px solid #00C87540}
+.btn-gr:hover{background:#00C87535}
+.btn-rd{background:#FF444420;color:var(--rd);border:1px solid #FF444440}
+.btn-rd:hover{background:#FF444435}
+.btn-pu{background:#8B5CF620;color:#A78BFA;border:1px solid #8B5CF640}
+.btn-pu:hover{background:#8B5CF635}
+.av{width:36px;height:36px;border-radius:50%;background:#8B5CF6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;overflow:hidden;flex-shrink:0;border:1px solid var(--bd2)}
 .av img{width:100%;height:100%;object-fit:cover}
-.player-name{font-size:14px;font-weight:700;flex:1}
-.player-info{font-size:11px;color:var(--t2)}
-.badge-ban{background:#FF444420;color:var(--rd);border:1px solid #FF444430;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800}
-.badge-ok{background:#00C87520;color:var(--gr);border:1px solid #00C87530;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800}
-.actions{display:flex;flex-wrap:wrap;gap:6px}
-.sep{height:1px;background:var(--bd);margin:10px 0}
+.badge{border-radius:5px;padding:2px 8px;font-size:10px;font-weight:800}
+.badge-ok{background:#00C87520;color:var(--gr);border:1px solid #00C87530}
+.badge-ban{background:#FF444420;color:var(--rd);border:1px solid #FF444430}
+.sep{height:1px;background:var(--bd);margin:14px 0}
+.danger{background:#1A0505;border:1px solid #FF444430;border-radius:var(--r);padding:16px;margin-top:16px}
+.danger .card-title{color:var(--rd)}
 .toast-box{position:fixed;bottom:20px;right:20px;z-index:999;background:var(--c1);border:1px solid var(--bd2);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:700;display:none;animation:fadeUp .3s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
 .search{background:var(--c2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;width:100%;margin-bottom:14px}
 .search:focus{outline:none;border-color:var(--gold)}
-.section-title{font-size:13px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
-.danger-zone{background:#1A0505;border:1px solid #FF444430;border-radius:var(--r);padding:16px;margin-top:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 6px;font-size:11px;color:var(--t2);font-weight:700;border-bottom:1px solid var(--bd)}
+td{padding:10px 6px;border-bottom:1px solid var(--bd)}
+tr:hover td{background:var(--c2)}
+.pill{display:inline-block;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
+.pill-on{background:#4CAF5022;color:#4CAF50}
+.pill-off{background:#ffffff11;color:var(--t2)}
+.num-inp{width:90px;background:var(--c2);border:1px solid var(--bd);border-radius:8px;padding:7px 10px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;text-align:center}
+.num-inp:focus{outline:none;border-color:var(--gold)}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">⚙️ ADMIN</div>
-  <a href="/casino" class="back">← Retour au casino</a>
+  <a href="/casino" class="back">← Casino</a>
 </header>
 
 <div class="container">
   <div class="tabs">
-    <button class="tab active" onclick="showTab('stats',this)">📊 Stats</button>
-    <button class="tab" onclick="showTab('players',this)">👥 Joueurs</button>
-    <button class="tab" onclick="showTab('tools',this)">🔧 Outils</button>
-    <button class="tab" onclick="showTab('purchases',this)">🛒 Achats</button>
-    <button class="tab" onclick="showTab('connexions',this)">🟢 Connexions</button>
-  </div>
-
-  <!-- STATS -->
-  <div class="sec active" id="sec-stats">
-    <div class="stats" id="stats-grid"></div>
-    <div class="card">
-      <div class="section-title">Top Joueurs</div>
-      <div id="top-players"></div>
-    </div>
-  </div>
-
-  <!-- JOUEURS -->
-  <div class="sec" id="sec-players">
-    <input class="search" type="text" placeholder="🔍 Rechercher un joueur..." oninput="filterPlayers(this.value)">
-    <div id="players-list"></div>
-  </div>
-
-  <!-- OUTILS -->
-  <div class="sec" id="sec-tools">
-    <div class="card">
-      <div class="section-title">💰 Modifier les pièces</div>
-      <div class="row">
-        <select class="inp inp-wide" id="tool-player-coins" style="width:200px"></select>
-        <input class="inp" type="number" id="tool-amount-coins" value="1000" min="1">
-        <button class="btn btn-gr" onclick="toolCoins(1)">+ Ajouter</button>
-        <button class="btn btn-rd" onclick="toolCoins(-1)">- Retirer</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">⭐ Modifier l'XP</div>
-      <div class="row">
-        <select class="inp inp-wide" id="tool-player-xp" style="width:200px"></select>
-        <input class="inp" type="number" id="tool-amount-xp" value="500" min="1">
-        <button class="btn btn-gr" onclick="toolXP(1)">+ Ajouter</button>
-        <button class="btn btn-rd" onclick="toolXP(-1)">- Retirer</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">🗝️ Gérer les Clés</div>
-      <div class="row">
-        <select class="inp inp-wide" id="tool-player-keys" style="width:200px"></select>
-        <input class="inp" type="number" id="tool-amount-keys" value="5" min="1">
-        <button class="btn btn-gr" onclick="toolGiveKeys()">+ Donner des clés</button>
-      </div>
-      <div class="sep"></div>
-      <div class="row">
-        <button class="btn btn-rd" onclick="toolResetAllKeys()">🗑️ Reset TOUTES les clés</button>
-      </div>
-    </div>
-
-    <div class="danger-zone">
-      <div class="section-title" style="color:var(--rd)">⚠️ Zone Dangereuse</div>
-      <div style="font-size:12px;color:var(--t2);margin-bottom:12px">Ces actions sont irréversibles !</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        <button class="btn btn-rd" onclick="toolResetCoins()">💰 Reset pièces de TOUS (→500)</button>
-        <button class="btn btn-rd" onclick="toolResetXP()">⭐ Reset XP de TOUS (→0)</button>
-        <button class="btn btn-pu" onclick="toolResetCoinsOne()">💰 Reset pièces d'UN joueur</button>
-        <button class="btn btn-pu" onclick="toolResetXPOne()">⭐ Reset XP d'UN joueur</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ACHATS -->
-  <div class="sec" id="sec-purchases">
-    <div class="card">
-      <div class="section-title">Derniers achats boutique</div>
-      <div id="purchases-list"></div>
-    </div>
+    <button class="tab active" onclick="showTab('connexions',this)">🟢 Connexions</button>
+    <button class="tab" onclick="showTab('argent',this)">💰 Argent</button>
+    <button class="tab" onclick="showTab('xp',this)">⭐ XP</button>
+    <button class="tab" onclick="showTab('cles',this)">🗝️ Clés</button>
+    <button class="tab" onclick="showTab('sanctions',this)">🔨 Sanctions</button>
+    <button class="tab" onclick="showTab('achats',this)">🛒 Achats</button>
   </div>
 
   <!-- CONNEXIONS -->
-  <div class="sec" id="sec-connexions">
+  <div class="sec active" id="sec-connexions">
     <div class="card">
-      <div class="section-title">🟢 Statut des joueurs</div>
-      <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
-        <input id="connexions-search" type="text" placeholder="Rechercher un joueur..." oninput="filterConnexions()" style="flex:1;padding:8px 12px;background:var(--c2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);font-size:13px;min-width:180px">
-        <select id="connexions-filter" onchange="filterConnexions()" style="padding:8px 12px;background:var(--c2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);font-size:13px">
+      <div class="card-title">🟢 Statut des joueurs</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <input class="search" type="text" placeholder="🔍 Rechercher..." oninput="filterConnexions()" id="cx-search" style="margin:0;flex:1;min-width:160px">
+        <select class="sel" id="cx-filter" onchange="filterConnexions()" style="flex:0 0 auto;min-width:120px">
           <option value="all">Tous</option>
           <option value="online">En ligne</option>
           <option value="offline">Hors ligne</option>
         </select>
       </div>
-      <div id="connexions-list"></div>
+      <div id="cx-summary" style="font-size:12px;color:var(--t2);margin-bottom:12px"></div>
+      <table>
+        <thead><tr><th>Joueur</th><th>Statut</th><th>Dernière connexion</th><th>Temps en ligne</th><th style="text-align:right">Pièces</th></tr></thead>
+        <tbody id="cx-list"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ARGENT -->
+  <div class="sec" id="sec-argent">
+    <div class="card">
+      <div class="card-title">💰 Modifier les pièces d'un joueur</div>
+      <div class="row">
+        <select class="sel" id="argent-player"></select>
+        <input class="num-inp" type="number" id="argent-amount" value="1000" min="1">
+        <button class="btn btn-gr" onclick="doCoins(1)">+ Ajouter</button>
+        <button class="btn btn-rd" onclick="doCoins(-1)">− Retirer</button>
+      </div>
+    </div>
+    <div class="danger">
+      <div class="card-title">⚠️ Reset pièces</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:12px">Irréversible !</div>
+      <div class="row">
+        <select class="sel" id="argent-reset-player"></select>
+        <button class="btn btn-rd" onclick="doResetCoinsOne()">Reset ce joueur → 500</button>
+      </div>
+      <div class="sep"></div>
+      <button class="btn btn-rd" onclick="doResetCoinsAll()">🗑️ Reset TOUS les joueurs → 500</button>
+    </div>
+  </div>
+
+  <!-- XP -->
+  <div class="sec" id="sec-xp">
+    <div class="card">
+      <div class="card-title">⭐ Modifier l'XP d'un joueur</div>
+      <div class="row">
+        <select class="sel" id="xp-player"></select>
+        <input class="num-inp" type="number" id="xp-amount" value="500" min="1">
+        <button class="btn btn-gr" onclick="doXP(1)">+ Ajouter</button>
+        <button class="btn btn-rd" onclick="doXP(-1)">− Retirer</button>
+      </div>
+    </div>
+    <div class="danger">
+      <div class="card-title">⚠️ Reset XP</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:12px">Irréversible !</div>
+      <div class="row">
+        <select class="sel" id="xp-reset-player"></select>
+        <button class="btn btn-rd" onclick="doResetXPOne()">Reset ce joueur → 0</button>
+      </div>
+      <div class="sep"></div>
+      <button class="btn btn-rd" onclick="doResetXPAll()">🗑️ Reset XP de TOUS → 0</button>
+    </div>
+  </div>
+
+  <!-- CLES -->
+  <div class="sec" id="sec-cles">
+    <div class="card">
+      <div class="card-title">🗝️ Donner des clés</div>
+      <div class="row">
+        <select class="sel" id="cles-player"></select>
+        <input class="num-inp" type="number" id="cles-amount" value="5" min="1">
+        <button class="btn btn-gr" onclick="doGiveKeys()">+ Donner</button>
+      </div>
+    </div>
+    <div class="danger">
+      <div class="card-title">⚠️ Reset clés</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:12px">Irréversible !</div>
+      <button class="btn btn-rd" onclick="doResetAllKeys()">🗑️ Reset clés de TOUS</button>
+    </div>
+  </div>
+
+  <!-- SANCTIONS -->
+  <div class="sec" id="sec-sanctions">
+    <div class="card">
+      <div class="card-title">🔨 Ban / Unban un joueur</div>
+      <p style="font-size:12px;color:var(--t2);margin-bottom:14px">Ban = interdit d'accès au site casino uniquement, pas d'effet Discord.</p>
+      <input class="search" type="text" placeholder="🔍 Rechercher..." oninput="filterSanctions()" id="san-search">
+      <table>
+        <thead><tr><th>Joueur</th><th>Statut</th><th style="text-align:right">Action</th></tr></thead>
+        <tbody id="san-list"></tbody>
+      </table>
+    </div>
+    <div class="danger">
+      <div class="card-title">⚠️ Reset complet</div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:12px">Reset pièces + XP d'un joueur en une fois.</div>
+      <div class="row">
+        <select class="sel" id="san-reset-player"></select>
+        <button class="btn btn-rd" onclick="doResetAll()">Reset total (pièces + XP)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACHATS -->
+  <div class="sec" id="sec-achats">
+    <div class="card">
+      <div class="card-title">🛒 Historique des achats boutique</div>
+      <div id="achats-list"></div>
     </div>
   </div>
 </div>
@@ -161,6 +189,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(2,2,9,.97);backdrop-fil
 
 <script>
 let allPlayers = [];
+let connexionsData = [];
+let sanctionsData = [];
 
 async function api(path, method='GET', body=null) {
   const o = {method, headers:{'Content-Type':'application/json'}, credentials:'include'};
@@ -177,268 +207,185 @@ function toast(msg, type='ok') {
   setTimeout(() => el.style.display = 'none', 3000);
 }
 
-function showTab(id, btn) {
-  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('sec-'+id).classList.add('active');
-  if(id==='players') loadPlayers();
-  if(id==='stats') loadStats();
-  if(id==='purchases') loadPurchases();
-  if(id==='tools') loadToolPlayers();
-  if(id==='connexions') loadConnexions();
-}
-
-let connexionsData = [];
-
-function formatDuration(seconds) {
-  if(!seconds) return '0s';
-  const h = Math.floor(seconds/3600);
-  const m = Math.floor((seconds%3600)/60);
-  const s = seconds%60;
-  if(h>0) return `${h}h ${m}m`;
-  if(m>0) return `${m}m ${s}s`;
-  return `${s}s`;
-}
-
-function formatLastLogin(dateStr) {
-  if(!dateStr) return 'Jamais';
-  const d = new Date(dateStr);
-  const now = new Date();
-  const diff = Math.floor((now - d) / 1000);
-  if(diff < 60) return 'Il y a quelques secondes';
-  if(diff < 3600) return `Il y a ${Math.floor(diff/60)} min`;
-  if(diff < 86400) return `Il y a ${Math.floor(diff/3600)}h`;
-  return d.toLocaleDateString('fr') + ' à ' + d.toLocaleTimeString('fr', {hour:'2-digit',minute:'2-digit'});
-}
-
-async function loadConnexions() {
-  const data = await api('/api/admin/users');
-  connexionsData = data;
-  renderConnexions(data);
-}
-
-function renderConnexions(data) {
-  const online = data.filter(u => u.is_online);
-  const offline = data.filter(u => !u.is_online);
-  const sorted = [...online, ...offline];
-
-  document.getElementById('connexions-list').innerHTML = `
-    <div style="font-size:12px;color:var(--t2);margin-bottom:12px">
-      <span style="color:#4CAF50;font-weight:700">${online.length} en ligne</span> · ${data.length} joueurs total
-    </div>
-    <table style="width:100%;border-collapse:collapse;font-size:13px">
-      <thead>
-        <tr style="color:var(--t2);font-size:11px;border-bottom:1px solid var(--bd)">
-          <th style="text-align:left;padding:8px 4px">Joueur</th>
-          <th style="text-align:center;padding:8px 4px">Statut</th>
-          <th style="text-align:center;padding:8px 4px">Dernière connexion</th>
-          <th style="text-align:center;padding:8px 4px">Temps de jeu</th>
-          <th style="text-align:right;padding:8px 4px">Pièces</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${sorted.map(u => `
-          <tr style="border-bottom:1px solid var(--bd);transition:background .15s" onmouseover="this.style.background='var(--c2)'" onmouseout="this.style.background=''">
-            <td style="padding:10px 4px">
-              <div style="display:flex;align-items:center;gap:8px">
-                <div class="av">${avHTML(u)}</div>
-                <div>
-                  <div style="font-weight:700">${u.username}</div>
-                  <div style="font-size:10px;color:var(--t2)">Niv.${u.level||1}</div>
-                </div>
-              </div>
-            </td>
-            <td style="text-align:center;padding:10px 4px">
-              ${u.is_online
-                ? '<span style="background:#4CAF5022;color:#4CAF50;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">🟢 En ligne</span>'
-                : '<span style="background:#ffffff11;color:var(--t2);padding:3px 10px;border-radius:20px;font-size:11px">⚫ Hors ligne</span>'
-              }
-            </td>
-            <td style="text-align:center;padding:10px 4px;color:var(--t2);font-size:12px">${formatLastLogin(u.last_login)}</td>
-            <td style="text-align:center;padding:10px 4px;color:var(--gold);font-weight:700;font-size:12px">${u.is_online ? '⏱️ '+formatDuration(u.online_seconds) : '—'}</td>
-            <td style="text-align:right;padding:10px 4px;font-weight:700">${(u.coins||0).toLocaleString()} ♦</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-}
-
-function filterConnexions() {
-  const search = document.getElementById('connexions-search').value.toLowerCase();
-  const filter = document.getElementById('connexions-filter').value;
-  let data = connexionsData;
-  if(filter==='online') data = data.filter(u => u.is_online);
-  if(filter==='offline') data = data.filter(u => !u.is_online);
-  if(search) data = data.filter(u => (u.username||'').toLowerCase().includes(search));
-  renderConnexions(data);
-}
-
 function avHTML(u) {
   if(u.avatar) return `<img src="https://cdn.discordapp.com/avatars/${u.discord_id}/${u.avatar}.png">`;
   return (u.username||'?').slice(0,2).toUpperCase();
 }
 
-async function loadStats() {
-  const data = await api('/api/admin/users');
-  allPlayers = data;
-  const total = data.length;
-  const totalCoins = data.reduce((s,u) => s+(u.coins||0), 0);
-  const banned = data.filter(u => u.banned).length;
-  const maxCoins = data.reduce((m,u) => u.coins>m.coins?u:m, {coins:0});
-  
-  document.getElementById('stats-grid').innerHTML = `
-    <div class="stat"><div class="stat-v">${total}</div><div class="stat-l">Joueurs</div></div>
-    <div class="stat"><div class="stat-v">${totalCoins.toLocaleString()}</div><div class="stat-l">Pièces totales</div></div>
-    <div class="stat"><div class="stat-v">${banned}</div><div class="stat-l">Bannis</div></div>
-    <div class="stat"><div class="stat-v">${maxCoins.username||'-'}</div><div class="stat-l">Plus riche</div></div>
-  `;
-  
-  document.getElementById('top-players').innerHTML = data.slice(0,5).map((u,i) => `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
-      <span style="font-size:18px">${['🥇','🥈','🥉','4️⃣','5️⃣'][i]}</span>
-      <div class="av">${avHTML(u)}</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:700">${u.username}</div>
-        <div style="font-size:11px;color:var(--t2)">Niv.${u.level||1} • ${(u.xp||0).toLocaleString()} XP</div>
-      </div>
-      <div style="font-size:13px;font-weight:800;color:var(--gold)">${(u.coins||0).toLocaleString()} ♦</div>
-    </div>`).join('');
+function fmtDur(s) {
+  if(!s) return '—';
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;
+  if(h>0) return h+'h '+m+'m';
+  if(m>0) return m+'m '+sc+'s';
+  return sc+'s';
 }
 
-async function loadPlayers() {
-  const data = await api('/api/admin/users');
-  allPlayers = data;
-  renderPlayers(data);
-  loadToolPlayers();
+function fmtLogin(d) {
+  if(!d) return 'Jamais';
+  const dt=new Date(d), now=new Date(), diff=Math.floor((now-dt)/1000);
+  if(diff<60) return 'À l\'instant';
+  if(diff<3600) return 'Il y a '+Math.floor(diff/60)+'min';
+  if(diff<86400) return 'Il y a '+Math.floor(diff/3600)+'h';
+  return dt.toLocaleDateString('fr')+' '+dt.toLocaleTimeString('fr',{hour:'2-digit',minute:'2-digit'});
 }
 
-function renderPlayers(data) {
-  document.getElementById('players-list').innerHTML = data.map(u => `
-    <div class="player-card" id="pc-${u.discord_id}">
-      <div class="player-top">
-        <div class="av">${avHTML(u)}</div>
-        <div style="flex:1">
-          <div class="player-name">${u.username} <span class="${u.banned?'badge-ban':'badge-ok'}">${u.banned?'Banni':'Actif'}</span></div>
-          <div class="player-info">♦ <span id="pc-coins-${u.discord_id}">${(u.coins||0).toLocaleString()}</span> • XP: <span id="pc-xp-${u.discord_id}">${u.xp||0}</span> Niv.<span id="pc-lv-${u.discord_id}">${u.level||1}</span></div>
-        </div>
-      </div>
-      <div class="actions">
-        <input class="inp" type="number" id="ai-${u.discord_id}" value="500" min="1" style="width:80px">
-        <button class="btn btn-gr" onclick="modCoins('${u.discord_id}',1)">+♦</button>
-        <button class="btn btn-rd" onclick="modCoins('${u.discord_id}',-1)">-♦</button>
-        <input class="inp" type="number" id="xi-${u.discord_id}" value="100" min="1" style="width:80px">
-        <button class="btn btn-pu" onclick="modXP('${u.discord_id}',1)">+XP</button>
-        <button class="btn btn-pu" onclick="modXP('${u.discord_id}',-1)">-XP</button>
-        <button class="btn ${u.banned?'btn-gr':'btn-rd'}" onclick="toggleBan('${u.discord_id}',${!u.banned})">${u.banned?'Débannir':'Bannir'}</button>
-        <button class="btn btn-rd" onclick="resetOne('${u.discord_id}')">Reset</button>
-      </div>
-    </div>`).join('');
+function showTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sec-'+id).classList.add('active');
+  if(id==='connexions') loadConnexions();
+  if(id==='argent'||id==='xp'||id==='cles'||id==='sanctions') loadPlayers(id);
+  if(id==='achats') loadAchats();
 }
 
-function filterPlayers(q) {
-  const f = allPlayers.filter(u => u.username.toLowerCase().includes(q.toLowerCase()));
-  renderPlayers(f);
+async function loadPlayers(tab) {
+  if(!allPlayers.length) allPlayers = await api('/api/admin/users');
+  populateSelects();
+  if(tab==='sanctions') renderSanctions(allPlayers);
 }
 
-async function modCoins(id, sign) {
-  const amt = parseInt(document.getElementById('ai-'+id).value)||500;
-  const r = await api('/api/admin/coins','POST',{discord_id:id,amount:amt*sign});
-  if(r.error){toast(r.error,'err');return;}
-  document.getElementById('pc-coins-'+id).textContent = r.coins.toLocaleString();
-  toast((sign>0?'+':'')+amt*sign+' pièces');
-}
-
-async function modXP(id, sign) {
-  const amt = parseInt(document.getElementById('xi-'+id).value)||100;
-  const r = await api('/api/admin/xp','POST',{discord_id:id,amount:amt*sign});
-  if(r.error){toast(r.error,'err');return;}
-  document.getElementById('pc-xp-'+id).textContent = r.xp;
-  document.getElementById('pc-lv-'+id).textContent = r.level;
-  toast((sign>0?'+':'')+amt*sign+' XP → Niv.'+r.level);
-}
-
-async function toggleBan(id, ban) {
-  await api(ban?'/api/admin/ban':'/api/admin/unban','POST',{discord_id:id});
-  toast(ban?'Joueur banni':'Joueur débanni');
-  loadPlayers();
-}
-
-async function resetOne(id) {
-  if(!confirm('Reset pièces ET XP de ce joueur ?')) return;
-  await api('/api/admin/reset-coins','POST',{discord_id:id});
-  await api('/api/admin/reset-xp','POST',{discord_id:id});
-  toast('Reset effectué !');
-  loadPlayers();
-}
-
-function loadToolPlayers() {
-  const opts = allPlayers.length ? allPlayers.map(u=>`<option value="${u.discord_id}">${u.username}</option>`).join('') : '<option>Chargement...</option>';
-  ['tool-player-coins','tool-player-xp','tool-player-keys'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.innerHTML=opts;
+function populateSelects() {
+  const opts = allPlayers.map(u=>`<option value="${u.discord_id}">${u.username}</option>`).join('');
+  ['argent-player','argent-reset-player','xp-player','xp-reset-player','cles-player','san-reset-player'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && !el.innerHTML) el.innerHTML=opts;
   });
 }
 
-async function toolCoins(sign) {
-  const id = document.getElementById('tool-player-coins').value;
-  const amt = parseInt(document.getElementById('tool-amount-coins').value)||1000;
-  const r = await api('/api/admin/coins','POST',{discord_id:id,amount:amt*sign});
+// ─── CONNEXIONS ───────────────────────────────────────────────────
+async function loadConnexions() {
+  const data = await api('/api/admin/users');
+  connexionsData = data;
+  allPlayers = data;
+  renderConnexions(data);
+}
+
+function renderConnexions(data) {
+  const online = data.filter(u=>u.is_online);
+  document.getElementById('cx-summary').innerHTML = `<span style="color:#4CAF50;font-weight:700">${online.length} en ligne</span> · ${data.length} joueurs total`;
+  const sorted = [...data].sort((a,b)=>(b.is_online?1:0)-(a.is_online?1:0));
+  document.getElementById('cx-list').innerHTML = sorted.map(u=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="av">${avHTML(u)}</div><div><div style="font-weight:700">${u.username}</div><div style="font-size:10px;color:var(--t2)">Niv.${u.level||1}</div></div></div></td>
+      <td><span class="pill ${u.is_online?'pill-on':'pill-off'}">${u.is_online?'🟢 En ligne':'⚫ Hors ligne'}</span></td>
+      <td style="color:var(--t2);font-size:12px">${fmtLogin(u.last_login)}</td>
+      <td style="color:var(--gold);font-weight:700;font-size:12px">${u.is_online?fmtDur(u.online_seconds):'—'}</td>
+      <td style="text-align:right;font-weight:700">${(u.coins||0).toLocaleString()} ♦</td>
+    </tr>`).join('');
+}
+
+function filterConnexions() {
+  const s=document.getElementById('cx-search').value.toLowerCase();
+  const f=document.getElementById('cx-filter').value;
+  let d=connexionsData;
+  if(f==='online') d=d.filter(u=>u.is_online);
+  if(f==='offline') d=d.filter(u=>!u.is_online);
+  if(s) d=d.filter(u=>(u.username||'').toLowerCase().includes(s));
+  renderConnexions(d);
+}
+
+// ─── ARGENT ───────────────────────────────────────────────────────
+async function doCoins(sign) {
+  const id=document.getElementById('argent-player').value;
+  const amt=parseInt(document.getElementById('argent-amount').value)||1000;
+  const r=await api('/api/admin/coins','POST',{discord_id:id,amount:amt*sign});
   if(r.error){toast(r.error,'err');return;}
-  toast((sign>0?'+':'')+amt*sign+' pièces à '+allPlayers.find(u=>u.discord_id===id)?.username);
+  const name=allPlayers.find(u=>u.discord_id===id)?.username||id;
+  toast((sign>0?'+':'')+amt*sign+' ♦ à '+name);
 }
 
-async function toolXP(sign) {
-  const id = document.getElementById('tool-player-xp').value;
-  const amt = parseInt(document.getElementById('tool-amount-xp').value)||500;
-  const r = await api('/api/admin/xp','POST',{discord_id:id,amount:amt*sign});
-  if(r.error){toast(r.error,'err');return;}
-  toast((sign>0?'+':'')+amt*sign+' XP → Niv.'+r.level);
+async function doResetCoinsOne() {
+  const id=document.getElementById('argent-reset-player').value;
+  const name=allPlayers.find(u=>u.discord_id===id)?.username||id;
+  if(!confirm('Reset les pièces de '+name+' à 500 ?')) return;
+  await api('/api/admin/reset-coins','POST',{discord_id:id});
+  toast('Pièces de '+name+' resetées à 500 !');
 }
 
-async function toolGiveKeys() {
-  const id = document.getElementById('tool-player-keys').value;
-  const amt = parseInt(document.getElementById('tool-amount-keys').value)||5;
-  const r = await api('/api/admin/give-keys','POST',{discord_id:id,amount:amt});
-  if(r.error){toast(r.error,'err');return;}
-  toast('+'+amt+' clés envoyées à '+allPlayers.find(u=>u.discord_id===id)?.username);
-}
-
-async function toolResetAllKeys() {
-  if(!confirm('Reset les clés de TOUS les joueurs ?')) return;
-  await api('/api/admin/reset-keys','POST',{});
-  toast('Toutes les clés ont été reset !');
-}
-
-async function toolResetCoins() {
-  if(!confirm('Reset les pièces de TOUS les joueurs à 500 ?')) return;
+async function doResetCoinsAll() {
+  if(!confirm('Reset les pièces de TOUS les joueurs à 500 ? Irréversible !')) return;
   await api('/api/admin/reset-coins','POST',{});
   toast('Toutes les pièces resetées à 500 !');
 }
 
-async function toolResetXP() {
-  if(!confirm('Reset le XP de TOUS les joueurs à 0 ?')) return;
+// ─── XP ──────────────────────────────────────────────────────────
+async function doXP(sign) {
+  const id=document.getElementById('xp-player').value;
+  const amt=parseInt(document.getElementById('xp-amount').value)||500;
+  const r=await api('/api/admin/xp','POST',{discord_id:id,amount:amt*sign});
+  if(r.error){toast(r.error,'err');return;}
+  const name=allPlayers.find(u=>u.discord_id===id)?.username||id;
+  toast((sign>0?'+':'')+amt*sign+' XP à '+name+' → Niv.'+r.level);
+}
+
+async function doResetXPOne() {
+  const id=document.getElementById('xp-reset-player').value;
+  const name=allPlayers.find(u=>u.discord_id===id)?.username||id;
+  if(!confirm('Reset le XP de '+name+' à 0 ?')) return;
+  await api('/api/admin/reset-xp','POST',{discord_id:id});
+  toast('XP de '+name+' reseté à 0 !');
+}
+
+async function doResetXPAll() {
+  if(!confirm('Reset le XP de TOUS les joueurs à 0 ? Irréversible !')) return;
   await api('/api/admin/reset-xp','POST',{});
   toast('Tout le XP reseté à 0 !');
 }
 
-async function toolResetCoinsOne() {
-  const id = document.getElementById('tool-player-coins').value;
-  if(!confirm('Reset les pièces de ce joueur à 500 ?')) return;
+// ─── CLÉS ─────────────────────────────────────────────────────────
+async function doGiveKeys() {
+  const id=document.getElementById('cles-player').value;
+  const amt=parseInt(document.getElementById('cles-amount').value)||5;
+  const r=await api('/api/admin/give-keys','POST',{discord_id:id,amount:amt});
+  if(r.error){toast(r.error,'err');return;}
+  const name=allPlayers.find(u=>u.discord_id===id)?.username||id;
+  toast('+'+amt+' clés données à '+name+' !');
+}
+
+async function doResetAllKeys() {
+  if(!confirm('Reset les clés de TOUS les joueurs ?')) return;
+  await api('/api/admin/reset-keys','POST',{});
+  toast('Toutes les clés resetées !');
+}
+
+// ─── SANCTIONS ────────────────────────────────────────────────────
+function renderSanctions(data) {
+  document.getElementById('san-list').innerHTML = data.map(u=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="av">${avHTML(u)}</div><div style="font-weight:700">${u.username}</div></div></td>
+      <td><span class="badge ${u.banned?'badge-ban':'badge-ok'}">${u.banned?'Banni':'Actif'}</span></td>
+      <td style="text-align:right"><button class="btn ${u.banned?'btn-gr':'btn-rd'}" onclick="toggleBan('${u.discord_id}',${!u.banned})">${u.banned?'Débannir':'Bannir'}</button></td>
+    </tr>`).join('');
+}
+
+function filterSanctions() {
+  const s=document.getElementById('san-search').value.toLowerCase();
+  renderSanctions(allPlayers.filter(u=>(u.username||'').toLowerCase().includes(s)));
+}
+
+async function toggleBan(id, ban) {
+  const name=allPlayers.find(u=>u.discord_id===id)?.username||id;
+  if(!confirm((ban?'Bannir ':'Débannir ')+name+' ?')) return;
+  await api(ban?'/api/admin/ban':'/api/admin/unban','POST',{discord_id:id});
+  toast(name+(ban?' banni':' débanni')+' !');
+  allPlayers=[];
+  loadPlayers('sanctions');
+}
+
+async function doResetAll() {
+  const id=document.getElementById('san-reset-player').value;
+  const name=allPlayers.find(u=>u.discord_id===id)?.username||id;
+  if(!confirm('Reset pièces + XP de '+name+' ?')) return;
   await api('/api/admin/reset-coins','POST',{discord_id:id});
-  toast('Pièces resetées à 500 !');
-}
-
-async function toolResetXPOne() {
-  const id = document.getElementById('tool-player-xp').value;
-  if(!confirm('Reset le XP de ce joueur à 0 ?')) return;
   await api('/api/admin/reset-xp','POST',{discord_id:id});
-  toast('XP reseté à 0 !');
+  toast('Reset total de '+name+' effectué !');
 }
 
-async function loadPurchases() {
-  const data = await api('/api/admin/purchases');
-  document.getElementById('purchases-list').innerHTML = data.map(p => `
+// ─── ACHATS ───────────────────────────────────────────────────────
+async function loadAchats() {
+  const data=await api('/api/admin/purchases');
+  document.getElementById('achats-list').innerHTML=data.map(p=>`
     <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
       <div style="flex:1">
         <div style="font-size:13px;font-weight:700">${p.users?.username||p.discord_id}</div>
@@ -449,7 +396,7 @@ async function loadPurchases() {
 }
 
 // Init
-loadStats();
+loadConnexions();
 </script>
 </body>
 </html>
