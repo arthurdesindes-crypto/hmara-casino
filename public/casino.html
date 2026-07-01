@@ -1749,6 +1749,7 @@ const REWARDS=[
   {e:'&#x1F6E1;',n:'Pass Anti-Sanction 4j',d:'Donner le Pass Anti-Sanction 4 jours',p:75000,type:'role',rid:ROLE_P,dur:4},
   {e:'&#x274C;',n:'Enlever un pass anti-ban',d:"Retirer le Pass Anti-Sanction d'un membre",p:100000,type:'remove-pass'},
   {e:'&#x1F528;',n:'Ban 1 heure',d:'Exclure un membre pendant 1 heure',p:250000,type:'ban',dur:60},
+  {e:'&#x1F513;',n:'Annuler un ban',d:'Retirer le timeout d\'un membre banni (+30% du prix du ban original)',p:0,type:'unban'},
 ];
 
 async function api(p,m='GET',b=null){
@@ -2301,18 +2302,20 @@ async function doTransfer(){
 let shopMembers=[];
 async function loadMembers(){try{const d=await api('/api/members');shopMembers=d;}catch(e){shopMembers=[];}}
 function renderShop(){
-  document.getElementById('sgrid').innerHTML=REWARDS.map((r,i)=>`
-    <div class="si"><div class="se">${r.e}</div><div class="sn">${r.n}</div><p class="sd">${r.d}</p><div class="sp2">${r.p.toLocaleString()} pieces</div><button class="buybtn" onclick="buyR(${i})">Acheter</button></div>`).join('');
+  document.getElementById('sgrid').innerHTML=REWARDS.map((r,i)=>{
+    const priceDisplay=r.type==='unban'?'Prix selon le ban':r.p.toLocaleString()+' pieces';
+    return `<div class="si"><div class="se">${r.e}</div><div class="sn">${r.n}</div><p class="sd">${r.d}</p><div class="sp2">${priceDisplay}</div><button class="buybtn" onclick="buyR(${i})">${r.type==='unban'?'Debannir':'Acheter'}</button></div>`;
+  }).join('');
 }
 function getMOpts(filterFn){
   const list=filterFn?shopMembers.filter(filterFn):shopMembers;
   if(!list.length)return'<option value="">Aucun membre disponible</option>';
   return list.map(m=>`<option value="${m.id}">${m.displayName||m.username}${m.hasPass?' [PROTEGE]':''}</option>`).join('');
 }
-function showModal(title,opts,onConfirm){
+function showModal(title,opts,onConfirm,extraHtml=''){
   const ex=document.getElementById('mm');if(ex)ex.remove();
   const div=document.createElement('div');div.id='mm';
-  div.innerHTML=`<div class="mm-box"><div class="mm-title">${title}</div><select class="mm-sel" id="mm-sel">${opts}</select><div class="mm-btns"><button class="bgh" onclick="document.getElementById('mm').remove()" style="flex:1">Annuler</button><button class="bg" id="mm-ok" style="flex:2">Confirmer</button></div></div>`;
+  div.innerHTML=`<div class="mm-box"><div class="mm-title">${title}</div>${extraHtml}<select class="mm-sel" id="mm-sel">${opts}</select><div class="mm-btns"><button class="bgh" onclick="document.getElementById('mm').remove()" style="flex:1">Annuler</button><button class="bg" id="mm-ok" style="flex:2">Confirmer</button></div></div>`;
   document.body.appendChild(div);
   document.getElementById('mm-ok').onclick=()=>{const v=document.getElementById('mm-sel').value;if(!v){toast('Choisissez','lose');return;}div.remove();onConfirm(v);};
 }
@@ -2324,16 +2327,46 @@ async function buyR(i){
     coins=d.coins;document.getElementById('cd').textContent=coins.toLocaleString();
     toast('Cheque achete — contactez un admin','win');return;
   }
-  if(coins<r.p){toast('Pas assez de pieces','lose');return;}
-  if(r.type==='ban'){
-    showModal(`Bannir pendant ${r.dur} min`,getMOpts(m=>!m.hasPass),async t=>{
-      const d=await api('/api/buy','POST',{reward_name:r.n,price:r.p});
+  if(r.type==='unban'){
+    const bans=await api('/api/active-bans').catch(()=>({bans:[]}));
+    if(!bans.bans||!bans.bans.length){toast('Aucun ban actif en ce moment','lose');return;}
+    const banOpts=bans.bans.map(b=>`<option value="${b.targetId}" data-price="${b.unbanPrice}">${b.targetUsername} (ban ${b.duration}min — debannir: ${b.unbanPrice.toLocaleString()} pcs)</option>`).join('');
+    const ex=document.getElementById('mm');if(ex)ex.remove();
+    const div=document.createElement('div');div.id='mm';
+    div.innerHTML=`<div class="mm-box"><div class="mm-title">🔓 Annuler un ban</div><p style="color:var(--t2);font-size:13px;margin-bottom:12px">Prix = ban original +30%</p><select class="mm-sel" id="mm-sel">${banOpts}</select><div style="margin:10px 0;font-size:14px;color:var(--gold);font-weight:700">Prix : <span id="unban-price-display"></span></div><div class="mm-btns"><button class="bgh" onclick="document.getElementById('mm').remove()" style="flex:1">Annuler</button><button class="bg" id="mm-ok" style="flex:2">Payer et debannir</button></div></div>`;
+    document.body.appendChild(div);
+    const sel=document.getElementById('mm-sel');
+    const updatePrice=()=>{const opt=sel.options[sel.selectedIndex];const price=opt?opt.getAttribute('data-price'):0;document.getElementById('unban-price-display').textContent=parseInt(price).toLocaleString()+' pieces';};
+    sel.onchange=updatePrice;updatePrice();
+    document.getElementById('mm-ok').onclick=async()=>{
+      const targetId=sel.value;
+      const opt=sel.options[sel.selectedIndex];
+      const price=parseInt(opt.getAttribute('data-price'));
+      if(!targetId){toast('Choisissez un membre','lose');return;}
+      if(coins<price){toast('Pas assez de pieces','lose');div.remove();return;}
+      div.remove();
+      const d=await api('/api/buy','POST',{reward_name:'Annuler un ban',price});
       if(d.error){toast(d.error,'lose');return;}
       coins=d.coins;document.getElementById('cd').textContent=coins.toLocaleString();
-      const b=await api('/api/bot/ban','POST',{targetId:t,duration:r.dur,reason:`Ban casino ${r.dur} min`});
+      const b=await api('/api/bot/unban','POST',{targetId,buyerUsername:me.username});
       if(b.error){toast(b.error,'lose');return;}
-      toast(`${b.username} banni ${r.dur} min !`,'win');
-    });
+      toast(`Ban de ${b.username} annule !`,'win');
+    };
+    return;
+  }
+  if(coins<r.p){toast('Pas assez de pieces','lose');return;}
+  if(r.type==='ban'){
+    const anonHtml=`<label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;font-size:13px;color:var(--t2)"><input type="checkbox" id="anon-cb" style="width:16px;height:16px;accent-color:var(--gold)"> Ban anonyme (sur Discord votre identite sera cachee)</label>`;
+    showModal(`Bannir pendant ${r.dur<60?r.dur+' min':r.dur/60+' heure(s)'}`,getMOpts(m=>!m.hasPass),async t=>{
+      const anon=document.getElementById('anon-cb')?.checked||false;
+      const d=await api('/api/buy','POST',{reward_name:r.n+(anon?' (anonyme)':''),price:r.p});
+      if(d.error){toast(d.error,'lose');return;}
+      coins=d.coins;document.getElementById('cd').textContent=coins.toLocaleString();
+      const b=await api('/api/bot/ban','POST',{targetId:t,duration:r.dur,anonymous:anon,buyerUsername:me.username});
+      if(b.error){toast(b.error,'lose');return;}
+      toast(`${b.username} banni ${r.dur<60?r.dur+' min':r.dur/60+'h'} !`,'win');
+      await api('/api/active-bans','POST',{targetId:t,targetUsername:b.username,duration:r.dur,price:r.p,buyerUsername:me.username});
+    },anonHtml);
   }else if(r.type==='role'){
     showModal(r.rid===ROLE_P?'Donner le Pass Anti-Sanction 4j':'Donner le role Kickeur',getMOpts(),async t=>{
       const d=await api('/api/buy','POST',{reward_name:r.n,price:r.p});

@@ -393,7 +393,43 @@ app.post('/api/bot/remove-pass', requireAuth, async (req, res) => {
   }
 });
 
-// Transfer coins between players
+// ═══ BANS ACTIFS ═════════════════════════════════════════════════
+const activeBans = {}; // targetId -> { targetUsername, duration, price, unbanPrice, buyerUsername, expiresAt }
+
+// Enregistrer un ban
+app.post('/api/active-bans', requireAuth, (req, res) => {
+  const { targetId, targetUsername, duration, price, buyerUsername } = req.body;
+  const unbanPrice = Math.round(price * 1.3);
+  const expiresAt = new Date(Date.now() + duration * 60 * 1000);
+  activeBans[targetId] = { targetId, targetUsername, duration, price, unbanPrice, buyerUsername, expiresAt };
+  // Auto-supprimer quand le ban expire
+  setTimeout(() => { delete activeBans[targetId]; }, duration * 60 * 1000 + 5000);
+  res.json({ success: true });
+});
+
+// Récupérer les bans actifs
+app.get('/api/active-bans', requireAuth, (req, res) => {
+  const now = new Date();
+  const bans = Object.values(activeBans).filter(b => new Date(b.expiresAt) > now);
+  res.json({ bans });
+});
+
+// Débannir via boutique
+app.post('/api/bot/unban', requireAuth, async (req, res) => {
+  const { targetId, buyerUsername } = req.body;
+  try {
+    const r = await axios.post(`${process.env.BOT_URL || "http://localhost:3001"}/unban`, {
+      targetId, buyerUsername
+    });
+    delete activeBans[targetId];
+    res.json(r.data);
+  } catch (err) {
+    const msg = err.response?.data?.error || err.message;
+    res.status(400).json({ error: msg });
+  }
+});
+
+
 app.post('/api/transfer', requireAuth, async (req, res) => {
   const { targetId, amount } = req.body;
   if (!targetId || !amount || amount < 1) return res.status(400).json({ error: 'Donnees invalides' });

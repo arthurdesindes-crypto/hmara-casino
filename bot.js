@@ -49,34 +49,25 @@ app.get('/members', async (req, res) => {
 
 // BAN temporaire
 app.post('/ban', async (req, res) => {
-  const { targetId, duration, buyerUsername, reason } = req.body;
+  const { targetId, duration, buyerUsername, anonymous } = req.body;
   try {
     const guild = await client.guilds.fetch(GUILD_ID);
-    
-    // Fetch member (works even if offline)
     await guild.members.fetch({ user: targetId, force: true }).catch(() => null);
     const member = guild.members.cache.get(targetId);
-    
-    // Check pass anti-sanction
     if (member && member.roles.cache.has(ROLE_PASS)) {
       return res.status(403).json({ error: 'Cette personne a le Pass Anti-Sanction !' });
     }
-
-    // Get username for response
     const user = await client.users.fetch(targetId).catch(() => null);
     const username = user ? user.username : targetId;
-
-    // Timeout (exclusion temporaire — reste dans le serveur)
     if (!member) return res.status(404).json({ error: 'Membre introuvable ou hors ligne' });
-    await member.timeout(duration * 60 * 1000, `Casino timeout par ${buyerUsername} — ${duration} min`);
-
-    // Annonce
+    await member.timeout(duration * 60 * 1000, `Casino timeout — ${duration} min`);
     try {
       const channel = await client.channels.fetch(CHANNEL_ID);
+      const authorLabel = anonymous ? '**Quelqu\'un d\'anonyme**' : `**${buyerUsername}**`;
       const embed = new EmbedBuilder()
         .setColor(0xE53935)
         .setTitle('Exclusion Temporaire Casino')
-        .setDescription(`**${username}** a ete exclu temporairement par **${buyerUsername}**`)
+        .setDescription(`**${username}** a ete exclu temporairement par ${authorLabel}`)
         .addFields(
           { name: 'Duree', value: `${duration} minute(s)`, inline: true },
           { name: 'Info', value: 'Reste dans le serveur mais ne peut pas parler', inline: true }
@@ -84,10 +75,35 @@ app.post('/ban', async (req, res) => {
         .setTimestamp();
       await channel.send({ embeds: [embed] });
     } catch(e) {}
-
     res.json({ success: true, username });
   } catch (err) {
     console.error('ban error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DEBAN - annuler un timeout
+app.post('/unban', async (req, res) => {
+  const { targetId, buyerUsername } = req.body;
+  try {
+    const guild = await client.guilds.fetch(GUILD_ID);
+    await guild.members.fetch({ user: targetId, force: true }).catch(() => null);
+    const member = guild.members.cache.get(targetId);
+    if (!member) return res.status(404).json({ error: 'Membre introuvable' });
+    await member.timeout(null); // retire le timeout
+    const username = member.user.username;
+    try {
+      const channel = await client.channels.fetch(CHANNEL_ID);
+      const embed = new EmbedBuilder()
+        .setColor(0x43A047)
+        .setTitle('🔓 Ban annule — Casino')
+        .setDescription(`Le timeout de **${username}** a ete annule par **${buyerUsername}**`)
+        .setTimestamp();
+      await channel.send({ embeds: [embed] });
+    } catch(e) {}
+    res.json({ success: true, username });
+  } catch (err) {
+    console.error('unban error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
