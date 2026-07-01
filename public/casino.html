@@ -2317,7 +2317,15 @@ function showModal(title,opts,onConfirm,extraHtml=''){
   const div=document.createElement('div');div.id='mm';
   div.innerHTML=`<div class="mm-box"><div class="mm-title">${title}</div>${extraHtml}<select class="mm-sel" id="mm-sel">${opts}</select><div class="mm-btns"><button class="bgh" onclick="document.getElementById('mm').remove()" style="flex:1">Annuler</button><button class="bg" id="mm-ok" style="flex:2">Confirmer</button></div></div>`;
   document.body.appendChild(div);
-  document.getElementById('mm-ok').onclick=()=>{const v=document.getElementById('mm-sel').value;if(!v){toast('Choisissez','lose');return;}div.remove();onConfirm(v);};
+  document.getElementById('mm-ok').onclick=()=>{
+    const v=document.getElementById('mm-sel').value;
+    if(!v){toast('Choisissez','lose');return;}
+    // Lire les valeurs extras AVANT de fermer le modal
+    const anonCb=document.getElementById('anon-cb');
+    if(anonCb) window._modalAnon=anonCb.checked;
+    div.remove();
+    onConfirm(v);
+  };
 }
 async function buyR(i){
   const r=REWARDS[i];
@@ -2358,7 +2366,8 @@ async function buyR(i){
   if(r.type==='ban'){
     const anonHtml=`<label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;font-size:13px;color:var(--t2)"><input type="checkbox" id="anon-cb" style="width:16px;height:16px;accent-color:var(--gold)"> Ban anonyme (sur Discord votre identite sera cachee)</label>`;
     showModal(`Bannir pendant ${r.dur<60?r.dur+' min':r.dur/60+' heure(s)'}`,getMOpts(m=>!m.hasPass),async t=>{
-      const anon=document.getElementById('anon-cb')?.checked||false;
+      const anon=window._modalAnon||false;
+      window._modalAnon=false;
       const d=await api('/api/buy','POST',{reward_name:r.n+(anon?' (anonyme)':''),price:r.p});
       if(d.error){toast(d.error,'lose');return;}
       coins=d.coins;document.getElementById('cd').textContent=coins.toLocaleString();
