@@ -513,7 +513,10 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
     <button class="nb" onclick="P('baccarat',this)">Baccarat</button>
     <button class="nb" onclick="P('keno',this)">Keno</button>
     <button class="nb" onclick="P('wheel',this)">Roue Fortune</button>
-    <button class="nb" onclick="P('hilo',this)">Hi-Lo</button>
+    <button class="nb" onclick="P('gratte',this)">Gratte</button>
+    <button class="nb" onclick="P('war',this)">War</button>
+    <button class="nb" onclick="P('sicbo',this)">Sic Bo</button>
+    <button class="nb" onclick="P('plinko',this)">Plinko</button>
     <button class="nb" onclick="P('paradice',this)">Pari Des</button>
   </div>
   <div class="nav-games" id="nav-multi" style="display:none">
@@ -689,27 +692,70 @@ header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1p
   </div>
 </div>
 
-<!-- HI-LO -->
-<div class="page" id="page-hilo">
+<!-- GRATTE -->
+<div class="page" id="page-gratte">
   <div class="gc">
-    <div class="gtitle"><div class="gtl">Hi-Lo</div><span class="sb">Solo</span></div>
-    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Une carte est retournee. La prochaine sera-t-elle plus haute ou plus basse ? Enchainez les bonnes reponses !</p>
-    <div style="display:flex;justify-content:center;align-items:center;gap:24px;margin:24px 0">
-      <div id="hilo-card" style="width:80px;height:110px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#111;box-shadow:0 4px 20px #00000060">?</div>
+    <div class="gtitle"><div class="gtl">🎰 Gratte</div><span class="sb">Solo</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Retournez 3 cases parmi 9. Trouvez 3 symboles identiques pour gagner !</p>
+    <div id="gratte-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:280px;margin:0 auto 20px"></div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="gratteb" value="500" min="1"><div class="ps"><button class="pb" onclick="SB('gratteb',500)">500</button><button class="pb" onclick="SB('gratteb',2000)">2000</button></div></div>
+    <button class="bg" onclick="playGratte()">Gratter !</button>
+    <div class="res" id="gratte-r">Misez et grattez !</div>
+  </div>
+</div>
+
+<!-- WAR -->
+<div class="page" id="page-war">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">⚔️ War</div><span class="sb">Solo</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Votre carte contre celle du dealer. La plus haute gagne. Egalite = mise remboursee.</p>
+    <div style="display:flex;justify-content:center;gap:40px;margin:24px 0;align-items:center">
       <div style="text-align:center">
-        <div style="font-size:13px;color:var(--t2);font-weight:600;margin-bottom:4px">Mise actuelle</div>
-        <div style="font-size:20px;font-weight:800;color:var(--gold)" id="hilo-pot">0</div>
-        <div style="font-size:11px;color:var(--t2);margin-top:4px">x<span id="hilo-mult">1.0</span></div>
+        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Vous</div>
+        <div id="war-player-card" style="width:80px;height:110px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#111;box-shadow:0 4px 20px #00000060">?</div>
+      </div>
+      <div style="font-size:28px;color:var(--gold);font-weight:900">VS</div>
+      <div style="text-align:center">
+        <div style="font-size:12px;color:var(--t2);margin-bottom:8px">Dealer</div>
+        <div id="war-dealer-card" style="width:80px;height:110px;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#111;box-shadow:0 4px 20px #00000060">?</div>
       </div>
     </div>
-    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="hilob" value="160" min="1"><div class="ps"><button class="pb" onclick="SB('hilob',160)">160</button><button class="pb" onclick="SB('hilob',800)">800</button></div></div>
-    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-      <button class="bg" id="hilo-start-btn" onclick="startHilo()">Commencer</button>
-      <button class="bgh" id="hilo-high" onclick="guessHilo('high')" disabled>Plus Haut</button>
-      <button class="bgh" id="hilo-low" onclick="guessHilo('low')" disabled>Plus Bas</button>
-      <button class="bgh" id="hilo-cash" onclick="cashHilo()" disabled>Encaisser</button>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="warb" value="500" min="1"><div class="ps"><button class="pb" onclick="SB('warb',500)">500</button><button class="pb" onclick="SB('warb',2000)">2000</button></div></div>
+    <button class="bg" onclick="playWar()">Jouer</button>
+    <div class="res" id="war-r">Misez et jouez !</div>
+  </div>
+</div>
+
+<!-- SIC BO -->
+<div class="page" id="page-sicbo">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">🎲 Sic Bo</div><span class="sb">Solo</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">3 des sont lances. Pariez sur le resultat !</p>
+    <div style="display:flex;justify-content:center;gap:16px;margin:20px 0" id="sicbo-dice">
+      <div style="font-size:48px">⚀</div><div style="font-size:48px">⚀</div><div style="font-size:48px">⚀</div>
     </div>
-    <div class="res" id="hilo-r">Misez et commencez !</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+      <button class="pb" id="sb-small" onclick="setSicBoBet('small')" style="padding:10px">Petit (4-10) x1.8</button>
+      <button class="pb" id="sb-big" onclick="setSicBoBet('big')" style="padding:10px">Grand (11-17) x1.8</button>
+      <button class="pb" id="sb-triple" onclick="setSicBoBet('triple')" style="padding:10px">Triple x24</button>
+      <button class="pb" id="sb-even" onclick="setSicBoBet('even')" style="padding:10px">Pair x1.7</button>
+    </div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="sicbob" value="500" min="1"><div class="ps"><button class="pb" onclick="SB('sicbob',500)">500</button><button class="pb" onclick="SB('sicbob',2000)">2000</button></div></div>
+    <button class="bg" onclick="playSicBo()">Lancer les des</button>
+    <div class="res" id="sicbo-r">Choisissez votre pari !</div>
+  </div>
+</div>
+
+<!-- PLINKO -->
+<div class="page" id="page-plinko">
+  <div class="gc">
+    <div class="gtitle"><div class="gtl">🔵 Plinko</div><span class="sb">Solo</span></div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px">Une bille tombe et rebondit sur des clous. Dans quelle case atterrira-t-elle ?</p>
+    <canvas id="plinko-canvas" width="320" height="280" style="display:block;margin:0 auto;border-radius:12px;background:#0a0a1a;border:1px solid var(--bd)"></canvas>
+    <div id="plinko-buckets" style="display:flex;justify-content:space-between;max-width:320px;margin:6px auto 16px;font-size:11px;font-weight:700;color:var(--gold)"></div>
+    <div class="br"><span class="bl">Mise</span><input class="bi" type="number" id="plinkob" value="500" min="1"><div class="ps"><button class="pb" onclick="SB('plinkob',500)">500</button><button class="pb" onclick="SB('plinkob',2000)">2000</button></div></div>
+    <button class="bg" onclick="playPlinko()">Lancer</button>
+    <div class="res" id="plinko-r">Misez et lancez !</div>
   </div>
 </div>
 
@@ -3993,44 +4039,207 @@ async function spinFortune(){
   requestAnimationFrame(anim);
 }
 
-// ═══ HI-LO ══════════════════════════════════════════════════════
-let hiloCard=null,hiloBet=0,hiloPot=0,hiloMult=1,hiloActive=false;
-const VALS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
-function startHilo(){
-  hiloBet=Math.min(clamp(document.getElementById('hilob').value),MAX_BET);
-  if(hiloBet>coins){toast('Pas assez','lose');return;}
-  updC(-hiloBet);hiloPot=hiloBet;hiloMult=1;hiloActive=true;
-  hiloCard={v:R(VALS),s:R(['s','h','d','c'])};
-  const el=document.getElementById('hilo-card');const red=['h','d'].includes(hiloCard.s);
-  el.innerHTML=`<span style="color:${red?'#C00':'#111'}">${hiloCard.v}${red?'♥':'♠'}</span>`;
-  document.getElementById('hilo-pot').textContent=hiloPot.toLocaleString();
-  document.getElementById('hilo-mult').textContent=hiloMult.toFixed(1);
-  document.getElementById('hilo-high').disabled=false;document.getElementById('hilo-low').disabled=false;document.getElementById('hilo-cash').disabled=false;
-  document.getElementById('hilo-start-btn').disabled=true;
-  document.getElementById('hilo-r').textContent='Plus haut ou plus bas ?';
+// ═══ GRATTE ══════════════════════════════════════════════════════
+const GRATTE_SYMS=['🍒','🍋','⭐','💎','🎰','🍀'];
+const GRATTE_MULTS={
+  '🍒':1.5,'🍋':2,'⭐':3,'💎':8,'🎰':15,'🍀':5
+};
+async function playGratte(){
+  const bet=Math.min(clamp(document.getElementById('gratteb').value),MAX_BET);
+  if(bet>coins){toast('Pas assez','lose');return;}
+  await updC(-bet);
+  // Generate 9 symbols with house edge (less chance of 3 matching)
+  const grid=[];
+  for(let i=0;i<9;i++) grid.push(R(GRATTE_SYMS));
+  const g=document.getElementById('gratte-grid');
+  g.innerHTML='';
+  const cells=[];
+  grid.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.style.cssText='background:var(--c2);border:2px solid var(--bd);border-radius:10px;height:72px;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;transition:all .3s;user-select:none';
+    d.textContent='?';
+    d.onclick=()=>{
+      if(d.dataset.revealed==='1')return;
+      d.dataset.revealed='1';
+      d.textContent=s;
+      d.style.borderColor='var(--gold)';
+      d.style.background='var(--gd)';
+      const revealed=cells.filter(c=>c.dataset.revealed==='1');
+      if(revealed.length===3) checkGratte(grid,cells,bet);
+    };
+    cells.push(d);
+    g.appendChild(d);
+  });
+  document.getElementById('gratte-r').textContent='Retournez 3 cases !';
+  if(typeof trackGamePlayed==='function')trackGamePlayed();
 }
-async function guessHilo(dir){
-  if(!hiloActive)return;
-  const next={v:R(VALS),s:R(['s','h','d','c'])};
-  const ci=VALS.indexOf(hiloCard.v),ni=VALS.indexOf(next.v);
-  const correct=(dir==='high'&&ni>ci)||(dir==='low'&&ni<ci);
-  hiloCard=next;const red=['h','d'].includes(next.s);
-  document.getElementById('hilo-card').innerHTML=`<span style="color:${red?'#C00':'#111'}">${next.v}${red?'♥':'♠'}</span>`;
-  if(correct){
-    hiloMult=Math.round(hiloMult*1.35*10)/10;hiloPot=Math.round(hiloBet*hiloMult);
-    document.getElementById('hilo-pot').textContent=hiloPot.toLocaleString();
-    document.getElementById('hilo-mult').textContent=hiloMult.toFixed(1);
-    document.getElementById('hilo-r').innerHTML=`<span class="win">Correct ! Continuez ou encaissez ${hiloPot.toLocaleString()} pieces</span>`;
-  }else{
-    hiloActive=false;document.getElementById('hilo-high').disabled=true;document.getElementById('hilo-low').disabled=true;document.getElementById('hilo-cash').disabled=true;document.getElementById('hilo-start-btn').disabled=false;
-    document.getElementById('hilo-r').innerHTML=`<span class="lose">Mauvaise reponse — Perdu -${hiloBet.toLocaleString()} pieces</span>`;
+function checkGratte(grid,cells,bet){
+  const revealed=cells.map((c,i)=>({sym:grid[i],revealed:c.dataset.revealed==='1'})).filter(x=>x.revealed).map(x=>x.sym);
+  const counts={};revealed.forEach(s=>{counts[s]=(counts[s]||0)+1;});
+  const triple=Object.entries(counts).find(([s,c])=>c===3);
+  // Reveal all remaining
+  cells.forEach((c,i)=>{if(c.dataset.revealed!=='1'){c.textContent=grid[i];c.style.opacity='0.4';}});
+  if(triple){
+    const mult=GRATTE_MULTS[triple[0]];
+    const win=Math.round(bet*mult);
+    updC(win);
+    document.getElementById('gratte-r').innerHTML=`<span class="win">${triple[0]}${triple[0]}${triple[0]} — x${mult} — +${win.toLocaleString()} pieces !</span>`;
+    toast(`+${win.toLocaleString()}`,'win');
+  } else {
+    document.getElementById('gratte-r').innerHTML=`<span class="lose">Pas de triple — Perdu -${bet.toLocaleString()} pieces</span>`;
   }
 }
-async function cashHilo(){
-  if(!hiloActive)return;hiloActive=false;
-  await updC(hiloPot);document.getElementById('hilo-high').disabled=true;document.getElementById('hilo-low').disabled=true;document.getElementById('hilo-cash').disabled=true;document.getElementById('hilo-start-btn').disabled=false;
-  document.getElementById('hilo-r').innerHTML=`<span class="win">Encaisse ! +${hiloPot.toLocaleString()} pieces</span>`;toast(`+${hiloPot.toLocaleString()}`,'win');
+
+// ═══ WAR ══════════════════════════════════════════════════════════
+const WAR_VALS=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+async function playWar(){
+  const bet=Math.min(clamp(document.getElementById('warb').value),MAX_BET);
+  if(bet>coins){toast('Pas assez','lose');return;}
+  await updC(-bet);
+  const pv=R(WAR_VALS),ps=R(['h','d','s','c']);
+  const dv=R(WAR_VALS),ds=R(['h','d','s','c']);
+  const pred=['h','d'].includes(ps),dred=['h','d'].includes(ds);
+  document.getElementById('war-player-card').innerHTML=`<span style="color:${pred?'#C00':'#111'}">${pv}${pred?'♥':'♠'}</span>`;
+  document.getElementById('war-dealer-card').innerHTML=`<span style="color:${dred?'#C00':'#111'}">${dv}${dred?'♥':'♠'}</span>`;
+  const pi=WAR_VALS.indexOf(pv),di=WAR_VALS.indexOf(dv);
+  const el=document.getElementById('war-r');
+  if(pi>di){
+    // Win — payout 1.8x (house edge)
+    const win=Math.round(bet*1.8);
+    await updC(win);
+    el.innerHTML=`<span class="win">Victoire ! ${pv} > ${dv} — +${(win-bet).toLocaleString()} pieces</span>`;
+    toast(`+${(win-bet).toLocaleString()}`,'win');
+  } else if(pi===di){
+    await updC(bet);
+    el.textContent=`Egalite ${pv} = ${dv} — Mise remboursee.`;
+  } else {
+    el.innerHTML=`<span class="lose">Defaite ! ${pv} < ${dv} — -${bet.toLocaleString()} pieces</span>`;
+  }
+  if(typeof trackGamePlayed==='function')trackGamePlayed();
 }
+
+// ═══ SIC BO ══════════════════════════════════════════════════════
+let sicBoBet='small';
+function setSicBoBet(type){
+  sicBoBet=type;
+  ['small','big','triple','even'].forEach(t=>{
+    const b=document.getElementById('sb-'+t);
+    if(b)b.style.borderColor=t===type?'var(--gold)':'var(--bd)';
+  });
+}
+async function playSicBo(){
+  const bet=Math.min(clamp(document.getElementById('sicbob').value),MAX_BET);
+  if(bet>coins){toast('Pas assez','lose');return;}
+  await updC(-bet);
+  const d1=Math.ceil(Math.random()*6),d2=Math.ceil(Math.random()*6),d3=Math.ceil(Math.random()*6);
+  const total=d1+d2+d3;
+  const DE=['⚀','⚁','⚂','⚃','⚄','⚅'];
+  document.getElementById('sicbo-dice').innerHTML=`<div style="font-size:48px">${DE[d1-1]}</div><div style="font-size:48px">${DE[d2-1]}</div><div style="font-size:48px">${DE[d3-1]}</div>`;
+  const el=document.getElementById('sicbo-r');
+  let won=false,mult=0;
+  const isTriple=d1===d2&&d2===d3;
+  if(sicBoBet==='small'&&total>=4&&total<=10&&!isTriple){won=true;mult=1.8;}
+  else if(sicBoBet==='big'&&total>=11&&total<=17&&!isTriple){won=true;mult=1.8;}
+  else if(sicBoBet==='triple'&&isTriple){won=true;mult=24;}
+  else if(sicBoBet==='even'&&total%2===0&&!isTriple){won=true;mult=1.7;}
+  if(won){
+    const win=Math.round(bet*mult);
+    await updC(win);
+    el.innerHTML=`<span class="win">Total ${total} — x${mult} — +${(win-bet).toLocaleString()} pieces !</span>`;
+    toast(`+${(win-bet).toLocaleString()}`,'win');
+  } else {
+    el.innerHTML=`<span class="lose">Total ${total} — Perdu -${bet.toLocaleString()} pieces</span>`;
+  }
+  if(typeof trackGamePlayed==='function')trackGamePlayed();
+}
+
+// ═══ PLINKO ══════════════════════════════════════════════════════
+const PLINKO_MULTS=[0,0.3,0.5,1,2,1,0.5,0.3,0];
+const PLINKO_COLORS=['#C00','#E55','#E88','#6A6','#2D2','#6A6','#E88','#E55','#C00'];
+function drawPlinko(ballX,ballY){
+  const canvas=document.getElementById('plinko-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const W=320,H=280,rows=8,cols=9;
+  ctx.clearRect(0,0,W,H);
+  // Draw pegs
+  for(let r=0;r<rows;r++){
+    const numPegs=r+2;
+    const startX=(W-(numPegs-1)*34)/2;
+    for(let c=0;c<numPegs;c++){
+      ctx.beginPath();
+      ctx.arc(startX+c*34,30+r*28,4,0,Math.PI*2);
+      ctx.fillStyle='#D4AF37';
+      ctx.fill();
+    }
+  }
+  // Draw buckets
+  const bucketW=W/cols;
+  PLINKO_MULTS.forEach((m,i)=>{
+    ctx.fillStyle=PLINKO_COLORS[i]+'33';
+    ctx.fillRect(i*bucketW,H-30,bucketW-2,30);
+    ctx.fillStyle=PLINKO_COLORS[i];
+    ctx.font='bold 10px Inter';
+    ctx.textAlign='center';
+    ctx.fillText('x'+m,i*bucketW+bucketW/2,H-10);
+  });
+  // Draw ball
+  if(ballX!==null){
+    ctx.beginPath();
+    ctx.arc(ballX,ballY,8,0,Math.PI*2);
+    ctx.fillStyle='#fff';
+    ctx.shadowColor='#D4AF37';
+    ctx.shadowBlur=12;
+    ctx.fill();
+    ctx.shadowBlur=0;
+  }
+}
+function initPlinko(){
+  // Init bucket labels
+  const el=document.getElementById('plinko-buckets');
+  if(el)el.innerHTML=PLINKO_MULTS.map((m,i)=>`<span style="color:${PLINKO_COLORS[i]}">${m}x</span>`).join('');
+  drawPlinko(null,null);
+}
+async function playPlinko(){
+  const bet=Math.min(clamp(document.getElementById('plinkob').value),MAX_BET);
+  if(bet>coins){toast('Pas assez','lose');return;}
+  await updC(-bet);
+  // Simulate ball path
+  const rows=8;
+  let pos=4; // start center (0-8)
+  const path=[pos];
+  for(let r=0;r<rows;r++){
+    pos+=Math.random()<0.5?-0.5:0.5;
+    pos=Math.max(0,Math.min(8,pos));
+    path.push(pos);
+  }
+  const bucket=Math.round(path[path.length-1]);
+  // Animate ball
+  const W=320,H=280,rows2=8;
+  let step=0;
+  const interval=setInterval(()=>{
+    if(step>=path.length){
+      clearInterval(interval);
+      const mult=PLINKO_MULTS[bucket]||0;
+      const win=Math.round(bet*mult);
+      if(win>0){
+        updC(win);
+        document.getElementById('plinko-r').innerHTML=`<span class="win">Case x${mult} — +${(win-bet).toLocaleString()} pieces !</span>`;
+        toast(`+${(win-bet).toLocaleString()}`,'win');
+      } else {
+        document.getElementById('plinko-r').innerHTML=`<span class="lose">Case x0 — Perdu -${bet.toLocaleString()} pieces</span>`;
+      }
+      if(typeof trackGamePlayed==='function')trackGamePlayed();
+      return;
+    }
+    const t=step/(path.length-1);
+    const bx=W/2+(path[step]-4)*(W/9);
+    const by=20+step*(H-60)/rows2;
+    drawPlinko(bx,by);
+    step++;
+  },80);
+}
+
 
 // ═══ PARI DES ═══════════════════════════════════════════════════
 let paradiceType='exact',paradiceNum=7;
@@ -4431,7 +4640,7 @@ socket.on('dtournoi:result',({results,winner,players})=>{
 });
 
 // Init new solo games
-initKeno();initFortune();initParadice();
+initKeno();initFortune();initParadice();initPlinko();
 
 
 init();

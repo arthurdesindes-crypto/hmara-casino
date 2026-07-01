@@ -225,7 +225,14 @@ app.post('/api/challenges/claim', requireAuth, async (req, res) => {
 // ADMIN API
 app.get('/api/admin/users', requireAdmin, async (req, res) => {
   const { data } = await supabase.from('users').select('*').order('coins', { ascending: false });
-  res.json(data);
+  // Add online time to each user
+  const now = Date.now();
+  const usersWithTime = (data || []).map(u => ({
+    ...u,
+    online_seconds: onlineSince[u.discord_id] ? Math.floor((now - onlineSince[u.discord_id]) / 1000) : 0,
+    is_online: onlineUsers.has(u.discord_id)
+  }));
+  res.json(usersWithTime);
 });
 
 app.post('/api/admin/coins', requireAdmin, async (req, res) => {
@@ -672,11 +679,15 @@ function spawnChest() {
 setTimeout(spawnChest, 10 * 60 * 1000); // Premier coffre apres 10 min
 const onlineUsers = new Set(); // Track online discord_ids
 
+// Track online time per user (in memory)
+const onlineSince = {};
+
 io.on('connection', (socket) => {
   // Track online user
   socket.on('user:online', ({ discord_id }) => {
     socket.discordId = discord_id;
     onlineUsers.add(discord_id);
+    if (!onlineSince[discord_id]) onlineSince[discord_id] = Date.now();
     io.emit('online:update', { online: Array.from(onlineUsers) });
   });
 
